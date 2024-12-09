@@ -1,0 +1,11 @@
+{
+  "version": 3,
+  "sources": [],
+  "sections": [
+    {"offset": {"line": 7, "column": 0}, "map": {"version":3,"sources":["file:///Users/LOST%26FOUND/lostandfoundpet/src/components/home/layout.tsx"],"sourcesContent":["///src/components/home/layout.tsx\n'use client';\nimport React from 'react';\nimport { PropsWithChildren } from 'react';\n\nexport default function HomeLayout({ children }: PropsWithChildren) {\n    return (\n        <div className=\"p-8 \">\n         {children}\n      </div>\n      \n    );\n}\n"],"names":[],"mappings":"AAAA,iCAAiC;;;;;AACjC;;AAIe,SAAS,WAAW,EAAE,QAAQ,EAAqB;IAC9D,qBACI,8OAAC;QAAI,WAAU;kBACb;;;;;;AAIV"}},
+    {"offset": {"line": 24, "column": 0}, "map": {"version":3,"sources":[],"names":[],"mappings":"A"}},
+    {"offset": {"line": 30, "column": 0}, "map": {"version":3,"sources":[],"names":[],"mappings":""}},
+    {"offset": {"line": 32, "column": 0}, "map": {"version":3,"sources":[],"names":[],"mappings":"A"}},
+    {"offset": {"line": 47, "column": 0}, "map": {"version":3,"sources":["file:///Users/LOST%26FOUND/lostandfoundpet/src/app/page.tsx"],"sourcesContent":["// src/app/page.tsx\n\"use client\";\nimport { ThemeProvider } from \"styled-components\";\nimport HomeLayout from \"@/components/home\";\n\nconst theme = {\n  colors: {\n    primary: \"#8DC63F\", // Example primary color\n    secondary: \"#ff6347\", // Example secondary color\n    danger: \"#ff0000\", // Example danger color\n  },\n};\n\nexport default function Home() {\n  return (\n    <ThemeProvider theme={theme}>\n      <HomeLayout />\n    </ThemeProvider>\n  );\n}\n"],"names":[],"mappings":"AAAA,mBAAmB;;;;;AAGnB;AADA;AACA;AAFA;;;;AAIA,MAAM,QAAQ;IACZ,QAAQ;QACN,SAAS;QACT,WAAW;QACX,QAAQ;IACV;AACF;AAEe,SAAS;IACtB,qBACE,8OAAC,2KAAA,CAAA,gBAAa;QAAC,OAAO;kBACpB,cAAA,8OAAC,oIAAA,CAAA,UAAU;;;;;;;;;;AAGjB"}},
+    {"offset": {"line": 80, "column": 0}, "map": {"version":3,"sources":[],"names":[],"mappings":"A"}}]
+}
