@@ -5,9 +5,9 @@ import HomeLayout from "@/components/home";
 
 const theme = {
   colors: {
-    primary: "#8DC63F", // Example primary color
-    secondary: "#ff6347", // Example secondary color
-    danger: "#ff0000", // Example danger color
+    primary: "#8DC63F",
+    secondary: "#ff6347", 
+    danger: "#ff0000",
   },
 };
 
