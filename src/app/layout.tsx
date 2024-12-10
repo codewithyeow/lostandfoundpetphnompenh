@@ -1,6 +1,7 @@
 //src/app/layout.tsx
 import "../globals.css";
 import Header from "@/components/header/Header";
+import Footer from "@/components/footer/Footer";
 import { Roboto } from "next/font/google";
 
 const roboto = Roboto({
@@ -17,8 +18,9 @@ export default async function RootLayout({
     <html lang="en">
       <head></head>
       <body className={roboto.className}> 
-        <Header />
+        <Header/>
         {children}
+        <Footer/>
       </body>
     </html>
   );

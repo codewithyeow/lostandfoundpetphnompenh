@@ -2,9 +2,14 @@
 "use client";
 import React from "react";
 import Button from "../buttons/Button";
-import { background, backgroundColor } from "styled-system";
+import { useRouter } from "next/navigation";
 
 export default function Header() {
+  const router = useRouter();
+
+  const handleLoginClick = () => {
+    router.push("/login");
+  }
   return (
     <nav className="bg-[#8DC63F] w-full z-20 top-0 start-0 border-b border-gray-200 dark:border-gray-600">
       <div className="max-w-screen-xl flex flex-wrap items-center justify-between mx-auto p-4">
@@ -24,6 +29,7 @@ export default function Header() {
             width="60px"
             height="30px"
             style={{ backgroundColor: "blue", fontSize: "12px" }}
+            onClick={handleLoginClick}
           >
             Login
           </Button>

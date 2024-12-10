@@ -12,6 +12,7 @@ interface ButtonProps {
   style?: React.CSSProperties; // Allow inline styles via style prop
   width?: string; // Allow setting width explicitly via props
   height?: string; // Allow setting height explicitly via props
+  onClick?: React.MouseEventHandler<HTMLButtonElement>;
 }
 
 // Styled Button using styled-system and styled-components
@@ -91,7 +92,8 @@ const Button: React.FC<ButtonProps> = ({
       variant={variant}
       size={size}
       color={color}
-      style={{ width: width || "200px", height: height || "50px", ...style }} // Allow overriding width and height through style prop
+      style={{ width: width || "200px", height: height || "50px", ...style }}
+      onClick = {props.onClick}
       {...props}
     >
       {children}
