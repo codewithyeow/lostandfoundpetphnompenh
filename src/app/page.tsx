@@ -1,4 +1,3 @@
-// src/app/page.tsx
 "use client";
 import { ThemeProvider } from "styled-components";
 import HomeLayout from "@/components/home";
@@ -14,7 +13,7 @@ const theme = {
 export default function Home() {
   return (
     <ThemeProvider theme={theme}>
-      <HomeLayout />
+        <HomeLayout />
     </ThemeProvider>
   );
 }
