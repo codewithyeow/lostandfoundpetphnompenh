@@ -1,2 +1,17 @@
-node_modules
-.vercel
+# Node modules
+node_modules/
+
+# Build output (Next.js)
+.next/
+
+# Vercel deployment files
+.vercel/
+
+# Environment variables
+.env
+.env.local
+.env.production
+.env.development
+
+# macOS specific files
+.DS_Store

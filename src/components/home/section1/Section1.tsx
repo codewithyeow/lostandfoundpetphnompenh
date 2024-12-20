@@ -68,7 +68,7 @@ export default function Section1() {
                 We're here to help you find your pet
               </h2>
               <p className="text-xl mt-4 text-center">
-                Petco Love Lost is a free and easy way to search 200K+ lost and found pets to help them return home.
+                Lost and Found is a free and easy way to search 200K+ lost and found pets to help them return home.
               </p>
             </div>
           </div>
