@@ -5,7 +5,7 @@ export default function Header() {
   return (
     <footer className="bg-[#85a1b4] text-white p-4">
       <div className="max-w-screen-xl mx-auto text-center">
-        <div className="grid grid-cols-2 gap-8 px-4 py-6 lg:py-8 md:grid-cols-4">
+        <div className="grid grid-cols-2 gap-8 px-4 py-6 lg:py-8 md:grid-cols-3 ">
           <div>
             <h2 className="mb-6 text-sm font-semibold uppercase dark:text-white">
               Company
@@ -82,7 +82,7 @@ export default function Header() {
               </li>
             </ul>
           </div>
-          <div>
+          {/* <div>
             <h2 className="mb-6 text-sm font-semibold  uppercase dark:text-white">
               Download
             </h2>
@@ -108,7 +108,7 @@ export default function Header() {
                 </a>
               </li>
             </ul>
-          </div>
+          </div> */}
         </div>
         <div className="px-4 py-6 bg-gray-100 dark:bg-gray-700 md:flex md:items-center md:justify-between">
           <span className="text-sm text-gray-500 dark:text-gray-300 sm:text-center">

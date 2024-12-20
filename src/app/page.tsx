@@ -1,11 +1,12 @@
 "use client";
 import { ThemeProvider } from "styled-components";
 import HomeLayout from "@/components/home";
+import Section1 from "@/components/home/section1";
 
 const theme = {
   colors: {
     primary: "#8DC63F",
-    secondary: "#ff6347", 
+    secondary: "#ff6347",
     danger: "#ff0000",
   },
 };
@@ -13,7 +14,8 @@ const theme = {
 export default function Home() {
   return (
     <ThemeProvider theme={theme}>
-        <HomeLayout />
+      <Section1 />
+      <HomeLayout />
     </ThemeProvider>
   );
 }
