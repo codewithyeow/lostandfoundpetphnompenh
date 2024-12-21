@@ -4,7 +4,11 @@ import Button from "../buttons/Button";
 import { useRouter } from "next/navigation";
 import LanguageSwitcher from "../LanguageSwitcher";
 
-export default function Header() {
+
+type HeaderProps = {
+  locale?: string;
+};
+const Header: React.FC<HeaderProps> = ({ locale = 'en' }) => {
   const router = useRouter();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
@@ -29,7 +33,7 @@ export default function Header() {
         <div className="flex items-center md:order-2">
           {/* Language Switcher - visible on all screens */}
           <div className="mr-2">
-            <LanguageSwitcher locale="en" menuDirection="right" />
+            <LanguageSwitcher menuDirection="right" locale = {locale} />
           </div>
 
           {/* Login Button - visible only on desktop */}
@@ -154,3 +158,4 @@ export default function Header() {
     </nav>
   );
 }
+export default Header;

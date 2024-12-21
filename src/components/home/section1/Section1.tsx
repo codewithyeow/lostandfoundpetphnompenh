@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import Image from "next/image";
-import { useSwipeable } from "react-swipeable"; // Importing the swipeable hook
+import { useSwipeable } from "react-swipeable"; 
+import { useTranslations } from "next-intl";
 
 interface Pet {
   id: number;
@@ -20,6 +21,9 @@ const petData: Pet[] = [
 
 export default function Section1() {
   const [currentIndex, setCurrentIndex] = useState(0);
+  const t = useTranslations("section1");
+
+  
 
   // Auto-swipe functionality
   useEffect(() => {
@@ -65,7 +69,7 @@ export default function Section1() {
             {/* Text Overlay */}
             <div className="absolute inset-0 bg-black bg-opacity-50 flex flex-col items-center justify-center text-white p-4">
               <h2 className="text-4xl font-bold text-center">
-                We're here to help you find your pet
+               {t("We are here to help you")}
               </h2>
               <p className="text-xl mt-4 text-center">
                 Lost and Found is a free and easy way to search 200K+ lost and found pets to help them return home.
