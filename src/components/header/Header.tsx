@@ -1,66 +1,104 @@
-// src/components/header/Header.tsx
 "use client";
-import React from "react";
+import React, { useState } from "react";
 import Button from "../buttons/Button";
 import { useRouter } from "next/navigation";
+import LanguageSwitcher from "../LanguageSwitcher";
 
 export default function Header() {
   const router = useRouter();
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   const handleLoginClick = () => {
+    setIsMenuOpen(false);
     router.push("/login");
-  }
+  };
+
   return (
     <nav className="bg-[#8DC63F] w-full z-20 top-0 start-0 border-b border-gray-200 dark:border-gray-600">
       <div className="max-w-screen-xl flex flex-wrap items-center justify-between mx-auto p-4">
+        {/* Logo */}
         <a href="/" className="flex items-center space-x-3 rtl:space-x-reverse">
           <img
             src="https://www.pawboost.com/images/global/pawboost-logo-mobile.png"
             className="h-8"
             alt="Flowbite Logo"
           />
-          <span className="self-center text-2xl font-semibold whitespace-nowrap dark:text-white"></span>
         </a>
-        <div className="flex md:order-2 space-x-3 md:space-x-0 rtl:space-x-reverse" style={{alignItems: "center"}}>
-          <Button
-            variant="contained"
-            size="medium"
-            color="primary"
-            width="60px"
-            height="30px"
-            style={{ backgroundColor: "blue", fontSize: "12px" }}
-            onClick={handleLoginClick}
-          >
-            Login
-          </Button>
 
+        {/* Right side container */}
+        <div className="flex items-center md:order-2">
+          {/* Language Switcher - visible on all screens */}
+          <div className="mr-2">
+            <LanguageSwitcher locale="en" menuDirection="right" />
+          </div>
+
+          {/* Login Button - visible only on desktop */}
+          <div className="hidden md:block">
+            <Button
+              variant="contained"
+              size="medium"
+              color="primary"
+              width="60px"
+              height="30px"
+              style={{ backgroundColor: "blue", fontSize: "12px" }}
+              onClick={handleLoginClick}
+            >
+              Login
+            </Button>
+          </div>
+
+          {/* Hamburger Menu Button - visible only on mobile */}
           <button
             data-collapse-toggle="navbar-sticky"
             type="button"
-            className="inline-flex items-center p-2 w-10 h-10 justify-center text-sm text-gray-500 rounded-lg md:hidden hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:text-gray-400 dark:hover:bg-gray-700 dark:focus:ring-gray-600"
+            className="inline-flex items-center p-2 w-10 h-10 justify-center text-sm text-white rounded-lg md:hidden focus:outline-none ml-2"
             aria-controls="navbar-sticky"
-            aria-expanded="false"
+            aria-expanded={isMenuOpen}
+            onClick={() => setIsMenuOpen(!isMenuOpen)}
           >
             <span className="sr-only">Open main menu</span>
-            <svg
-              className="w-5 h-5"
-              aria-hidden="true"
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 17 14"
-            >
-              <path
+            {isMenuOpen ? (
+              // Close "X" icon when the menu is open
+              <svg
+                className="w-6 h-6"
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
                 stroke="currentColor"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth="2"
-                d="M1 1h15M1 7h15M1 13h15"
-              />
-            </svg>
+                strokeWidth={2}
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M6 18L18 6M6 6l12 12"
+                />
+              </svg>
+            ) : (
+              // Hamburger icon when the menu is closed
+              <svg
+                className="w-5 h-5"
+                aria-hidden="true"
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 17 14"
+              >
+                <path
+                  stroke="currentColor"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
+                  d="M1 1h15M1 7h15M1 13h15"
+                />
+              </svg>
+            )}
           </button>
         </div>
+
+        {/* Mobile Menu and Desktop Navigation */}
         <div
-          className="items-center justify-between hidden w-full md:flex md:w-auto md:order-1"
+          className={`${
+            isMenuOpen ? 'block' : 'hidden'
+          } w-full md:flex md:w-auto md:order-1`}
           id="navbar-sticky"
         >
           <ul className="flex flex-col p-4 md:p-0 mt-4 font-medium rounded-lg md:space-x-8 rtl:space-x-reverse md:flex-row md:mt-0 bg-[#8DC63F]">
@@ -95,6 +133,20 @@ export default function Header() {
               >
                 Contact
               </a>
+            </li>
+            {/* Login Button in Mobile Menu */}
+            <li className="md:hidden mt-2">
+              <Button
+                variant="contained"
+                size="medium"
+                color="primary"
+                width="100%"
+                height="40px"
+                style={{ backgroundColor: "blue", fontSize: "12px" }}
+                onClick={handleLoginClick}
+              >
+                Login
+              </Button>
             </li>
           </ul>
         </div>
