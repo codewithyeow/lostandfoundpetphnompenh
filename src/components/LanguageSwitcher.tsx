@@ -61,7 +61,7 @@ const LanguageSwitcher: React.FC<Props> = ({
     <div ref={dropdownRef} className="relative inline-block">
       {/* Current Language Display */}
       <div 
-        className="flex items-center h-10 cursor-pointer px-3 py-2 rounded-md hover:bg-black/5"
+        className="flex items-center h-10 cursor-pointer px-3 py-2 rounded-md"
         onClick={() => setIsOpen(!isOpen)}
       >
         <Image

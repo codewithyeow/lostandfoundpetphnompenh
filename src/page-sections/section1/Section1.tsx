@@ -1,6 +1,7 @@
 import React from 'react';
 import Image from 'next/image';
 import { useState } from 'react';
+import { useTranslations } from 'next-intl';
 
 interface Pet {
   id: number;
@@ -24,6 +25,8 @@ const petData: Pet[] = [
 
 export default function Section1() {
   const [currentIndex, setCurrentIndex] = useState(0);
+
+  const t = useTranslations('section1');
 
   const nextSlide = () => {
     setCurrentIndex((prevIndex) => (prevIndex + 1) % petData.length);
@@ -49,7 +52,7 @@ export default function Section1() {
 
             {/* Text Section Overlaid on Image */}
             <div className="absolute inset-0 bg-black bg-opacity-50 flex flex-col items-center justify-center text-white p-4">
-              <h2 className="text-3xl font-bold text-center">We're here to help you find your pet</h2>
+              <h2 className="text-3xl font-bold text-center">{t('We are here to help you')}</h2>
               <p className="text-lg mt-4 text-center">
                 Petco Love Lost is a free and easy way to search 200K+ lost and found pets to help them return home.
               </p>

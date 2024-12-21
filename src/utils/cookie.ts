@@ -1,3 +1,4 @@
+// src/utils/cookie.ts
 import Cookies from 'js-cookie';
 
 export const set_cookie = (key: string, value: string, options?: Cookies.CookieAttributes) => {
