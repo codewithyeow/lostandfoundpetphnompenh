@@ -10,11 +10,11 @@ interface Pet {
 const petData: Pet[] = [
   {
     id: 1,
-    image: "/assets/petCarousel.jpg", // Replace with actual image paths
+    image: "/assets/petCarousel.jpg",
   },
   {
     id: 2,
-    image: "/assets/petCarousel2.jpg", // Replace with actual image paths
+    image: "/assets/petCarousel2.jpg", 
   },
 ];
 
@@ -25,8 +25,8 @@ export default function Section1() {
   useEffect(() => {
     const interval = setInterval(() => {
       nextSlide();
-    }, 3000); // Auto-swipe every 3 seconds
-    return () => clearInterval(interval); // Clear interval on component unmount
+    }, 3000); 
+    return () => clearInterval(interval);
   }, [currentIndex]);
 
   const nextSlide = () => {
@@ -43,8 +43,8 @@ export default function Section1() {
 
   // Handle swipe events
   const swipeHandlers = useSwipeable({
-    onSwipedLeft: nextSlide, // Swipe left to go to the next slide
-    onSwipedRight: prevSlide, // Swipe right to go to the previous slide
+    onSwipedLeft: nextSlide,
+    onSwipedRight: prevSlide, 
   });
 
   return (
