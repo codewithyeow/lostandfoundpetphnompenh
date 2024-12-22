@@ -11,7 +11,7 @@ interface Pet {
 const petData: Pet[] = [
   {
     id: 1,
-    image: '/pets/bella.jpg', // Replace with actual image paths
+    image: '/pets/bella.jpg',
   },
   {
     id: 2,

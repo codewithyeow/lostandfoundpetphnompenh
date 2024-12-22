@@ -1,7 +1,7 @@
 "use client";
 import { ThemeProvider } from "styled-components";
 import HomeLayout from "@/components/home";
-import Section1 from "@/components/home/section1";
+import Section1 from "@/components/home/section-1";
 
 const theme = {
   colors: {

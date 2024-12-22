@@ -1,6 +1,14 @@
 {
     "section1": 
     {
-      "We are here to help you" : "We are here to help you"
-    }
+      "We are here to help you" : "We are here to help you",
+      "description" : "Lost and Found is a free and easy way to search 200K+ lost and found pets to help them return home."
+    } , 
+    "header" :
+    {
+            "Login" : "Login"
+    },
+    "login" : {
+      "Login To Lost & Found Pet" : "Login To Lost & Found Pet"
+  }
 }

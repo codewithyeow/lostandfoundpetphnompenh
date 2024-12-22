@@ -72,8 +72,9 @@ const LanguageSwitcher: React.FC<Props> = ({
           alt={language.title}
           className="object-contain"
         />
-        <span className="ml-2 font-semibold text-white">{language.title}</span>
-        <span className={`ml-2 text-sm transition-transform duration-200 text-white ${isOpen ? 'rotate-180' : ''}`}>
+        {/* Adjusting the text size using text-sm */}
+        <span className="ml-2 font-semibold text-white text-xs">{language.title}</span>
+        <span className={`ml-2 text-xs transition-transform duration-200 text-white ${isOpen ? 'rotate-180' : ''}`}>
           ▼
         </span>
       </div>
@@ -88,7 +89,7 @@ const LanguageSwitcher: React.FC<Props> = ({
           {languages.map((item) => (
             <div
               key={item.title}
-              className={`flex items-center px-4 py-2 cursor-pointer hover:bg-gray-100 ${
+              className={`flex items-center px-4 py-2 cursor-pointer hover:bg-gray-100 text-sm ${
                 language.code === item.code ? 'bg-gray-50' : ''
               }`}
               onClick={() => handleLanguageClick(item)}
@@ -101,7 +102,7 @@ const LanguageSwitcher: React.FC<Props> = ({
                 alt={item.title}
                 className="object-contain"
               />
-              <span className="ml-2 font-semibold text-black">{item.title}</span>
+              <span className="ml-2 font-semibold text-black text-xs">{item.title}</span>
             </div>
           ))}
         </div>
