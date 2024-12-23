@@ -1,7 +1,7 @@
-import React from 'react';
+import React, { useState } from 'react';
 import Image from 'next/image';
-import { useState } from 'react';
 import { useTranslations } from 'next-intl';
+import { useMaxWidth } from '@/utils/useMaxWidth';
 
 interface Pet {
   id: number;
@@ -11,7 +11,7 @@ interface Pet {
 const petData: Pet[] = [
   {
     id: 1,
-    image: '/pets/bella.jpg', // Replace with actual image paths
+    image: '/pets/bella.jpg',
   },
   {
     id: 2,
@@ -25,8 +25,10 @@ const petData: Pet[] = [
 
 export default function Section1() {
   const [currentIndex, setCurrentIndex] = useState(0);
-
   const t = useTranslations('section1');
+
+  // Use the useMaxWidth hook to get the max width for a given breakpoint
+  const maxWidth = useMaxWidth('md'); // Example for 'md', you can adjust for other breakpoints
 
   const nextSlide = () => {
     setCurrentIndex((prevIndex) => (prevIndex + 1) % petData.length);
@@ -40,7 +42,7 @@ export default function Section1() {
     <section className="relative bg-white py-10">
       <div className="container mx-auto">
         {/* Display the Image Carousel */}
-        <div className="relative w-full h-96">
+        <div className="relative w-full h-96" style={{ maxWidth: `${maxWidth}px` }}>
           <div className="w-full h-full rounded-lg overflow-hidden shadow-lg flex items-center justify-center relative">
             <Image
               src={petData[currentIndex].image}

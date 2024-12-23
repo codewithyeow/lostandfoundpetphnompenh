@@ -2,9 +2,11 @@
 
 import React from "react";
 import { useRouter } from "next/navigation"; 
+import { useTranslations } from "next-intl";
 
 const Login: React.FC = () => {
   const router = useRouter();
+  const t = useTranslations("login");
 
 
   const goToSignUp = () => {
@@ -14,8 +16,8 @@ const Login: React.FC = () => {
   return (
     <div className="bg-[#E4EAEE] flex min-h-full flex-col justify-center px-6 py-12 lg:px-8">
       <div className="sm:mx-auto sm:w-full sm:max-w-sm">
-        <h2 className="mt-10 text-center text-2xl font-bold leading-9 tracking-tight text-customGray">
-          Login To Lost & Found Pet
+        <h2 className="mt-10 text-center font-bold leading-9 tracking-tight text-customGray text-lg">
+          {t('Login To Lost & Found Pet')}
         </h2>
       </div>
 

@@ -1,0 +1,14 @@
+{
+    "section1": 
+    {
+    "We are here to help you" : "យើងនៅទីនេះដើម្បីជួយអ្នក",
+    "description" : "Lost and Found Pet គឺជាវេបសាយដ៏ងាយស្រួលក្នុងការស្វែងរកសត្វចិញ្ជឹមដែលបានបាត់ រឹ រកឃើញបានយ៉ាងងាយស្រួល"
+    },
+    "header" :
+    {
+            "Login" : "ចូល"
+    },
+    "login" : {
+        "Login To Lost & Found Pet" : "ចូលទៅកាន់ Lost & Found Pet"
+    }
+}
