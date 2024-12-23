@@ -1,4 +1,5 @@
 // utils/useMaxWidth.ts
+'use client';
 import { useState, useEffect } from 'react';
 import { deviceSize } from './constants';
 
