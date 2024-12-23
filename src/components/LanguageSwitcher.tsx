@@ -12,7 +12,7 @@ type LanguageOption = {
 
 const languages: LanguageOption[] = [
   { title: 'EN', code: 'en', imgUrl: '/assets/flags/usa.png' },
-  { title: 'KH', code: 'kh', imgUrl: '/assets/flags/kh.png' },
+  { title: 'KH', code: 'km', imgUrl: '/assets/flags/kh.png' },
 ];
 
 type Props = {

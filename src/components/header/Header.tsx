@@ -8,6 +8,7 @@ import { useTranslations } from "next-intl";
 type HeaderProps = {
   locale?: string;
 };
+
 const Header: React.FC<HeaderProps> = ({ locale = 'en' }) => {
   const router = useRouter();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -28,7 +29,7 @@ const Header: React.FC<HeaderProps> = ({ locale = 'en' }) => {
 
   return (
     <nav className="bg-[#8DC63F] w-full z-20 top-0 start-0 border-b border-gray-200 dark:border-gray-600">
-      <div className="max-w-screen-xl flex flex-wrap items-center justify-between mx-auto p-4">
+      <div className="max-w-full sm:max-w-screen-sm md:max-w-screen-md lg:max-w-screen-lg xl:max-w-screen-xl flex flex-wrap items-center justify-between mx-auto p-2">
         {/* Logo */}
         <a href="/" className="flex items-center space-x-3 rtl:space-x-reverse">
           <img
