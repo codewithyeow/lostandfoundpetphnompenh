@@ -4,6 +4,14 @@ import { useSwipeable } from "react-swipeable";
 import { useTranslations } from "next-intl";
 import SearchInput from "@/components/search-box/searchInput";
 
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselPrevious,
+  CarouselNext,
+} from "@/components/ui/carousel"; // Adjust the path as necessary
+
 interface Pet {
   id: number;
   image: string;
@@ -43,9 +51,9 @@ export default function Section1() {
     );
   };
 
-  const handleDotClick = (index: number) => {
-    setCurrentIndex(index);
-  };
+  // const handleDotClick = (index: number) => {
+  //   setCurrentIndex(index);
+  // };
 
   // Handle swipe events
   const swipeHandlers = useSwipeable({
@@ -56,45 +64,48 @@ export default function Section1() {
   return (
     <section className="relative w-full h-full bg-white">
       <div className="relative w-full h-[80vh]" {...swipeHandlers}>
-        {/* Image Carousel Wrapper */}
-        <div className="relative w-full h-full">
-          <div className="w-full h-full overflow-hidden shadow-lg flex items-center justify-center relative">
-            {/* Image */}
-            <Image
-              src={petData[currentIndex].image}
-              alt="Pet Image"
-              fill
-              style={{ objectFit: "cover" }}
-              className="w-full h-full"
-            />
-
-            {/* Search Input Component in Center and Top of Carousel */}
-            <div className="absolute top-4 left-1/2 transform -translate-x-1/2 z-10">
-              <SearchInput /> {/* Using the SearchInput component here */}
-            </div>
-
-            {/* Text Overlay */}
-            <div className="absolute inset-0 bg-black bg-opacity-50 flex flex-col items-center justify-center text-white p-4">
-              <h2 className="text-2xl font-bold text-center">
-                {t("We are here to help you")}
-              </h2>
-              <p className="text-xl mt-4 text-center">{t("description")}</p>
-            </div>
-          </div>
-
-          {/* Dot Navigation */}
-          <div className="absolute bottom-5 left-1/2 transform -translate-x-1/2 flex space-x-2 z-10">
-            {petData.map((_, index) => (
-              <div
-                key={index}
-                onClick={() => handleDotClick(index)}
-                className={`w-3 h-3 rounded-full cursor-pointer ${
-                  currentIndex === index ? "bg-gray-800" : "bg-gray-400"
-                }`}
+        {/* Carousel with Embla */}
+        <Carousel className="relative w-full h-full">
+          <CarouselContent>
+            <CarouselItem className="relative w-full h-[80vh]">
+              <Image
+                src={petData[currentIndex].image}
+                alt={`Pet Image ${petData[currentIndex].id}`}
+                layout="fill"
+                objectFit="cover"
+                className="w-full h-full"
               />
-            ))}
+            </CarouselItem>
+          </CarouselContent>
+          <div className="absolute top-4 left-1/2 transform -translate-x-1/2 z-10">
+            <SearchInput />
           </div>
-        </div>
+
+          {/* Text Overlay */}
+          <div className="absolute inset-0 bg-black bg-opacity-50 flex flex-col items-center justify-center text-white p-4">
+            <h2 className="text-2xl font-bold text-center">
+              {t("We are here to help you")}
+            </h2>
+            <p className="text-xl mt-4 text-center">{t("description")}</p>
+          </div>
+
+          {/* Navigation Buttons */}
+          {/* <CarouselPrevious />
+          <CarouselNext /> */}
+        </Carousel>
+
+        {/* Dot Navigation */}
+        {/* <div className="absolute bottom-5 left-1/2 transform -translate-x-1/2 flex space-x-2 z-10">
+          {petData.map((_, index) => (
+            <div
+              key={index}
+              onClick={() => handleDotClick(index)}
+              className={`w-3 h-3 rounded-full cursor-pointer ${
+                currentIndex === index ? "bg-gray-800" : "bg-gray-400"
+              }`}
+            />
+          ))}
+        </div> */}
       </div>
     </section>
   );

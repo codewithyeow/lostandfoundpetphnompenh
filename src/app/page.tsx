@@ -2,6 +2,7 @@
 import { ThemeProvider } from "styled-components";
 import HomeLayout from "@/components/home";
 import Section1 from "@/components/home/section-1";
+import Section2 from "@/components/home/section-2";
 
 const theme = {
   colors: {
@@ -14,8 +15,13 @@ const theme = {
 export default function Home() {
   return (
     <ThemeProvider theme={theme}>
-      <Section1 />
-      <HomeLayout />
+      <main className="w-full">
+        <Section1 />
+        <div className="max-w-screen-xl mx-auto">
+          <Section2 />
+          <HomeLayout />
+        </div>
+      </main>
     </ThemeProvider>
   );
 }

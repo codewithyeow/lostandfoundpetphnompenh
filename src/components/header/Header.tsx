@@ -8,10 +8,10 @@ import { useTranslations } from "next-intl";
 type HeaderProps = {
   locale?: string;
 };
-const Header: React.FC<HeaderProps> = ({ locale = 'en' }) => {
+const Header: React.FC<HeaderProps> = ({ locale = "en" }) => {
   const router = useRouter();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [isSearchOpen, setIsSearchOpen] = useState(false); // State to toggle search input
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
   const t = useTranslations("header");
 
   const handleLoginClick = () => {
@@ -20,11 +20,11 @@ const Header: React.FC<HeaderProps> = ({ locale = 'en' }) => {
   };
 
   const handleSearchToggle = () => {
-    setIsSearchOpen((prev) => !prev); // Toggle the search input
+    setIsSearchOpen((prev) => !prev);
   };
 
   // Hide the menu when search is open
-  const menuVisibilityClass = isSearchOpen ? 'hidden' : 'block';
+  const menuVisibilityClass = isSearchOpen ? "hidden" : "block";
 
   return (
     <nav className="bg-[#8DC63F] w-full z-20 top-0 start-0 border-b border-gray-200 dark:border-gray-600">
@@ -37,10 +37,7 @@ const Header: React.FC<HeaderProps> = ({ locale = 'en' }) => {
             alt="PawBoost Logo"
           />
         </a>
-
-        {/* Right side container */}
         <div className="flex items-center md:order-2 space-x-4">
-          {/* Language Switcher - visible on all screens */}
           <LanguageSwitcher menuDirection="right" locale={locale} />
 
           {/* Login Button - visible only on desktop */}
@@ -54,7 +51,7 @@ const Header: React.FC<HeaderProps> = ({ locale = 'en' }) => {
               style={{ backgroundColor: "blue", fontSize: "12px" }}
               onClick={handleLoginClick}
             >
-              {t('Login')}
+              {t("Login")}
             </Button>
           </div>
 
@@ -107,7 +104,9 @@ const Header: React.FC<HeaderProps> = ({ locale = 'en' }) => {
 
         {/* Mobile Menu and Desktop Navigation */}
         <div
-          className={`${menuVisibilityClass} ${isMenuOpen ? 'block' : 'hidden'} w-full md:flex md:w-auto md:order-1`}
+          className={`${menuVisibilityClass} ${
+            isMenuOpen ? "block" : "hidden"
+          } w-full md:flex md:w-auto md:order-1`}
           id="navbar-sticky"
         >
           <ul className="flex flex-col p-4 md:p-0 mt-4 font-medium rounded-lg md:space-x-8 rtl:space-x-reverse md:flex-row md:mt-0 bg-[#8DC63F]">
