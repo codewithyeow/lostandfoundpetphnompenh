@@ -77,8 +77,9 @@ export default function Section1() {
               />
             </CarouselItem>
           </CarouselContent>
+
           <div className="absolute top-4 left-1/2 transform -translate-x-1/2 z-10">
-            <SearchInput />
+            <SearchInput /> 
           </div>
 
           {/* Text Overlay */}

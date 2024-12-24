@@ -1,11 +1,9 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { Search, X } from "lucide-react";
 import { useMaxWidth } from "@/utils/useMaxWidth";
 
 export default function SearchInput() {
   const [searchValue, setSearchValue] = useState("");
-  const [isClient, setIsClient] = useState(false);
-
   const maxWidth = useMaxWidth("sm");
 
   const handleClear = () => {
@@ -13,7 +11,7 @@ export default function SearchInput() {
   };
 
   return (
-    <div className="w-full px-4 md:px-6 lg:px-8 mt-10">
+    <div className="w-full px-4 md:px-6 lg:px-8 mt-5">
       <div className="relative flex flex-col sm:flex-row items-center mx-auto w-full gap-3 sm:gap-4">
         <div
           className="relative flex items-center w-full"
@@ -49,16 +47,18 @@ export default function SearchInput() {
           )}
         </div>
 
-        {/* Search Button */}
-        <button
-          className="w-full sm:w-auto px-8 h-12 bg-blue-600 text-white font-medium rounded-full
-                     hover:bg-blue-700 active:bg-blue-800 
-                     transition-all duration-200 ease-in-out
-                     shadow-lg shadow-blue-500/20
-                     flex items-center justify-center"
-        >
-          Search
-        </button>
+        {/* Conditionally render the Search Button only when there's text in the input */}
+        {searchValue && (
+          <button
+            className="w-full sm:w-auto px-8 h-12 bg-blue-600 text-white font-medium rounded-full
+                       hover:bg-blue-700 active:bg-blue-800 
+                       transition-all duration-200 ease-in-out
+                       shadow-lg shadow-blue-500/20
+                       flex items-center justify-center"
+          >
+            Search
+          </button>
+        )}
       </div>
     </div>
   );

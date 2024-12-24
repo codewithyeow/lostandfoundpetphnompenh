@@ -47,8 +47,7 @@ const StyledButton = styled("button")<ButtonProps>(
         color: "primary",
       },
       contained: {
-        background: ({ backgroundColor }: { backgroundColor?: string }) =>
-          backgroundColor || "primary", // Use prop for background color
+        
         color: "white",
         "&:hover": {
           backgroundColor: "darkblue",
@@ -81,7 +80,6 @@ const Button: React.FC<ButtonProps> = ({
   children,
   variant = "contained",
   size = "medium",
-  color = "primary",
   style,
   width,
   height,
@@ -91,7 +89,6 @@ const Button: React.FC<ButtonProps> = ({
     <StyledButton
       variant={variant}
       size={size}
-      color={color}
       style={{ width: width || "200px", height: height || "50px", ...style }}
       onClick = {props.onClick}
       {...props}
