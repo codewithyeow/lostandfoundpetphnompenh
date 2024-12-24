@@ -1,23 +1,12 @@
 import React, { useState, useEffect } from "react";
 import { Search, X } from "lucide-react";
-import { useMaxWidth } from "@/utils/useMaxWidth"; // Ensure this is imported correctly
+import { useMaxWidth } from "@/utils/useMaxWidth";
 
 export default function SearchInput() {
   const [searchValue, setSearchValue] = useState("");
-  const [isClient, setIsClient] = useState(false); // State to track client-side rendering
+  const [isClient, setIsClient] = useState(false);
 
-  // Get maxWidth from the useMaxWidth hook
   const maxWidth = useMaxWidth("sm");
-
-  // Set isClient to true after component is mounted (client-side)
-  useEffect(() => {
-    setIsClient(true);
-  }, []);
-
-  // Return null during SSR to prevent mismatch
-  if (!isClient || maxWidth === null) {
-    return null; // Prevent rendering until maxWidth is determined
-  }
 
   const handleClear = () => {
     setSearchValue("");

@@ -8,10 +8,7 @@ export function useMaxWidth(size: keyof typeof deviceSize) {
 
   useEffect(() => {
     const handleResize = () => {
-      // Get the current window width
       const width = window.innerWidth;
-
-      // Check which breakpoint the current width falls under
       if (width <= deviceSize.xxs) {
         setMaxWidth(deviceSize.xxs);
       } else if (width <= deviceSize.xs) {
@@ -29,7 +26,7 @@ export function useMaxWidth(size: keyof typeof deviceSize) {
       }
     };
 
-    handleResize(); // Set initial value
+    handleResize(); 
     window.addEventListener('resize', handleResize);
 
     return () => window.removeEventListener('resize', handleResize);
