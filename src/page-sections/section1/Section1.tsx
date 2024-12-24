@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
-import Image from 'next/image';
-import { useTranslations } from 'next-intl';
-import { useMaxWidth } from '@/utils/useMaxWidth';
+import React, { useState, useEffect } from "react";
+import Image from "next/image";
+import { useSwipeable } from "react-swipeable";
+import { useTranslations } from "next-intl";
+import SearchInput from "@/components/search-box/searchInput";
 
 interface Pet {
   id: number;
@@ -11,69 +12,88 @@ interface Pet {
 const petData: Pet[] = [
   {
     id: 1,
-    image: '/pets/bella.jpg',
+    image: "/assets/petCarousel.jpg",
   },
   {
     id: 2,
-    image: '/pets/max.jpg',
-  },
-  {
-    id: 3,
-    image: '/pets/luna.jpg',
+    image: "/assets/petCarousel2.jpg",
   },
 ];
 
 export default function Section1() {
   const [currentIndex, setCurrentIndex] = useState(0);
-  const t = useTranslations('section1');
+  const [searchTerm, setSearchTerm] = useState("");
+  const t = useTranslations("section1");
 
-  // Use the useMaxWidth hook to get the max width for a given breakpoint
-  const maxWidth = useMaxWidth('md'); // Example for 'md', you can adjust for other breakpoints
+  // Auto-swipe functionality
+  useEffect(() => {
+    const interval = setInterval(() => {
+      nextSlide();
+    }, 3000);
+    return () => clearInterval(interval);
+  }, [currentIndex]);
 
   const nextSlide = () => {
     setCurrentIndex((prevIndex) => (prevIndex + 1) % petData.length);
   };
 
   const prevSlide = () => {
-    setCurrentIndex((prevIndex) => (prevIndex - 1 + petData.length) % petData.length);
+    setCurrentIndex(
+      (prevIndex) => (prevIndex - 1 + petData.length) % petData.length
+    );
   };
 
+  const handleDotClick = (index: number) => {
+    setCurrentIndex(index);
+  };
+
+  // Handle swipe events
+  const swipeHandlers = useSwipeable({
+    onSwipedLeft: nextSlide,
+    onSwipedRight: prevSlide,
+  });
+
   return (
-    <section className="relative bg-white py-10">
-      <div className="container mx-auto">
-        {/* Display the Image Carousel */}
-        <div className="relative w-full h-96" style={{ maxWidth: `${maxWidth}px` }}>
-          <div className="w-full h-full rounded-lg overflow-hidden shadow-lg flex items-center justify-center relative">
+    <section className="relative w-full h-full bg-white">
+      <div className="relative w-full h-[80vh]" {...swipeHandlers}>
+        {/* Image Carousel Wrapper */}
+        <div className="relative w-full h-full">
+          <div className="w-full h-full overflow-hidden shadow-lg flex items-center justify-center relative">
+            {/* Image */}
             <Image
               src={petData[currentIndex].image}
               alt="Pet Image"
-              width={600}
-              height={400}
-              className="object-cover w-full h-full"
+              fill
+              style={{ objectFit: "cover" }}
+              className="w-full h-full"
             />
 
-            {/* Text Section Overlaid on Image */}
+            {/* Search Input Component in Center and Top of Carousel */}
+            <div className="absolute top-4 left-1/2 transform -translate-x-1/2 z-10">
+              <SearchInput /> {/* Using the SearchInput component here */}
+            </div>
+
+            {/* Text Overlay */}
             <div className="absolute inset-0 bg-black bg-opacity-50 flex flex-col items-center justify-center text-white p-4">
-              <h2 className="text-3xl font-bold text-center">{t('We are here to help you')}</h2>
-              <p className="text-lg mt-4 text-center">
-                Petco Love Lost is a free and easy way to search 200K+ lost and found pets to help them return home.
-              </p>
+              <h2 className="text-2xl font-bold text-center">
+                {t("We are here to help you")}
+              </h2>
+              <p className="text-xl mt-4 text-center">{t("description")}</p>
             </div>
           </div>
 
-          {/* Previous and Next buttons */}
-          <button
-            onClick={prevSlide}
-            className="absolute left-0 top-1/2 transform -translate-y-1/2 bg-gray-800 text-white px-4 py-2 rounded-r-lg hover:bg-gray-700 transition"
-          >
-            &#10094;
-          </button>
-          <button
-            onClick={nextSlide}
-            className="absolute right-0 top-1/2 transform -translate-y-1/2 bg-gray-800 text-white px-4 py-2 rounded-l-lg hover:bg-gray-700 transition"
-          >
-            &#10095;
-          </button>
+          {/* Dot Navigation */}
+          <div className="absolute bottom-5 left-1/2 transform -translate-x-1/2 flex space-x-2 z-10">
+            {petData.map((_, index) => (
+              <div
+                key={index}
+                onClick={() => handleDotClick(index)}
+                className={`w-3 h-3 rounded-full cursor-pointer ${
+                  currentIndex === index ? "bg-gray-800" : "bg-gray-400"
+                }`}
+              />
+            ))}
+          </div>
         </div>
       </div>
     </section>
