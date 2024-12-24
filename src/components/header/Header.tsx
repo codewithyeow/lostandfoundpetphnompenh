@@ -45,10 +45,9 @@ const Header: React.FC<HeaderProps> = ({ locale = "en" }) => {
             <Button
               variant="contained"
               size="medium"
-              color="primary"
               width="60px"
               height="30px"
-              style={{ backgroundColor: "blue", fontSize: "12px" }}
+              style={{ fontSize: "12px", backgroundColor: "#2463EB" }}
               onClick={handleLoginClick}
             >
               {t("Login")}
@@ -147,10 +146,9 @@ const Header: React.FC<HeaderProps> = ({ locale = "en" }) => {
               <Button
                 variant="contained"
                 size="medium"
-                color="primary"
                 width="100%"
                 height="40px"
-                style={{ backgroundColor: "blue", fontSize: "12px" }}
+                style={{ fontSize: "12px", backgroundColor: "#2463EB" }}
                 onClick={handleLoginClick}
               >
                 Login
