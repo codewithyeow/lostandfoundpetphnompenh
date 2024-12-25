@@ -20,11 +20,11 @@ interface Pet {
 const petData: Pet[] = [
   {
     id: 1,
-    image: "/assets/petCarousel.jpg",
+    image: "/assets/lost_and_found_pets.jpg",
   },
   {
     id: 2,
-    image: "/assets/petCarousel2.jpg",
+    image: "/assets/lost-and-found-banner.jpg",
   },
 ];
 
@@ -51,9 +51,9 @@ export default function Section1() {
     );
   };
 
-  // const handleDotClick = (index: number) => {
-  //   setCurrentIndex(index);
-  // };
+  const handleDotClick = (index: number) => {
+    setCurrentIndex(index);
+  };
 
   // Handle swipe events
   const swipeHandlers = useSwipeable({
@@ -73,22 +73,22 @@ export default function Section1() {
                 alt={`Pet Image ${petData[currentIndex].id}`}
                 layout="fill"
                 objectFit="cover"
-                className="w-full h-full"
+                className="w-full h-full object-cover"
               />
             </CarouselItem>
           </CarouselContent>
 
           <div className="absolute top-4 left-1/2 transform -translate-x-1/2 z-10">
-            <SearchInput /> 
+            <SearchInput />
           </div>
 
           {/* Text Overlay */}
-          <div className="absolute inset-0 bg-black bg-opacity-50 flex flex-col items-center justify-center text-white p-4">
+          {/* <div className="absolute inset-0 bg-black bg-opacity-50 flex flex-col items-center justify-center text-white p-4">
             <h2 className="text-2xl font-bold text-center">
               {t("We are here to help you")}
             </h2>
             <p className="text-xl mt-4 text-center">{t("description")}</p>
-          </div>
+          </div> */}
 
           {/* Navigation Buttons */}
           {/* <CarouselPrevious />
@@ -96,7 +96,7 @@ export default function Section1() {
         </Carousel>
 
         {/* Dot Navigation */}
-        {/* <div className="absolute bottom-5 left-1/2 transform -translate-x-1/2 flex space-x-2 z-10">
+        <div className="absolute bottom-5 left-1/2 transform -translate-x-1/2 flex space-x-2 z-10">
           {petData.map((_, index) => (
             <div
               key={index}
@@ -106,7 +106,7 @@ export default function Section1() {
               }`}
             />
           ))}
-        </div> */}
+        </div>
       </div>
     </section>
   );

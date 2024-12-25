@@ -15,13 +15,10 @@ const theme = {
 export default function Home() {
   return (
     <ThemeProvider theme={theme}>
-      <main className="w-full">
+      <HomeLayout>
         <Section1 />
-        <div className="max-w-screen-xl mx-auto">
-          <Section2 />
-          <HomeLayout />
-        </div>
-      </main>
+        <Section2 />
+      </HomeLayout>
     </ThemeProvider>
   );
 }
