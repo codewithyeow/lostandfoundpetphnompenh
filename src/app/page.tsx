@@ -15,10 +15,10 @@ const theme = {
 export default function Home() {
   return (
     <ThemeProvider theme={theme}>
-      <HomeLayout>
+      {/* <HomeLayout> */}
         <Section1 />
         <Section2 />
-      </HomeLayout>
+      {/* </HomeLayout> */}
     </ThemeProvider>
   );
 }

@@ -1,30 +1,19 @@
-//src/app/layout.tsx
 import "../globals.css";
 import Header from "@/components/header/Header";
 import Footer from "@/components/footer/Footer";
-import { Roboto } from "next/font/google";
-import { NextIntlClientProvider } from 'next-intl';
-import { getLocale, getMessages } from 'next-intl/server';
-import { Battambang, Poppins } from 'next/font/google';
+import { NextIntlClientProvider } from "next-intl";
+import { getLocale, getMessages } from "next-intl/server";
 
-const roboto = Roboto({
-  weight: ["400", "700"], 
-  subsets: ["latin"], 
-  display: "swap",        
-});
-const battambang = Battambang({
-  subsets: ['khmer'],
-  weight: ['400', '700'],
-  display: 'fallback',
-  // fallback: ['Helvetica', 'Arial', 'sans-serif'],
-});
+// Define font styles directly
+const battambangFontStyle = {
+  fontFamily: "'Battambang', 'Helvetica', 'Arial', sans-serif",
+  fontWeight: "400",
+};
 
-const poppins = Poppins({
-  subsets: ['latin'],
-  weight: ['200', '400', '500', '600', '700', '900'],
-  display: 'swap',
-  // fallback: ['Helvetica', 'Arial', 'sans-serif'],
-});
+const poppinsFontStyle = {
+  fontFamily: "'Poppins', 'Helvetica', 'Arial', sans-serif",
+  fontWeight: "200, 400, 500, 600, 700, 900",
+};
 
 export default async function RootLayout({
   children,
@@ -33,16 +22,21 @@ export default async function RootLayout({
 }) {
   const locale = await getLocale();
   const messages = await getMessages();
-  const fontClassName = locale === 'km' ? battambang.className : poppins.className;
+
+  // Determine font style based on locale
+  const fontStyle = locale === "km" ? battambangFontStyle : poppinsFontStyle;
+
   return (
     <html lang={locale}>
-      <head></head>
-      <body className={fontClassName}>
-      <NextIntlClientProvider messages={messages} locale={locale}>
-        <Header locale={locale} />
-        {children}
-        <Footer/>
-      </NextIntlClientProvider>
+      <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      </head>
+      <body style={fontStyle}>
+        <NextIntlClientProvider messages={messages} locale={locale}>
+          <Header locale={locale} />
+          {children}
+          <Footer />
+        </NextIntlClientProvider>
       </body>
     </html>
   );

@@ -27,7 +27,7 @@ const Header: React.FC<HeaderProps> = ({ locale = "en" }) => {
   const menuVisibilityClass = isSearchOpen ? "hidden" : "block";
 
   return (
-    <nav className="bg-[#8DC63F] w-full z-20 top-0 start-0">
+    <nav className="bg-[#8DC63F] w-full z-20 top-0 start-0 sticky">
       <div className="max-w-screen-xl flex flex-wrap items-center justify-between mx-auto p-4">
         {/* Logo */}
         <a href="/" className="flex items-center space-x-3 rtl:space-x-reverse">
