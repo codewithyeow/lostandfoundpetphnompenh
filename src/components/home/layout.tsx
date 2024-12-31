@@ -1,4 +1,3 @@
-///src/components/home/layout.tsx
 'use client';
 
 import React from 'react';
@@ -19,10 +18,13 @@ export default function HomeLayout({
   const maxWidth = useMaxWidth(maxWidthSize);
   
   return (
-    <div className="bg-white w-full">
+    <div className="bg-[#F8F9FA] w-full">
       <div 
-        style={{ maxWidth: maxWidth ? `${maxWidth}px` : undefined }}
-        className={`mx-auto ${className}`}
+        style={{ 
+          maxWidth: maxWidth ? `${maxWidth}px` : '100%',
+          margin: '0 auto', 
+        }}
+        className={className} 
       >
         {children}
       </div>
