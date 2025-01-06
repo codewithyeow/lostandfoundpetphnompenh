@@ -3,35 +3,44 @@ import Header from "@/components/header/Header";
 import Footer from "@/components/footer/Footer";
 import { NextIntlClientProvider } from "next-intl";
 import { getLocale, getMessages } from "next-intl/server";
+import localFont from 'next/font/local';
 
-// Define font styles directly
-const battambangFontStyle = {
-  fontFamily: "'Battambang', 'Helvetica', 'Arial', sans-serif",
-  fontWeight: "400",
-};
+// Define font styles
+const geistSans = localFont({
+	src: './fonts/GeistVF.woff',
+	variable: '--font-geist-sans',
+	weight: '100 900',
+});
 
-const poppinsFontStyle = {
-  fontFamily: "'Poppins', 'Helvetica', 'Arial', sans-serif",
-  fontWeight: "200, 400, 500, 600, 700, 900",
-};
+const geistMono = localFont({
+	src: './fonts/GeistMonoVF.woff',
+	variable: '--font-geist-mono',
+	weight: '100 900',
+});
+const montserrat = localFont({
+	src: './fonts/Montserrat-VariableFont_wght.ttf',
+	variable: '--font-montserrat',
+	weight: '400 700',
+	display: 'fallback',
+});
 
-export default async function RootLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
-  const locale = await getLocale();
-  const messages = await getMessages();
+const locale = await getLocale();
+const messages = await getMessages();
 
-  // Determine font style based on locale
-  const fontStyle = locale === "km" ? battambangFontStyle : poppinsFontStyle;
+export const viewport =
+	'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no';
+
+export default function RootLayout({
+	children,
+}: Readonly<{
+	children: React.ReactNode;
+}>) {
 
   return (
     <html lang={locale}>
-      <head>
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-      </head>
-      <body style={fontStyle}>
+      <body
+				className={`${geistMono.variable} ${geistSans.variable} ${montserrat.variable}`}
+			>
         <NextIntlClientProvider messages={messages} locale={locale}>
           <Header locale={locale} />
           {children}

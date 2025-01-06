@@ -41,7 +41,7 @@ const carouselItems: Pet[] = [
   {
     id: 6,
     image: "/assets/petCarousel2.jpg",
-  }
+  },
 ];
 
 export default function Section1() {
@@ -63,7 +63,8 @@ export default function Section1() {
 
   const prevSlide = () => {
     setCurrentIndex(
-      (prevIndex) => (prevIndex - 1 + carouselItems.length) % carouselItems.length
+      (prevIndex) =>
+        (prevIndex - 1 + carouselItems.length) % carouselItems.length
     );
   };
 
@@ -78,62 +79,54 @@ export default function Section1() {
   });
 
   return (
-    <div className='relative'>
-    {/* Carousel Component */}
-    <Carousel>
-      <CarouselContent>
-        {carouselItems.map((item, index) => {
-          if (index === currentIndex) {
-            return (
-              <CarouselItem key={item.id}>
-                <div
-                  className='relative w-full sm:h-[60vh] md:h-[80vh] h-[45vh]' // Ensuring height adapts for different screen sizes
-                  {...swipeHandlers}
-                >
-                  {/* Image that adjusts based on screen size */}
-                  <Image
-                    src={item.image}
-                    layout='fill' // Fill the container completely while maintaining aspect ratio
-                    className='w-full h-full object-cover' // Ensure both width and height fill the container
-                    priority
-                    quality={75}
-                    sizes='(max-width: 768px) 100vw, (max-width: 1200px) 90vw, 80vw' alt={""}                  />
-                </div>
-              </CarouselItem>
-            );
-          }
-          return null;
-        })}
-      </CarouselContent>
-    </Carousel>
-          {/* <div className="absolute top-4 left-1/2 transform -translate-x-1/2 z-10">
-            <SearchInput />
-          </div> */}
-
-          {/* Text Overlay */}
-          {/* <div className="absolute inset-0 bg-black bg-opacity-50 flex flex-col items-center justify-center text-white p-4">
-            <h2 className="text-2xl font-bold text-center">
-              {t("We are here to help you")}
-            </h2>
-            <p className="text-xl mt-4 text-center">{t("description")}</p>
-          </div> */}
-
-          {/* Navigation Buttons */}
-          {/* <CarouselPrevious />
-          <CarouselNext /> */}
-
-        {/* Dot Navigation */}
-        <div className="absolute bottom-5 left-1/2 transform -translate-x-1/2 flex space-x-2 z-10">
-          {carouselItems.map((_, index) => (
-            <div
-              key={index}
-              onClick={() => handleDotClick(index)}
-              className={`w-3 h-3 rounded-full cursor-pointer ${
-                currentIndex === index ? "bg-gray-800" : "bg-gray-400"
-              }`}
-            />
-          ))}
-        </div>
+    <div className="relative">
+      {/* Search Box positioned at the top */}
+      <div className="absolute top-4 left-1/2 transform -translate-x-1/2 z-10">
+        <SearchInput /> {/* Using the SearchInput component here */}
       </div>
+
+      {/* Carousel Component */}
+      <Carousel>
+        <CarouselContent>
+          {carouselItems.map((item, index) => {
+            if (index === currentIndex) {
+              return (
+                <CarouselItem key={item.id}>
+                  <div
+                    className="relative w-full sm:h-[60vh] md:h-[80vh] h-[45vh]" // Ensuring height adapts for different screen sizes
+                    {...swipeHandlers}
+                  >
+                    {/* Image that adjusts based on screen size */}
+                    <Image
+                      src={item.image}
+                      layout="fill" // Fill the container completely while maintaining aspect ratio
+                      className="w-full h-full object-cover" // Ensure both width and height fill the container
+                      priority
+                      quality={75}
+                      sizes="(max-width: 768px) 100vw, (max-width: 1200px) 90vw, 80vw"
+                      alt={""}
+                    />
+                  </div>
+                </CarouselItem>
+              );
+            }
+            return null;
+          })}
+        </CarouselContent>
+      </Carousel>
+
+      {/* Dot Navigation */}
+      <div className="absolute bottom-5 left-1/2 transform -translate-x-1/2 flex space-x-2 z-10">
+        {carouselItems.map((_, index) => (
+          <div
+            key={index}
+            onClick={() => handleDotClick(index)}
+            className={`w-3 h-3 rounded-full cursor-pointer ${
+              currentIndex === index ? "bg-gray-800" : "bg-gray-400"
+            }`}
+          />
+        ))}
+      </div>
+    </div>
   );
 }

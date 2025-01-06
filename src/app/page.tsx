@@ -16,8 +16,8 @@ export default function Home() {
   return (
     <ThemeProvider theme={theme}>
       {/* <HomeLayout> */}
-        <Section1 />
-        <Section2 />
+      <Section1 />
+      <Section2 />
       {/* </HomeLayout> */}
     </ThemeProvider>
   );
