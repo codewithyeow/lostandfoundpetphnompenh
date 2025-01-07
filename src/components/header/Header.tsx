@@ -2,8 +2,8 @@
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
-import MenuItemNavigator from "@/components/menu/MenuItemNavigator";
-import Container from "@/components/ui/container";
+import MenuItemNavigator from "../../components/menu/MenuItemNavigator";
+import Container from "../../components/ui/container";
 
 type HeaderProps = {
   locale?: string;

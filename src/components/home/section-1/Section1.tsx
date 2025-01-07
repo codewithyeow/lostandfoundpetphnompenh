@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import { useSwipeable } from "react-swipeable";
 import { useTranslations } from "next-intl";
-import SearchInput from "@/components/search-box/searchInput";
+import SearchInput from "../../../components/search-box/searchInput";
 
 import {
   Carousel,
@@ -10,7 +10,7 @@ import {
   CarouselItem,
   CarouselPrevious,
   CarouselNext,
-} from "@/components/ui/carousel"; // Adjust the path as necessary
+} from "../../../components/ui/carousel"; // Adjust the path as necessary
 
 interface Pet {
   id: number;

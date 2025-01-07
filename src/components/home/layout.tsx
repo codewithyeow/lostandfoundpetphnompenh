@@ -2,8 +2,8 @@
 
 import React from 'react';
 import { PropsWithChildren } from 'react';
-import { deviceSize } from '@/utils/constants';
-import { useMaxWidth } from '@/utils/useMaxWidth';
+import { deviceSize } from '../../utils/constants';
+import { useMaxWidth } from '../../utils/useMaxWidth';
 
 interface HomeLayoutProps extends PropsWithChildren {
   maxWidthSize?: keyof typeof deviceSize;

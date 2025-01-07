@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Search, X } from "lucide-react";
-import { useMaxWidth } from "@/utils/useMaxWidth";
+import { useMaxWidth } from "../../utils/useMaxWidth";
 
 export default function SearchInput() {
   const [searchValue, setSearchValue] = useState("");
