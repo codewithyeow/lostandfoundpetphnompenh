@@ -13,8 +13,8 @@ import {
 	PositionProps,
 } from 'styled-system';
 import styled from 'styled-components';
-import { layoutConstant } from '@/constants';
-import { isValidProp } from '@/utils/utils';
+import { layoutConstant } from '../../constants/index';
+import { isValidProp } from '../../utils/utils';
 
 const Container = styled.div.withConfig({
 	shouldForwardProp: (prop: string) => isValidProp(prop),

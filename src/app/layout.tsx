@@ -1,6 +1,6 @@
 import "../globals.css";
-import Header from "@/components/header/Header";
-import Footer from "@/components/footer/Footer";
+import Header from "../components/header/Header";
+import Footer from "../components/footer/Footer";
 import { NextIntlClientProvider } from "next-intl";
 import { getLocale, getMessages } from "next-intl/server";
 import localFont from 'next/font/local';
@@ -24,17 +24,20 @@ const montserrat = localFont({
 	display: 'fallback',
 });
 
-const locale = await getLocale();
-const messages = await getMessages();
+
 
 export const viewport =
 	'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no';
 
-export default function RootLayout({
+export default async function RootLayout({
 	children,
 }: Readonly<{
 	children: React.ReactNode;
 }>) {
+
+
+	const locale = await getLocale();
+const messages = await getMessages();
 
   return (
     <html lang={locale}>

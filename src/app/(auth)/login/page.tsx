@@ -1,4 +1,4 @@
-import Login from "@/page-sections/Login";
+import Login from "../../../page-sections/Login";
 
 export default async function LoginPage() {
     return (

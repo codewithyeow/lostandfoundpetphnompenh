@@ -6,9 +6,9 @@ import {
   CardTitle,
   CardDescription,
   CardContent,
-} from "@/components/ui/card";
+} from "../../../components/ui/card";
 import Image from "next/image";
-import { Badge } from "@/components/ui/badge";
+import { Badge } from "../../../components/ui/badge";
 
 const petData = [
   {

@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import Button from "@/components/buttons/Button";
+import Button from "../components/buttons/Button";
 
 interface SpeciesOption {
   value: string;
