@@ -16,7 +16,7 @@ const petData = [
     name: "Fluffy",
     description:
       "Fluffy is a friendly dog who loves playing in the park. He went missing near the city center.",
-    image: "/assets/petCarousel.jpg",
+    image: "/assets/image.jpg",
     badgeType: "Lost",
   },
   {
@@ -24,7 +24,7 @@ const petData = [
     name: "Bella",
     description:
       "Bella is a calm and gentle cat. She has been lost since last Wednesday.",
-    image: "/assets/petCarousel2.jpg",
+    image: "/assets/image1.jpg",
     badgeType: "Lost",
   },
   {
@@ -32,7 +32,7 @@ const petData = [
     name: "Max",
     description:
       "Max is an energetic puppy, and he was last seen in the downtown area.",
-    image: "/assets/petCarousel.jpg",
+    image: "/assets/image2.jpg",
     badgeType: "Found",
   },
   {
@@ -40,7 +40,7 @@ const petData = [
     name: "Buddy",
     description:
       "Buddy was found wandering around the street. Looking for his owner.",
-    image: "/assets/petCarousel2.jpg",
+    image: "/assets/image3.jpg",
     badgeType: "Found",
   },
   {
@@ -48,7 +48,7 @@ const petData = [
     name: "Whiskers",
     description:
       "Whiskers is a stray cat. She has been roaming around the neighborhood.",
-    image: "/assets/petCarousel.jpg",
+    image: "/assets/image5.jpg",
     badgeType: "Stray",
   },
   {
@@ -56,7 +56,7 @@ const petData = [
     name: "Ching Chang",
     description:
       "Whiskers is a stray cat. She has been roaming around the neighborhood.",
-    image: "/assets/petCarousel.jpg",
+    image: "/assets/image4.jpg",
     badgeType: "Stray",
   },
 ];
@@ -89,7 +89,7 @@ export default function Section2() {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="relative w-full h-48">
+              <div className="relative w-full h-72">
                 <Image
                   src={pet.image}
                   alt={pet.name}
