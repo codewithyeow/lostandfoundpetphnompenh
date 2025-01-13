@@ -61,7 +61,7 @@ const LanguageSwitcher: React.FC<Props> = ({
     <div ref={dropdownRef} className="relative inline-block">
       {/* Current Language Display */}
       <div 
-        className="flex items-center h-10 cursor-pointer px-3 py-2 rounded-md"
+        className="flex items-center h-10 cursor-pointer  py-2 rounded-md"
         onClick={() => setIsOpen(!isOpen)}
       >
         <Image
@@ -73,7 +73,7 @@ const LanguageSwitcher: React.FC<Props> = ({
           className="object-contain"
         />
         {/* Adjusting the text size using text-sm */}
-        <span className="ml-2 font-semibold text-white text-xs">{language.title}</span>
+        <span className="ml-2 font-semibold text-black text-xs">{language.title}</span>
         <span className={`ml-2 text-xs transition-transform duration-200 text-white ${isOpen ? 'rotate-180' : ''}`}>
           ▼
         </span>
