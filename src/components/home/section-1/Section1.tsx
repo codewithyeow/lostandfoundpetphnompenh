@@ -23,22 +23,6 @@ const carouselItems: Pet[] = [
   },
   {
     id: 2,
-    image: "/assets/lost-and-found-banner.jpg",
-  },
-  {
-    id: 3,
-    image: "/assets/petCarousel.jpg",
-  },
-  {
-    id: 4,
-    image: "/assets/petCarousel2.jpg",
-  },
-  {
-    id: 5,
-    image: "/assets/petCarousel.jpg",
-  },
-  {
-    id: 6,
     image: "/assets/petCarousel2.jpg",
   },
 ];
@@ -79,8 +63,6 @@ export default function Section1() {
 
   return (
     <div className="relative">
-      {/* Search Box positioned at the top */}
-
       {/* Carousel Component */}
       <Carousel>
         <CarouselContent>
@@ -89,7 +71,7 @@ export default function Section1() {
               return (
                 <CarouselItem key={item.id}>
                   <div
-                    className="relative w-full sm:h-[60vh] md:h-[80vh] h-[45vh]" // Ensuring height adapts for different screen sizes
+                    className="relative w-full sm:h-[50vh] md:h-[60vh] lg:h-[80vh] h-[30vh]" // Adjusted height for different screens
                     {...swipeHandlers}
                   >
                     {/* Image that adjusts based on screen size */}
