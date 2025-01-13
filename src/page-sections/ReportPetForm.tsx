@@ -1,7 +1,7 @@
-"use client";
-
 import React, { useState } from "react";
 import Button from "../components/buttons/Button";
+import { useRouter } from "next/navigation";
+import { FaDog, FaMapMarkerAlt, FaImage } from "react-icons/fa";
 
 interface SpeciesOption {
   value: string;
@@ -9,14 +9,14 @@ interface SpeciesOption {
 }
 
 export default function ReportPetForm() {
-  const [selectedSpecies, setSelectedSpecies] = useState<string>(""); 
-  const [location, setLocation] = useState<string>(""); 
-  const [showMap, setShowMap] = useState<boolean>(false); 
+  const router = useRouter();
+  const [selectedSpecies, setSelectedSpecies] = useState<string>("");
+  const [location, setLocation] = useState<string>("");
+  const [showMap, setShowMap] = useState<boolean>(false);
   const [image, setImage] = useState<File | null>(null);
+  const [currentStep, setCurrentStep] = useState<number>(1);
 
-  const handleImageUpload = (
-    event: React.ChangeEvent<HTMLInputElement>
-  ): void => {
+  const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>): void => {
     const file = event.target.files?.[0];
     if (file) {
       setImage(file);
@@ -25,7 +25,7 @@ export default function ReportPetForm() {
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>): void => {
     event.preventDefault();
-    // Handle form submission logic
+    router.push("/confirmation");
   };
 
   const speciesOptions: SpeciesOption[] = [
@@ -33,128 +33,202 @@ export default function ReportPetForm() {
     { value: "Cat", label: "Cat" },
     { value: "Bird", label: "Bird" },
     { value: "Other", label: "Other" },
-  ]; // Species options
+  ];
 
   return (
-    <div className="max-w-4xl mx-auto p-6 bg-[#E4EAEE] shadow-lg rounded-lg">
-      <h2 className="text-2xl font-bold text-center mb-6">Report Found Pet</h2>
+    <div className="bg-[#E4EAEE] min-h-screen flex flex-col lg:px-8 px-4 w-full py-2 ">
+      <div className="sm:mx-auto lg:max-w-2xl sm:w-full sm:max-w-sm">
+        <h2 className="mt-10 text-center font-bold leading-9 tracking-tight text-customGray lg:text-2xl text-lg">
+          Report Found Pet - Step {currentStep} of 3
+        </h2>
+      </div>
 
-      <form onSubmit={handleSubmit}>
-        {/* Pet Status */}
-        <div className="mb-4">
-          <p className="font-semibold mb-2">Pet Status</p>
-          <div>
-            <label className="inline-flex items-center">
-              <input type="checkbox" className="form-checkbox" />
-              <span className="ml-2">Found Pet</span>
-            </label>
-            <label className="inline-flex items-center ml-6">
-              <input type="checkbox" className="form-checkbox" />
-              <span className="ml-2">Found/Stray Pet</span>
-            </label>
-          </div>
-        </div>
-
-        {/* Pet Name */}
-        <div className="mb-4">
-          <label className="block font-semibold mb-2">Pet Name</label>
-          <input
-            type="text"
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg"
-            placeholder="Enter pet name"
-          />
-        </div>
-
-        {/* Date Last Seen */}
-        <div className="mb-4">
-          <label className="block font-semibold mb-2">Date Last Seen</label>
-          <input
-            type="date"
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg"
-          />
-        </div>
-
-        {/* Nearest Location */}
-        <div className="mb-4">
-          <label className="block font-semibold mb-2">Nearest Location</label>
-          <input
-            type="text"
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg"
-            placeholder="Enter nearest location"
-          />
-        </div>
-
-        {/* Pin Location (Google Maps) */}
-        <div className="mb-4">
-          <label className="block font-semibold mb-2">Location Found</label>
-          <input
-            type="text"
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg"
-            placeholder="Enter location or use map"
-            value={location}
-            onChange={(e) => setLocation(e.target.value)}
-          />
-          <button
-            type="button"
-            className="mt-2 text-blue-500 underline"
-            onClick={() => setShowMap(true)}
-          >
-            Pin location on map
-          </button>
-
-          {showMap && (
-            <div className="w-full h-64 mt-4 border">
-              {/* Google Maps implementation */}
-              <p>Google Map will be here...</p>
-            </div>
-          )}
-        </div>
-
-        {/* Pet Image Upload */}
-        <div className="mb-4">
-          <label className="block font-semibold mb-2">Upload Pet Image</label>
-          <input type="file" accept="image/*" onChange={handleImageUpload} />
-          {image && (
-            <div className="mt-4">
-              <img
-                src={URL.createObjectURL(image)}
-                alt="Uploaded pet"
-                className="max-w-full h-40 object-cover rounded-lg"
+      <div className="mt-10 sm:mx-auto lg:max-w-2xl sm:w-full sm:max-w-sm">
+        <form onSubmit={handleSubmit} className="space-y-6 lg:p-8 p-4 bg-white rounded-lg shadow-md">
+          {/* Step 1: Pet Information + Upload Image */}
+          {currentStep === 1 && (
+            <>
+              <div className="flex items-center mb-4">
+                <FaDog className="mr-2 text-gray-500 lg:text-xl" />
+                <label className="block lg:text-lg text-sm font-medium leading-6 text-balance text-customGray">
+                  Pet Name
+                </label>
+              </div>
+              <input
+                type="text"
+                className="p-3 block w-full rounded-md border-0 bg-white/5 lg:py-3 py-1.5 shadow-sm ring-1 ring-inset ring-customGrey focus:ring-customGreen lg:text-lg sm:text-sm sm:leading-6"
+                placeholder="Enter pet name"
               />
+
+              <div className="flex items-center mb-4 mt-6">
+                <FaMapMarkerAlt className="mr-2 text-gray-500 lg:text-xl" />
+                <label className="block lg:text-lg text-sm font-medium leading-6 text-balance text-customGray">
+                  Date Last Seen
+                </label>
+              </div>
+              <input
+                type="date"
+                className="p-3 block w-full rounded-md border-0 bg-white/5 lg:py-3 py-1.5 shadow-sm ring-1 ring-inset ring-customGrey focus:ring-customGreen lg:text-lg sm:text-sm sm:leading-6"
+              />
+
+              {/* Image Upload Section */}
+              <div className="flex items-center mb-4 mt-6">
+                <FaImage className="mr-2 text-gray-500 lg:text-xl" />
+                <label className="block lg:text-lg text-sm font-medium leading-6 text-balance text-customGray">
+                  Upload Pet Image
+                </label>
+              </div>
+              <input
+                type="file"
+                accept="image/*"
+                onChange={handleImageUpload}
+                className="lg:text-lg"
+              />
+              {image && (
+                <div className="mt-4">
+                  <img
+                    src={URL.createObjectURL(image)}
+                    alt="Uploaded pet"
+                    className="max-w-full lg:h-60 h-40 object-cover rounded-lg"
+                  />
+                </div>
+              )}
+
+              <div className="flex justify-between mt-6 flex-wrap">
+                <Button
+                  variant="outlined"
+                  size="large"
+                  width="48%"
+                  height="48px"
+                  style={{ fontSize: "16px", borderColor: "#2463EB", color: "#2463EB" }}
+                  onClick={() => setCurrentStep(2)}
+                >
+                  Next
+                </Button>
+              </div>
+            </>
+          )}
+
+          {/* Combined Step 2 & 3: Location + Species Selection */}
+          {currentStep === 2 && (
+            <>
+              <div className="flex items-center mb-4">
+                <FaMapMarkerAlt className="mr-2 text-gray-500 lg:text-xl" />
+                <label className="block lg:text-lg text-sm font-medium leading-6 text-balance text-customGray">
+                  Nearest Location
+                </label>
+              </div>
+              <input
+                type="text"
+                className="p-3 block w-full rounded-md border-0 bg-white/5 lg:py-3 py-1.5 shadow-sm ring-1 ring-inset ring-customGrey focus:ring-customGreen lg:text-lg sm:text-sm sm:leading-6"
+                placeholder="Enter nearest location"
+              />
+
+              <div className="flex items-center mb-4 mt-6">
+                <FaMapMarkerAlt className="mr-2 text-gray-500 lg:text-xl" />
+                <label className="block lg:text-lg text-sm font-medium leading-6 text-balance text-customGray">
+                  Location Found
+                </label>
+              </div>
+              <input
+                type="text"
+                className="p-3 block w-full rounded-md border-0 bg-white/5 lg:py-3 py-1.5 shadow-sm ring-1 ring-inset ring-customGrey focus:ring-customGreen lg:text-lg sm:text-sm sm:leading-6"
+                value={location}
+                onChange={(e) => setLocation(e.target.value)}
+                placeholder="Enter location or use map"
+              />
+
+              <div className="flex items-center mb-4 mt-6">
+                <FaDog className="mr-2 text-gray-500 lg:text-xl" />
+                <label className="block lg:text-lg text-sm font-medium leading-6 text-balance text-customGray">
+                  Species
+                </label>
+              </div>
+              <select
+                value={selectedSpecies}
+                onChange={(e) => setSelectedSpecies(e.target.value)}
+                className="p-3 block w-full rounded-md border-0 bg-white/5 lg:py-3 py-1.5 shadow-sm ring-1 ring-inset ring-customGrey focus:ring-customGreen lg:text-lg sm:text-sm sm:leading-6"
+              >
+                <option value="" disabled>
+                  Select species
+                </option>
+                {speciesOptions.map((species) => (
+                  <option key={species.value} value={species.value}>
+                    {species.label}
+                  </option>
+                ))}
+              </select>
+
+              <div className="w-full mt-4">
+                <div className="w-full h-[300px] sm:h-[400px] lg:h-[500px] rounded-lg overflow-hidden">
+                  <iframe
+                    src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3164.795123456!2d106.79323951512696!3d-6.186462363203507!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x2e69f132cd9ba219%3A0x4f69f6e8b5b7a3b7!2sGreen%20Lake%20City%2C%20Jakarta%20Barat!5e0!3m2!1sen!2sid!4v1673924553258!5m2!1sen!2sid"
+                    width="100%"
+                    height="100%"
+                    style={{ border: 0 }}
+                    allowFullScreen={true}
+                    loading="lazy"
+                    referrerPolicy="no-referrer-when-downgrade"
+                  ></iframe>
+                </div>
+              </div>
+
+              <div className="flex justify-between mt-6 flex-wrap">
+                <Button
+                  variant="outlined"
+                  size="large"
+                  width="48%"
+                  height="48px"
+                  style={{ fontSize: "16px", borderColor: "#2463EB", color: "#2463EB" }}
+                  onClick={() => setCurrentStep(1)}
+                >
+                  Previous
+                </Button>
+                <Button
+                  variant="contained"
+                  size="large"
+                  width="48%"
+                  height="48px"
+                  style={{ fontSize: "16px", backgroundColor: "#2463EB" }}
+                  onClick={() => setCurrentStep(3)}
+                >
+                  Next
+                </Button>
+              </div>
+            </>
+          )}
+
+          {/* Step 3: Confirmation */}
+          {currentStep === 3 && (
+            <div className="text-center">
+              <h2 className="font-bold text-lg text-customGray">Review your submission</h2>
+              <p className="mt-4">Species: {selectedSpecies}</p>
+              <p>Location: {location}</p>
+              <div className="mt-6 flex justify-between gap-4">
+                <Button
+                  variant="outlined"
+                  size="large"
+                  width="48%"
+                  height="48px"
+                  style={{ fontSize: "16px", borderColor: "#2463EB", color: "#2463EB" }}
+                  onClick={() => setCurrentStep(2)}
+                >
+                  Previous
+                </Button>
+                <Button
+                  variant="contained"
+                  size="large"
+                  width="48%"
+                  height="48px"
+                  style={{ fontSize: "16px", backgroundColor: "#2463EB" }}
+                >
+                  Submit
+                </Button>
+              </div>
             </div>
           )}
-        </div>
-
-        {/* Species Selection */}
-        <div className="mb-4">
-          <label className="block font-semibold mb-2">Species</label>
-          <select
-            value={selectedSpecies}
-            onChange={(e) => setSelectedSpecies(e.target.value)}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg"
-          >
-            <option value="" disabled>
-              Select species
-            </option>
-            {speciesOptions.map((species) => (
-              <option key={species.value} value={species.value}>
-                {species.label}
-              </option>
-            ))}
-          </select>
-        </div>
-
-        {/* Submit Button */}
-        <Button
-          variant="contained"
-          size="large"
-          width="100%"
-          height="40px"
-          style={{ fontSize: "16px", backgroundColor: "#2463EB" }}
-        >
-          Submit
-        </Button>
-      </form>
+        </form>
+      </div>
     </div>
   );
 }
