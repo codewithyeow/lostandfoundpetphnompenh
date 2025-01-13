@@ -5,6 +5,7 @@ import { Search } from "lucide-react";
 import MenuItemNavigator from "../../components/menu/MenuItemNavigator";
 import Container from "../../components/ui/container";
 import { useMaxWidth } from "../../utils/useMaxWidth";
+import LanguageSwitcher from "@component/LanguageSwitcher";
 
 type HeaderProps = {
   locale?: string;
@@ -68,6 +69,7 @@ const Header: React.FC<HeaderProps> = ({ locale = "en" }) => {
                 className="w-6 h-6 text-black mr-4 cursor-pointer" // Changed from text-gray-400 to text-black
                 onClick={toggleSearch} // Toggle search panel on click
               />
+              <LanguageSwitcher menuDirection="left" locale={locale} />
               {isSearchOpen && (
                 <div
                   className="absolute top-full left-0 right-0 bg-[#F8F9FA] shadow-lg py-4 px-6 z-30"
@@ -94,7 +96,7 @@ const Header: React.FC<HeaderProps> = ({ locale = "en" }) => {
             <button
               data-collapse-toggle="navbar-sticky"
               type="button"
-              className="inline-flex items-center p-2 h-10 justify-center text-sm text-black rounded-lg focus:outline-none ml-2 lg:hidden"
+              className="inline-flex items-center h-10 justify-center text-sm text-black rounded-lg focus:outline-none ml-2 lg:hidden"
               aria-controls="navbar-sticky"
               aria-expanded={isMenuOpen}
               onClick={toggleMenu} // Toggle hamburger menu on click
@@ -166,6 +168,9 @@ const Header: React.FC<HeaderProps> = ({ locale = "en" }) => {
                   isMobile={isMenuOpen}
                   isMenuOpen={isMenuOpen}
                 />
+                <div className="mr-2">
+                  <LanguageSwitcher menuDirection="right" locale={locale} />
+                </div>
               </ul>
             </div>
           </div>
