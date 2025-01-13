@@ -22,8 +22,8 @@ const MenuItemNavigator: React.FC<MenuItemNavigatorProps> = ({
       key: "found-pets",
       subItem: [
         { name: "FOUND DOGS", href: "/report-pet-form" },
-        { name: "FOUND CATS", href: "/" },
-        { name: "FOUND PETS [ALL]", href: "/" },
+        { name: "FOUND CATS", href: "/report-pet-form" },
+        { name: "FOUND PETS [ALL]", href: "/report-pet-form" },
       ],
     },
     {
