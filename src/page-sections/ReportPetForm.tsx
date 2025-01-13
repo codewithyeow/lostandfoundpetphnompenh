@@ -1,5 +1,3 @@
-"use client";
-
 import React, { useState } from "react";
 import Button from "../components/buttons/Button";
 import { useRouter } from "next/navigation";
@@ -41,7 +39,7 @@ export default function ReportPetForm() {
     <div className="bg-[#E4EAEE] min-h-screen flex flex-col lg:px-8 px-4 w-full py-2 ">
       <div className="sm:mx-auto lg:max-w-2xl sm:w-full sm:max-w-sm">
         <h2 className="mt-10 text-center font-bold leading-9 tracking-tight text-customGray lg:text-2xl text-lg">
-          Report Found Pet
+          Report Found Pet - Step {currentStep} of 3
         </h2>
       </div>
 
@@ -111,7 +109,7 @@ export default function ReportPetForm() {
             </>
           )}
 
-          {/* Step 2: Location */}
+          {/* Combined Step 2 & 3: Location + Species Selection */}
           {currentStep === 2 && (
             <>
               <div className="flex items-center mb-4">
@@ -139,6 +137,27 @@ export default function ReportPetForm() {
                 onChange={(e) => setLocation(e.target.value)}
                 placeholder="Enter location or use map"
               />
+
+              <div className="flex items-center mb-4 mt-6">
+                <FaDog className="mr-2 text-gray-500 lg:text-xl" />
+                <label className="block lg:text-lg text-sm font-medium leading-6 text-balance text-customGray">
+                  Species
+                </label>
+              </div>
+              <select
+                value={selectedSpecies}
+                onChange={(e) => setSelectedSpecies(e.target.value)}
+                className="p-3 block w-full rounded-md border-0 bg-white/5 lg:py-3 py-1.5 shadow-sm ring-1 ring-inset ring-customGrey focus:ring-customGreen lg:text-lg sm:text-sm sm:leading-6"
+              >
+                <option value="" disabled>
+                  Select species
+                </option>
+                {speciesOptions.map((species) => (
+                  <option key={species.value} value={species.value}>
+                    {species.label}
+                  </option>
+                ))}
+              </select>
 
               <div className="w-full mt-4">
                 <div className="w-full h-[300px] sm:h-[400px] lg:h-[500px] rounded-lg overflow-hidden">
@@ -179,31 +198,13 @@ export default function ReportPetForm() {
             </>
           )}
 
-          {/* Step 3: Species Selection */}
+          {/* Step 3: Confirmation */}
           {currentStep === 3 && (
-            <>
-              <div className="flex items-center mb-4">
-                <FaDog className="mr-2 text-gray-500 lg:text-xl" />
-                <label className="block lg:text-lg text-sm font-medium leading-6 text-balance text-customGray">
-                  Species
-                </label>
-              </div>
-              <select
-                value={selectedSpecies}
-                onChange={(e) => setSelectedSpecies(e.target.value)}
-                className="p-3 block w-full rounded-md border-0 bg-white/5 lg:py-3 py-1.5 shadow-sm ring-1 ring-inset ring-customGrey focus:ring-customGreen lg:text-lg sm:text-sm sm:leading-6"
-              >
-                <option value="" disabled>
-                  Select species
-                </option>
-                {speciesOptions.map((species) => (
-                  <option key={species.value} value={species.value}>
-                    {species.label}
-                  </option>
-                ))}
-              </select>
-
-              <div className="flex justify-between mt-6 flex-wrap">
+            <div className="text-center">
+              <h2 className="font-bold text-lg text-customGray">Review your submission</h2>
+              <p className="mt-4">Species: {selectedSpecies}</p>
+              <p>Location: {location}</p>
+              <div className="mt-6 flex justify-between gap-4">
                 <Button
                   variant="outlined"
                   size="large"
@@ -224,7 +225,7 @@ export default function ReportPetForm() {
                   Submit
                 </Button>
               </div>
-            </>
+            </div>
           )}
         </form>
       </div>
