@@ -37,11 +37,27 @@ const petData = [
   },
   {
     id: 4,
-    name: "Max",
+    name: "Buddy",
     description:
-      "Max is an energetic puppy, and he was last seen in the downtown area.",
-    image: "/assets/petCarousel.jpg",
+      "Buddy was found wandering around the street. Looking for his owner.",
+    image: "/assets/petCarousel2.jpg",
     badgeType: "Found",
+  },
+  {
+    id: 5,
+    name: "Whiskers",
+    description:
+      "Whiskers is a stray cat. She has been roaming around the neighborhood.",
+    image: "/assets/petCarousel.jpg",
+    badgeType: "Stray",
+  },
+  {
+    id: 5,
+    name: "Ching Chang",
+    description:
+      "Whiskers is a stray cat. She has been roaming around the neighborhood.",
+    image: "/assets/petCarousel.jpg",
+    badgeType: "Stray",
   },
 ];
 
@@ -58,7 +74,11 @@ export default function Section2() {
             <Badge
               variant="default"
               className={`absolute top-3 right-3 text-white text-sm px-3 py-1 rounded-full shadow-md ${
-                pet.badgeType === "Lost" ? "bg-red-500" : "bg-[#8DC63F]"
+                pet.badgeType === "Lost"
+                  ? "bg-red-500"
+                  : pet.badgeType === "Found"
+                  ? "bg-[#8DC63F]"
+                  : "bg-yellow-500" 
               }`}
             >
               {pet.badgeType}
