@@ -1,8 +1,8 @@
 import React, { useState } from "react";
 import { Search, X } from "lucide-react";
-import { useMaxWidth } from "../../utils/useMaxWidth";
+import { useMaxWidth } from "../../../utils/useMaxWidth";
 
-export default function SearchInput() {
+export default function SearchSection() {
   const [searchValue, setSearchValue] = useState("");
   const maxWidth = useMaxWidth("sm");
 
@@ -10,17 +10,21 @@ export default function SearchInput() {
     setSearchValue("");
   };
 
+  if (maxWidth && maxWidth <= 640) {
+    return null; 
+  }
+
   return (
+    <div className="flex justify-center items-center lg:flex lg:flex-1 mx-4 p-2">
+        <div className="max-w-[500px] w-full">
     <div className="w-full px-4 md:px-6 lg:px-8">
       <div className="relative flex flex-col sm:flex-row items-center mx-auto w-full gap-3 sm:gap-4">
         <div
           className="relative flex items-center w-full"
           style={{ maxWidth: `${maxWidth}px` }}
         >
-          {/* Search Icon */}
           <Search className="w-5 h-5 absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400" />
 
-          {/* Search Input */}
           <input
             type="text"
             value={searchValue}
@@ -32,35 +36,28 @@ export default function SearchInput() {
              sm:w-[300px] md:w-[450px] lg:w-[600px] focus:text-[16px]"
             style={{
               minWidth: "270px",
-              fontSize: "14px", // smaller font size on mobile
+              fontSize: "14px",
             }}
           />
 
-          {/* Clear Button */}
           {searchValue && (
             <button
               onClick={handleClear}
-              className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400 
-                         hover:text-gray-600 transition-colors duration-200"
+              className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors duration-200"
             >
               <X className="w-5 h-5" />
             </button>
           )}
         </div>
 
-        {/* Conditionally render the Search Button only when there's text in the input */}
         {searchValue && (
-          <button
-            className="w-full sm:w-auto px-8 h-10 sm:h-12 bg-blue-600 text-white font-medium rounded-full
-                       hover:bg-blue-700 active:bg-blue-800 
-                       transition-all duration-200 ease-in-out
-                       shadow-lg shadow-blue-500/20
-                       flex items-center justify-center"
-          >
+          <button className="w-full sm:w-auto px-8 h-10 sm:h-12 bg-blue-600 text-white font-medium rounded-full hover:bg-blue-700 active:bg-blue-800 transition-all duration-200 ease-in-out shadow-lg shadow-blue-500/20 flex items-center justify-center">
             Search
           </button>
         )}
       </div>
+    </div>
+    </div>
     </div>
   );
 }

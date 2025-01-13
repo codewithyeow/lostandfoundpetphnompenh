@@ -9,10 +9,10 @@ interface SpeciesOption {
 }
 
 export default function ReportPetForm() {
-  const [selectedSpecies, setSelectedSpecies] = useState<string>(""); // Species selection state
-  const [location, setLocation] = useState<string>(""); // Location state
-  const [showMap, setShowMap] = useState<boolean>(false); // Control Google Maps popup
-  const [image, setImage] = useState<File | null>(null); // Pet image state
+  const [selectedSpecies, setSelectedSpecies] = useState<string>(""); 
+  const [location, setLocation] = useState<string>(""); 
+  const [showMap, setShowMap] = useState<boolean>(false); 
+  const [image, setImage] = useState<File | null>(null);
 
   const handleImageUpload = (
     event: React.ChangeEvent<HTMLInputElement>

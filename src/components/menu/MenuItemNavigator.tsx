@@ -42,7 +42,7 @@ const MenuItemNavigator: React.FC<MenuItemNavigatorProps> = ({
       name: "ABOUT US",
       key: "about-us",
       href: "/about",
-    }
+    },
   ];
 
   const toggleDropdown = (key: string, event: React.MouseEvent) => {
@@ -67,8 +67,11 @@ const MenuItemNavigator: React.FC<MenuItemNavigatorProps> = ({
   }, []);
 
   return (
-    <div className={`${isMenuOpen ? "block" : "hidden"} md:block`}>
-      <ul className={`flex flex-col md:flex-row ${isMobile ? 'text-[10px]' : ''}`}>
+    <div
+      className={`${isMenuOpen ? "block" : "hidden"} md:block`}
+      ref={dropdownRef}
+    >
+      <ul className={`flex flex-col md:flex-row ${isMobile}`}>
         {menuItems.map((item) => (
           <li
             key={item.name}
@@ -82,9 +85,7 @@ const MenuItemNavigator: React.FC<MenuItemNavigatorProps> = ({
                   : item.href && router.push(item.href)
               }
             >
-              <span className={`${isMobile ? 'text-[10px]' : 'md:text-[12px]'}`}>
-                {item.name}
-              </span>
+              <span className="md:text-[12px] xl:text-[12px]">{item.name}</span>
               {item.subItem && (
                 <svg
                   className={`w-2.5 h-2.5 text-black ms-2 transform transition-transform ${
@@ -109,27 +110,27 @@ const MenuItemNavigator: React.FC<MenuItemNavigatorProps> = ({
             {item.subItem && (
               <div
                 className={`
-                  ${
-                    isMobile
-                      ? "relative w-full bg-white border border-gray-500  rounded"
-                      : "absolute left-0 bg-white shadow-md rounded-md"
-                  }
-                  ${activeDropdown === item.key ? "block" : "hidden"}
-                  mt-1 overflow-hidden transition-all duration-200 min-w-[200px]
-                `}
+                ${
+                  isMobile
+                    ? "relative w-full bg-white border border-gray-200 rounded"
+                    : "absolute left-0 bg-white shadow-md rounded-md"
+                }
+                ${activeDropdown === item.key ? "block" : "hidden"}
+                mt-1 overflow-hidden transition-all duration-200 min-w-[200px]
+              `}
               >
                 <ul className="py-1">
                   {item.subItem.map((subItem) => (
                     <li
                       key={subItem.name}
-                      className="cursor-pointer"
+                      className=" cursor-pointer"
                       onClick={() => subItem.href && router.push(subItem.href)}
                     >
                       <span
                         className={`block px-4 py-1 text-black font-semibold ${
                           isMobile
-                            ? "text-[10px]" // Small text for subitems on mobile
-                            : "md:text-[12px]"
+                            ? "text-[14px]"
+                            : "md:text-[12px] xl:text-[12px]"
                         }`}
                       >
                         {subItem.name}
