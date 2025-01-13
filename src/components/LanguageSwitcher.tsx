@@ -74,7 +74,7 @@ const LanguageSwitcher: React.FC<Props> = ({
         />
         {/* Adjusting the text size using text-sm */}
         <span className="ml-2 font-semibold text-black text-xs">{language.title}</span>
-        <span className={`ml-2 text-xs transition-transform duration-200 text-white ${isOpen ? 'rotate-180' : ''}`}>
+        <span className={`ml-2 text-xs transition-transform duration-200 text-black ${isOpen ? 'rotate-180' : ''}`}>
           ▼
         </span>
       </div>
