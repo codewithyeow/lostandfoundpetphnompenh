@@ -4,8 +4,6 @@
 import ReportPetForm from "../../page-sections/ReportPetForm";
 export default function ReportPetPage() {
   return (
-    <div className="container mx-auto">
         <ReportPetForm />
-    </div>
   );
 }

@@ -65,7 +65,7 @@ const Header: React.FC<HeaderProps> = ({ locale = "en" }) => {
           {maxWidth && maxWidth <= 640 && (
             <>
               <Search
-                className="w-6 h-6 text-gray-400 mr-4 cursor-pointer"
+                className="w-6 h-6 text-black mr-4 cursor-pointer" // Changed from text-gray-400 to text-black
                 onClick={toggleSearch} // Toggle search panel on click
               />
               {isSearchOpen && (
@@ -79,7 +79,7 @@ const Header: React.FC<HeaderProps> = ({ locale = "en" }) => {
                       placeholder="Search..."
                       className="w-full py-2 px-4 border border-gray-300 rounded-lg focus:outline-none focus:border-gray-500"
                     />
-                    {/* add button search here as a primary color  */}
+                    {/* add button search here as a primary color */}
                     <button className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors duration-200">
                       Search
                     </button>
