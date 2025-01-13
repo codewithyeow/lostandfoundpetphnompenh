@@ -1,6 +1,6 @@
 "use client";
 import React, { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import { Search } from "lucide-react";
 import MenuItemNavigator from "../../components/menu/MenuItemNavigator";
 import Container from "../../components/ui/container";
@@ -22,6 +22,27 @@ const Header: React.FC<HeaderProps> = ({ locale = "en" }) => {
       setIsSearchOpen(false); // Automatically close search when on larger screens
     }
   }, [maxWidth]);
+
+  // Close the hamburger menu and submenu when the route changes
+  const pathname = usePathname();
+
+  useEffect(() => {
+    setIsMenuOpen(false); // Close the menu when the route changes
+  }, [pathname]); // Monitor changes in pathname
+
+  const toggleSearch = () => {
+    if (isMenuOpen) {
+      setIsMenuOpen(false); // Close the menu if it is open
+    }
+    setIsSearchOpen(!isSearchOpen); // Toggle search panel
+  };
+
+  const toggleMenu = () => {
+    if (isSearchOpen) {
+      setIsSearchOpen(false); // Close the search panel if it is open
+    }
+    setIsMenuOpen(!isMenuOpen); // Toggle hamburger menu
+  };
 
   const menuVisibilityClass = isMenuOpen ? "block" : "hidden";
 
@@ -45,18 +66,24 @@ const Header: React.FC<HeaderProps> = ({ locale = "en" }) => {
             <>
               <Search
                 className="w-6 h-6 text-gray-400 mr-4 cursor-pointer"
-                onClick={() => setIsSearchOpen(!isSearchOpen)}
+                onClick={toggleSearch} // Toggle search panel on click
               />
               {isSearchOpen && (
                 <div
-                  className="absolute top-full left-0 right-0 bg-white shadow-lg py-4 px-6 z-30"
+                  className="absolute top-full left-0 right-0 bg-[#F8F9FA] shadow-lg py-4 px-6 z-30"
                   style={{ maxWidth: "640px" }}
                 >
-                  <input
-                    type="text"
-                    placeholder="Search..."
-                    className="w-full py-2 px-4 border border-gray-300 rounded-lg focus:outline-none focus:border-gray-500"
-                  />
+                  <div className="flex items-center space-x-2">
+                    <input
+                      type="text"
+                      placeholder="Search..."
+                      className="w-full py-2 px-4 border border-gray-300 rounded-lg focus:outline-none focus:border-gray-500"
+                    />
+                    {/* add button search here as a primary color  */}
+                    <button className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors duration-200">
+                      Search
+                    </button>
+                  </div>
                 </div>
               )}
             </>
@@ -70,7 +97,7 @@ const Header: React.FC<HeaderProps> = ({ locale = "en" }) => {
               className="inline-flex items-center p-2 h-10 justify-center text-sm text-black rounded-lg focus:outline-none ml-2 lg:hidden"
               aria-controls="navbar-sticky"
               aria-expanded={isMenuOpen}
-              onClick={() => setIsMenuOpen(!isMenuOpen)}
+              onClick={toggleMenu} // Toggle hamburger menu on click
             >
               <span className="sr-only">Open main menu</span>
               {isMenuOpen ? (

@@ -15,7 +15,7 @@ export default function SearchSection() {
   }
 
   return (
-    <div className="flex justify-center items-center lg:flex lg:flex-1 mx-4 p-2">
+    <div className="bg-[#F8F9FA] flex justify-center items-center lg:flex lg:flex-1 mx-4 p-2">
         <div className="max-w-[500px] w-full">
     <div className="w-full px-4 md:px-6 lg:px-8">
       <div className="relative flex flex-col sm:flex-row items-center mx-auto w-full gap-3 sm:gap-4">

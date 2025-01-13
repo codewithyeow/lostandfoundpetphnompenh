@@ -1,5 +1,7 @@
+"use client"; 
 import React, { useState, useRef, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
+
 
 type MenuItemNavigatorProps = {
   isMobile: boolean;
@@ -17,16 +19,16 @@ const MenuItemNavigator: React.FC<MenuItemNavigatorProps> = ({
   const menuItems = [
     {
       name: "FOUND PETS",
-      key: "about",
+      key: "found-pets",
       subItem: [
         { name: "FOUND DOGS", href: "/report-pet-form" },
-        { name: "FOUND CATS", href: "/report-pet-form" },
-        { name: "FOUND PETS [ALL]", href: "/report-pet-form" },
+        { name: "FOUND CATS", href: "/" },
+        { name: "FOUND PETS [ALL]", href: "/" },
       ],
     },
     {
       name: "LOST PETS",
-      key: "services",
+      key: "lost-pets",
       subItem: [
         { name: "LOST DOGS", href: "/services/consulting" },
         { name: "LOST CATS", href: "/services/design" },
@@ -36,7 +38,7 @@ const MenuItemNavigator: React.FC<MenuItemNavigatorProps> = ({
     {
       name: "HAPPY TALES",
       key: "happy-tales",
-      href: "/succes-stories",
+      href: "/success-stories",
     },
     {
       name: "ABOUT US",
@@ -45,8 +47,7 @@ const MenuItemNavigator: React.FC<MenuItemNavigatorProps> = ({
     },
   ];
 
-  const toggleDropdown = (key: string, event: React.MouseEvent) => {
-    event.stopPropagation();
+  const toggleDropdown = (key: string) => {
     setActiveDropdown(activeDropdown === key ? null : key);
   };
 
@@ -66,6 +67,13 @@ const MenuItemNavigator: React.FC<MenuItemNavigatorProps> = ({
     };
   }, []);
 
+  // Close the dropdown automatically when the pathname changes
+  const pathname = usePathname();
+
+  useEffect(() => {
+    setActiveDropdown(null);
+  }, [pathname]);
+
   return (
     <div
       className={`${isMenuOpen ? "block" : "hidden"} md:block`}
@@ -79,9 +87,9 @@ const MenuItemNavigator: React.FC<MenuItemNavigatorProps> = ({
           >
             <div
               className="flex items-center justify-between py-2 px-3 text-black font-semibold rounded cursor-pointer"
-              onClick={(e) =>
+              onClick={() =>
                 item.subItem
-                  ? toggleDropdown(item.key, e)
+                  ? toggleDropdown(item.key)
                   : item.href && router.push(item.href)
               }
             >
