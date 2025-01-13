@@ -62,7 +62,7 @@ const Header: React.FC<HeaderProps> = ({ locale = "en" }) => {
 
           <div className="flex-grow"></div>
 
-          {/* Conditionally Render Search Icon on Mobile */}
+          {/* Conditionally Render Search Icon and Language Switcher on Mobile */}
           {maxWidth && maxWidth <= 640 && (
             <>
               <Search
@@ -89,6 +89,13 @@ const Header: React.FC<HeaderProps> = ({ locale = "en" }) => {
                 </div>
               )}
             </>
+          )}
+
+          {/* On Larger Screens, Show Language Switcher next to Login */}
+          {maxWidth && maxWidth > 640 && (
+            <div className="flex items-center order-2 bg-[#F8F9FA]">
+              <LanguageSwitcher menuDirection="right" locale={locale} />
+            </div>
           )}
 
           <div className="flex items-center order-2 bg-[#F8F9FA]">
@@ -168,9 +175,6 @@ const Header: React.FC<HeaderProps> = ({ locale = "en" }) => {
                   isMobile={isMenuOpen}
                   isMenuOpen={isMenuOpen}
                 />
-                <div className="mr-2">
-                  <LanguageSwitcher menuDirection="right" locale={locale} />
-                </div>
               </ul>
             </div>
           </div>
