@@ -9,7 +9,7 @@ import {
   CarouselItem,
   CarouselPrevious,
   CarouselNext,
-} from "../../../components/ui/carousel";
+} from "../../../components/ui/carousel"; 
 
 interface Pet {
   id: number;
@@ -45,6 +45,7 @@ const carouselItems: Pet[] = [
 
 export default function Section1() {
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [searchTerm, setSearchTerm] = useState(""); // State for search input
   const t = useTranslations("section1");
 
   // Auto-swipe functionality
@@ -88,7 +89,7 @@ export default function Section1() {
               return (
                 <CarouselItem key={item.id}>
                   <div
-                    className="relative w-full sm:h-[60vh] md:h-[80vh] h-[60vh]" // Ensuring height adapts for different screen sizes
+                    className="relative w-full sm:h-[60vh] md:h-[80vh] h-[45vh]" // Ensuring height adapts for different screen sizes
                     {...swipeHandlers}
                   >
                     {/* Image that adjusts based on screen size */}
