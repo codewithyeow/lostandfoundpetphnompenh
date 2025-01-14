@@ -122,7 +122,7 @@ export default function Section2() {
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="relative w-full h-52 sm:h-60 lg:h-72">
+                  <div className="relative w-full h-60 sm:h-60 lg:h-72">
                     <Image
                       src={pet.image}
                       alt={pet.name}

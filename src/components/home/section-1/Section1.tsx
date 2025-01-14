@@ -34,12 +34,12 @@ export default function Section1() {
   const t = useTranslations("section1");
 
   // Auto-swipe functionality
-  useEffect(() => {
-    const interval = setInterval(() => {
-      nextSlide();
-    }, 3000);
-    return () => clearInterval(interval);
-  }, [currentIndex]);
+  // useEffect(() => {
+  //   const interval = setInterval(() => {
+  //     nextSlide();
+  //   }, 3000);
+  //   return () => clearInterval(interval);
+  // }, [currentIndex]);
 
   const nextSlide = () => {
     setCurrentIndex((prevIndex) => (prevIndex + 1) % carouselItems.length);
