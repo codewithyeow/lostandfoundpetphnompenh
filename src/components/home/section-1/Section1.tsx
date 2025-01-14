@@ -7,9 +7,7 @@ import {
   Carousel,
   CarouselContent,
   CarouselItem,
-  CarouselPrevious,
-  CarouselNext,
-} from "../../../components/ui/carousel"; 
+} from "../../../components/ui/carousel";
 
 interface Pet {
   id: number;
@@ -23,13 +21,16 @@ const carouselItems: Pet[] = [
   },
   {
     id: 2,
-    image: "/assets/petCarousel2.jpg",
+    image: "/assets/adoptPet.jpg",
+  },
+  {
+    id: 3,
+    image: "/assets/petCarousel3.jpg",
   },
 ];
 
 export default function Section1() {
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [searchTerm, setSearchTerm] = useState(""); // State for search input
   const t = useTranslations("section1");
 
   // Auto-swipe functionality
@@ -62,7 +63,7 @@ export default function Section1() {
   });
 
   return (
-    <div className="relative">
+    <div className="relative w-full">
       {/* Carousel Component */}
       <Carousel>
         <CarouselContent>
@@ -71,18 +72,18 @@ export default function Section1() {
               return (
                 <CarouselItem key={item.id}>
                   <div
-                    className="relative w-full sm:h-[50vh] md:h-[60vh] lg:h-[80vh] h-[30vh]" // Adjusted height for different screens
+                    className="relative w-full h-[30vh] sm:h-[50vh] md:h-[60vh] lg:h-[80vh]"
                     {...swipeHandlers}
                   >
-                    {/* Image that adjusts based on screen size */}
+                    {/* Image component */}
                     <Image
                       src={item.image}
-                      layout="fill" // Fill the container completely while maintaining aspect ratio
-                      className="w-full h-full object-cover" // Ensure both width and height fill the container
+                      fill
+                      className="object-cover"
                       priority
+                      alt={""}
                       quality={75}
                       sizes="(max-width: 768px) 100vw, (max-width: 1200px) 90vw, 80vw"
-                      alt={""}
                     />
                   </div>
                 </CarouselItem>
