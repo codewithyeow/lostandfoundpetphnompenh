@@ -3,9 +3,11 @@ import React, { useState, useEffect } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import { Search } from "lucide-react";
 import MenuItemNavigator from "../../components/menu/MenuItemNavigator";
-import Container from "../../components/ui/container";
+import Container from "../ui/container";
 import { useMaxWidth } from "../../utils/useMaxWidth";
 import LanguageSwitcher from "@component/LanguageSwitcher";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Skeleton } from "@/components/ui/skeleton";
 
 type HeaderProps = {
   locale?: string;
@@ -15,6 +17,7 @@ const Header: React.FC<HeaderProps> = ({ locale = "en" }) => {
   const router = useRouter();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false); // State for search panel
+  const [isLogoLoading, setIsLogoLoading] = useState(true); // State for logo loading
   const maxWidth = useMaxWidth("sm");
 
   // Close the search box when the screen size changes to a larger screen
@@ -45,6 +48,10 @@ const Header: React.FC<HeaderProps> = ({ locale = "en" }) => {
     setIsMenuOpen(!isMenuOpen); // Toggle hamburger menu
   };
 
+  const handleLogoLoad = () => {
+    setIsLogoLoading(false); // Set loading to false when the image has loaded
+  };
+
   const menuVisibilityClass = isMenuOpen ? "block" : "hidden";
 
   return (
@@ -53,8 +60,17 @@ const Header: React.FC<HeaderProps> = ({ locale = "en" }) => {
         <div className="max-w-[1150px] flex items-center justify-between mx-auto px-4 py-3">
           {/* Logo */}
           <a href="/" className="flex items-center space-x-2">
-          <img src="/assets/logo.png" className="h-14 w-auto" />
-
+            <Avatar style={{ width: "60px", height: "60px" }}>
+              {isLogoLoading && (
+                <Skeleton className="w-[60px] h-[60px] rounded-full" />
+              )}
+              <AvatarImage
+                src="/assets/logo.png"
+                alt="Logo"
+                onLoad={handleLogoLoad}
+                className={isLogoLoading ? "hidden" : "block"}
+              />
+            </Avatar>
           </a>
 
           <div className="flex-grow"></div>
