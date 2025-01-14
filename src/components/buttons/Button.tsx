@@ -9,9 +9,9 @@ interface ButtonProps {
   size?: "small" | "medium" | "large";
   color?: "primary" | "secondary" | "danger";
   children?: React.ReactNode;
-  style?: React.CSSProperties; // Allow inline styles via style prop
-  width?: string; // Allow setting width explicitly via props
-  height?: string; // Allow setting height explicitly via props
+  style?: React.CSSProperties; 
+  width?: string; 
+  height?: string; 
   onClick?: React.MouseEventHandler<HTMLButtonElement>;
 }
 
@@ -26,11 +26,11 @@ const StyledButton = styled("button")<ButtonProps>(
     fontFamily: "inherit",
     transition: "background-color 0.3s ease",
     fontWeight: 600,
-    borderRadius: "4px", // Add border-radius to give it rounded corners
-    padding: "12px 24px", // Default padding for the button
+    borderRadius: "4px",
+    padding: "12px 24px", 
     textAlign: "center",
-    height: "50px", // Default height for the button
-    width: "200px", // Default width for the button
+    height: "50px", 
+    width: "200px",
   },
   variant({
     prop: "variant",
@@ -47,7 +47,6 @@ const StyledButton = styled("button")<ButtonProps>(
         color: "primary",
       },
       contained: {
-        
         color: "white",
         "&:hover": {
           backgroundColor: "darkblue",
@@ -90,7 +89,7 @@ const Button: React.FC<ButtonProps> = ({
       variant={variant}
       size={size}
       style={{ width: width || "200px", height: height || "50px", ...style }}
-      onClick = {props.onClick}
+      onClick={props.onClick}
       {...props}
     >
       {children}

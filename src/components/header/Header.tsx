@@ -53,16 +53,13 @@ const Header: React.FC<HeaderProps> = ({ locale = "en" }) => {
         <div className="max-w-[1150px] flex items-center justify-between mx-auto px-4 py-3">
           {/* Logo */}
           <a href="/" className="flex items-center space-x-2">
-            <img
-              src="https://www.pawboost.com/images/global/pawboost-logo-mobile.png"
-              className="h-9 w-auto"
-              alt="PawBoost Logo"
-            />
+          <img src="/assets/logo.png" className="h-14 w-auto" />
+
           </a>
 
           <div className="flex-grow"></div>
 
-          {/* Conditionally Render Search Icon on Mobile */}
+          {/* Conditionally Render Search Icon and Language Switcher on Mobile */}
           {maxWidth && maxWidth <= 640 && (
             <>
               <Search
@@ -89,6 +86,13 @@ const Header: React.FC<HeaderProps> = ({ locale = "en" }) => {
                 </div>
               )}
             </>
+          )}
+
+          {/* On Larger Screens, Show Language Switcher next to Login */}
+          {maxWidth && maxWidth > 640 && (
+            <div className="flex items-center order-2 bg-[#F8F9FA]">
+              <LanguageSwitcher menuDirection="right" locale={locale} />
+            </div>
           )}
 
           <div className="flex items-center order-2 bg-[#F8F9FA]">
@@ -168,9 +172,6 @@ const Header: React.FC<HeaderProps> = ({ locale = "en" }) => {
                   isMobile={isMenuOpen}
                   isMenuOpen={isMenuOpen}
                 />
-                <div className="mr-2">
-                  <LanguageSwitcher menuDirection="right" locale={locale} />
-                </div>
               </ul>
             </div>
           </div>

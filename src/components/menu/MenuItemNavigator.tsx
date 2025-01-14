@@ -1,7 +1,6 @@
-"use client"; 
+"use client";
 import React, { useState, useRef, useEffect } from "react";
 import { useRouter, usePathname } from "next/navigation";
-
 
 type MenuItemNavigatorProps = {
   isMobile: boolean;
@@ -15,24 +14,25 @@ const MenuItemNavigator: React.FC<MenuItemNavigatorProps> = ({
   const router = useRouter();
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
   const dropdownRef = useRef<HTMLDivElement | null>(null);
+  const pathname = usePathname();
 
   const menuItems = [
     {
       name: "FOUND PETS",
       key: "found-pets",
       subItem: [
-        { name: "FOUND DOGS", href: "/report-pet-form" },
-        { name: "FOUND CATS", href: "/report-pet-form" },
-        { name: "FOUND PETS [ALL]", href: "/report-pet-form" },
+        { name: "FOUND DOGS", href: "/report-found-pet-form" },
+        { name: "FOUND CATS", href: "/report-found-pet-form" },
+        { name: "FOUND PETS [ALL]", href: "/report-found-pet-form" },
       ],
     },
     {
       name: "LOST PETS",
       key: "lost-pets",
       subItem: [
-        { name: "LOST DOGS", href: "/services/consulting" },
-        { name: "LOST CATS", href: "/services/design" },
-        { name: "LOST PETS [ALL]", href: "/services/development" },
+        { name: "LOST DOGS", href: "/report-lost-pet-form" },
+        { name: "LOST CATS", href: "/report-lost-pet-form" },
+        { name: "LOST PETS [ALL]", href: "/report-lost-pet-form" },
       ],
     },
     {
@@ -66,9 +66,6 @@ const MenuItemNavigator: React.FC<MenuItemNavigatorProps> = ({
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, []);
-
-  // Close the dropdown automatically when the pathname changes
-  const pathname = usePathname();
 
   useEffect(() => {
     setActiveDropdown(null);
