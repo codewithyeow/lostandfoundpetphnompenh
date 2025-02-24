@@ -3,6 +3,7 @@ import Image from "next/image";
 import { useTranslations } from "next-intl";
 import Flickity from "flickity";
 import "flickity/css/flickity.css";
+import SearchSection from "../search-section/Search-Section";
 
 interface Pet {
   id: number;
@@ -35,7 +36,7 @@ export default function Section1() {
       flickityInstance.current = new Flickity(carouselRef.current, {
         cellAlign: 'center',
         contain: true,
-        wrapAround: true,
+        wrapAround: true, // Enables infinite scrolling
         autoPlay: 3000, // Auto-plays slides every 3 seconds
         draggable: true, // Enables dragging
         prevNextButtons: false, // Hides default prev/next buttons
@@ -66,7 +67,7 @@ export default function Section1() {
     <div className="relative w-full">
       {/* SearchSection Component */}
       <div className="absolute top-0 left-1/2 transform -translate-x-1/2 z-10  w-full sm:w-[60%] md:w-[50%] lg:w-[40%]">
-        {/* <SearchSection /> */}
+        <SearchSection />
       </div>
 
       {/* Flickity Carousel */}

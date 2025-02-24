@@ -13,14 +13,13 @@ const theme = {
 
 const Section1 = dynamic(() => import("@component/home/section-1/Section1"), { ssr: false });
 const Section2 = dynamic(() => import("@component/home/section-2/Section2"), { ssr: false });
-const SearchSection = dynamic(() => import("@component/home/search-section/Search-Section"), { ssr: false });
 
 export default function Home() {
   return (
     <ThemeProvider theme={theme}>
       <div className="min-h-screen flex flex-col">
         {/* Search Section */}
-        <SearchSection />
+        {/* <SearchSection /> */}
 
         {/* Main Content - Ensure it takes full height */}
         <div className="flex-1">
