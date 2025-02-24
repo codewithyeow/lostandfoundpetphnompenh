@@ -36,7 +36,7 @@ export default function Section1() {
       flickityInstance.current = new Flickity(carouselRef.current, {
         cellAlign: 'center',
         contain: true,
-        wrapAround: true, // Enables infinite scrolling
+        wrapAround: true,
         autoPlay: 3000, // Auto-plays slides every 3 seconds
         draggable: true, // Enables dragging
         prevNextButtons: false, // Hides default prev/next buttons
