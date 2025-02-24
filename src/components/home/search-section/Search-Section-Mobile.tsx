@@ -1,5 +1,3 @@
-// SearchComponent.tsx
-"use client";
 import React, { useState, useRef, useEffect } from "react";
 import { Search, X } from "lucide-react";
 
@@ -9,11 +7,11 @@ interface SearchComponentProps {
   toggleSearch: () => void;
 }
 
-const SearchComponentMobile: React.FC<SearchComponentProps> = ({
+export default function SearchSectionMobile({
   isMobile,
   isSearchOpen,
   toggleSearch,
-}) => {
+}: SearchComponentProps) {
   const [searchQuery, setSearchQuery] = useState("");
   const searchInputRef = useRef<HTMLInputElement>(null);
 
@@ -141,5 +139,3 @@ const SearchComponentMobile: React.FC<SearchComponentProps> = ({
     </div>
   );
 };
-
-export default SearchComponentMobile;

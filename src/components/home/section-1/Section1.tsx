@@ -3,7 +3,6 @@ import Image from "next/image";
 import { useTranslations } from "next-intl";
 import Flickity from "flickity";
 import "flickity/css/flickity.css";
-import SearchSection from "../search-section/Search-Section";
 
 interface Pet {
   id: number;
@@ -67,7 +66,7 @@ export default function Section1() {
     <div className="relative w-full">
       {/* SearchSection Component */}
       <div className="absolute top-0 left-1/2 transform -translate-x-1/2 z-10  w-full sm:w-[60%] md:w-[50%] lg:w-[40%]">
-        <SearchSection />
+        {/* <SearchSection /> */}
       </div>
 
       {/* Flickity Carousel */}
