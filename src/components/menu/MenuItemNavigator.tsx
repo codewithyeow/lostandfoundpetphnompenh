@@ -18,6 +18,11 @@ const MenuItemNavigator: React.FC<MenuItemNavigatorProps> = ({
 
   const menuItems = [
     {
+      name: "MY PET",
+      key: "my-pet",
+      href: "/dashboard/mypet", 
+    },
+    {
       name: "FOUND PETS",
       key: "found-pets",
       subItem: [
@@ -45,6 +50,7 @@ const MenuItemNavigator: React.FC<MenuItemNavigatorProps> = ({
       key: "about-us",
       href: "/about",
     },
+   
   ];
 
   const toggleDropdown = (key: string) => {
@@ -80,7 +86,7 @@ const MenuItemNavigator: React.FC<MenuItemNavigatorProps> = ({
         {menuItems.map((item) => (
           <li
             key={item.name}
-            className={`relative ${isMobile ? "w-full" : "md:px-1 xl:px-0"}`}
+            className={`relative ${isMobile ? "w-full" : "md:px-1 xl:px-0"}`} 
           >
             <div
               className="flex items-center justify-between py-2 px-3 text-black font-semibold rounded cursor-pointer"
@@ -115,14 +121,15 @@ const MenuItemNavigator: React.FC<MenuItemNavigatorProps> = ({
             {item.subItem && (
               <div
                 className={`
+                 z-[calc(var(--index)+1)]
                 ${
                   isMobile
                     ? "relative w-full bg-white border border-gray-200 rounded"
-                    : "absolute left-0 bg-white shadow-md rounded-md"
+                     : "absolute left-0 bg-white shadow-md rounded-md"
                 }
-                ${activeDropdown === item.key ? "block" : "hidden"}
-                mt-1 overflow-hidden transition-all duration-200 min-w-[200px]
-              `}
+                 ${activeDropdown === item.key ? "block" : "hidden"}
+                  mt-1 overflow-hidden transition-all duration-200 min-w-[200px]
+                `}
               >
                 <ul className="py-1">
                   {item.subItem.map((subItem) => (
@@ -150,7 +157,7 @@ const MenuItemNavigator: React.FC<MenuItemNavigatorProps> = ({
 
         <li className="mt-4 md:mt-0">
           <a href="/login">
-            <button className="w-full md:w-auto text-white bg-[#2463EB] px-4 py-2 text-[0.70rem] rounded-full hover:bg-[#2463EB] transition-colors duration-200">
+            <button className="w-full md:w-auto text-white bg-[#4eb7f0] px-4 py-2 text-[0.70rem] rounded-full hover:bg-[#2463EB] transition-colors duration-200 font-bold ">
               LOGIN
             </button>
           </a>

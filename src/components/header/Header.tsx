@@ -1,13 +1,13 @@
 "use client";
 import React, { useState, useEffect } from "react";
 import { useRouter, usePathname } from "next/navigation";
-import { Search } from "lucide-react";
 import MenuItemNavigator from "../../components/menu/MenuItemNavigator";
 import Container from "../ui/container";
 import { useMaxWidth } from "../../utils/useMaxWidth";
 import LanguageSwitcher from "@component/LanguageSwitcher";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Skeleton } from "@/components/ui/skeleton";
+import SearchComponentMobile from "./../../components/home/search-section/Search-Section-Mobile";
 
 type HeaderProps = {
   locale?: string;
@@ -16,14 +16,14 @@ type HeaderProps = {
 const Header: React.FC<HeaderProps> = ({ locale = "en" }) => {
   const router = useRouter();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [isSearchOpen, setIsSearchOpen] = useState(false); // State for search panel
-  const [isLogoLoading, setIsLogoLoading] = useState(true); // State for logo loading
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [isLogoLoading, setIsLogoLoading] = useState(true);
   const maxWidth = useMaxWidth("sm");
 
   // Close the search box when the screen size changes to a larger screen
   useEffect(() => {
     if (maxWidth && maxWidth > 640) {
-      setIsSearchOpen(false); // Automatically close search when on larger screens
+      setIsSearchOpen(false);
     }
   }, [maxWidth]);
 
@@ -31,25 +31,25 @@ const Header: React.FC<HeaderProps> = ({ locale = "en" }) => {
   const pathname = usePathname();
 
   useEffect(() => {
-    setIsMenuOpen(false); // Close the menu when the route changes
-  }, [pathname]); // Monitor changes in pathname
+    setIsMenuOpen(false);
+  }, [pathname]);
 
   const toggleSearch = () => {
     if (isMenuOpen) {
-      setIsMenuOpen(false); // Close the menu if it is open
+      setIsMenuOpen(false);
     }
-    setIsSearchOpen(!isSearchOpen); // Toggle search panel
+    setIsSearchOpen(!isSearchOpen);
   };
 
   const toggleMenu = () => {
     if (isSearchOpen) {
-      setIsSearchOpen(false); // Close the search panel if it is open
+      setIsSearchOpen(false);
     }
-    setIsMenuOpen(!isMenuOpen); // Toggle hamburger menu
+    setIsMenuOpen(!isMenuOpen);
   };
 
   const handleLogoLoad = () => {
-    setIsLogoLoading(false); // Set loading to false when the image has loaded
+    setIsLogoLoading(false);
   };
 
   const menuVisibilityClass = isMenuOpen ? "block" : "hidden";
@@ -78,33 +78,16 @@ const Header: React.FC<HeaderProps> = ({ locale = "en" }) => {
           {/* Conditionally Render Search Icon and Language Switcher on Mobile */}
           {maxWidth && maxWidth <= 640 && (
             <>
-              <Search
-                className="w-6 h-6 text-black mr-4 cursor-pointer" // Changed from text-gray-400 to text-black
-                onClick={toggleSearch} // Toggle search panel on click
+              <SearchComponentMobile 
+                isMobile={true} 
+                isSearchOpen={isSearchOpen} 
+                toggleSearch={toggleSearch} 
               />
               <LanguageSwitcher menuDirection="left" locale={locale} />
-              {isSearchOpen && (
-                <div
-                  className="absolute top-full left-0 right-0 bg-[#F8F9FA] shadow-lg py-4 px-6 z-30"
-                  style={{ maxWidth: "640px" }}
-                >
-                  <div className="flex items-center space-x-2">
-                    <input
-                      type="text"
-                      placeholder="Search..."
-                      className="w-full py-2 px-4 border border-gray-300 rounded-lg focus:outline-none focus:border-gray-500"
-                    />
-                    {/* add button search here as a primary color */}
-                    <button className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors duration-200">
-                      Search
-                    </button>
-                  </div>
-                </div>
-              )}
             </>
           )}
 
-          {/* On Larger Screens, Show Language Switcher next to Login */}
+          {/* On Larger Screens, Show Language Switcher next to Search */}
           {maxWidth && maxWidth > 640 && (
             <div className="flex items-center order-2 bg-[#F8F9FA]">
               <LanguageSwitcher menuDirection="right" locale={locale} />
@@ -119,7 +102,7 @@ const Header: React.FC<HeaderProps> = ({ locale = "en" }) => {
               className="inline-flex items-center h-10 justify-center text-sm text-black rounded-lg focus:outline-none ml-2 lg:hidden"
               aria-controls="navbar-sticky"
               aria-expanded={isMenuOpen}
-              onClick={toggleMenu} // Toggle hamburger menu on click
+              onClick={toggleMenu}
             >
               <span className="sr-only">Open main menu</span>
               {isMenuOpen ? (
@@ -182,7 +165,7 @@ const Header: React.FC<HeaderProps> = ({ locale = "en" }) => {
             >
               <ul
                 className="flex flex-col lg:p-0 font-medium lg:items-center items-start lg:flex-row rtl:space-x-reverse text-md ml-2"
-                style={{ gap: "0.5rem", padding: "0.5rem" }}
+                style={{ gap: "0.5rem", padding: "0.5rem", }}
               >
                 <MenuItemNavigator
                   isMobile={isMenuOpen}
