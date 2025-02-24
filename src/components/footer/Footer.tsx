@@ -3,7 +3,7 @@ import React from "react";
 
 export default function Header() {
   return (
-    <footer className="bg-[#85a1b4] text-white p-4">
+    <footer className="bg-[#4eb7f0] text-white p-4">
       <div className="max-w-screen-xl mx-auto text-center">
         <div className="grid grid-cols-2 gap-8 px-4 py-6 lg:py-8 md:grid-cols-3 ">
           <div>

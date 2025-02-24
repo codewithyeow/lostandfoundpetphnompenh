@@ -1,14 +1,14 @@
 import React, { useState, useEffect } from "react";
 import {
-  Card,
-  CardHeader,
-  CardFooter,
-  CardTitle,
-  CardDescription,
-  CardContent,
-} from "../../../components/ui/card";
+    Card,
+    CardHeader,
+    CardFooter,
+    CardTitle,
+    CardDescription,
+    CardContent,
+  } from "../components/ui/card";
 import Image from "next/image";
-import { Badge } from "../../../components/ui/badge";
+import { Badge } from "../components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 
 const petData = [
@@ -62,18 +62,27 @@ const petData = [
   },
 ];
 
-export default function Section2() {
+const MyPet = () => {
   const [loading, setLoading] = useState(true);
 
-  // Simulate data loading delay
   useEffect(() => {
     const timeout = setTimeout(() => setLoading(false), 2000);
-    return () => clearTimeout(timeout); // Clear timeout when component unmounts
+    return () => clearTimeout(timeout);
   }, []);
+
+  // Function to mark the pet as reunited
+  const markAsReunited = (id: number) => {
+    alert(`Pet with ID: ${id} has been reunited!`);
+  };
+
+  // Function to handle editing (this could link to an edit page or modal)
+  const handleEdit = (id: number) => {
+    alert(`Editing pet with ID: ${id}`);
+  };
 
   return (
     <section className="w-full bg-[#E4EAEE] px-4 md:px-8 lg:px-12 py-6">
-      <h2 className="font-bold text-center mb-8 text-xl">LATEST UPDATED</h2>
+      <h2 className="font-bold text-center mb-8 text-xl">My Pet Posts</h2>
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 max-w-6xl mx-auto">
         {loading
           ? // Show skeleton loaders while loading
@@ -136,8 +145,17 @@ export default function Section2() {
                   </CardDescription>
                 </CardContent>
                 <CardFooter className="px-4 pb-4 flex justify-between items-center">
-                  <button className="bg-[#4eb7f0] text-white text-xs sm:text-sm lg:text-sm px-3 sm:px-4 py-2 rounded-lg hover:bg-blue-600 transition-colors duration-200">
-                    Contact Owner
+                  <button
+                    className="bg-green-500 text-white text-xs sm:text-sm lg:text-sm px-3 sm:px-4 py-2 rounded-lg hover:bg-green-600 transition-colors duration-200"
+                    onClick={() => markAsReunited(pet.id)}
+                  >
+                    Reunited
+                  </button>
+                  <button
+                    className="bg-blue-500 text-white text-xs sm:text-sm lg:text-sm px-3 sm:px-4 py-2 rounded-lg hover:bg-blue-600 transition-colors duration-200"
+                    onClick={() => handleEdit(pet.id)}
+                  >
+                    Edit Information
                   </button>
                 </CardFooter>
               </Card>
@@ -145,4 +163,6 @@ export default function Section2() {
       </div>
     </section>
   );
-}
+};
+
+export default MyPet;

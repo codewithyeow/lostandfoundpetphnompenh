@@ -2,7 +2,7 @@
 import { ThemeProvider } from "styled-components";
 import Section1 from "../components/home/section-1";
 import Section2 from "../components/home/section-2";
-import { SearchSection } from "@component/home/searc-section";
+import { SearchSection } from "@component/home/search-section";
 
 const theme = {
   colors: {
@@ -17,7 +17,6 @@ export default function Home() {
     <ThemeProvider theme={theme}>
       <div className="min-h-screen flex flex-col">
         {/* Search Section */}
-        <SearchSection />
 
         {/* Main Content - Ensure it takes full height */}
         <div className="flex-1">

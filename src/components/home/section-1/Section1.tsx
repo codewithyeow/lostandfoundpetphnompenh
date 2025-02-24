@@ -1,13 +1,9 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useRef } from "react";
 import Image from "next/image";
-import { useSwipeable } from "react-swipeable";
 import { useTranslations } from "next-intl";
-
-import {
-  Carousel,
-  CarouselContent,
-  CarouselItem,
-} from "../../ui/carousel";
+import Flickity from "flickity";
+import "flickity/css/flickity.css";
+import SearchSection from "../search-section/Search-Section";
 
 interface Pet {
   id: number;
@@ -30,79 +26,78 @@ const carouselItems: Pet[] = [
 ];
 
 export default function Section1() {
-  const [currentIndex, setCurrentIndex] = useState(0);
   const t = useTranslations("section1");
+  const carouselRef = useRef(null);
+  const flickityInstance = useRef<Flickity | null>(null);
 
-  // Auto-swipe functionality
-  // useEffect(() => {
-  //   const interval = setInterval(() => {
-  //     nextSlide();
-  //   }, 3000);
-  //   return () => clearInterval(interval);
-  // }, [currentIndex]);
+  useEffect(() => {
+    // Initialize Flickity on component mount
+    if (carouselRef.current && !flickityInstance.current) {
+      flickityInstance.current = new Flickity(carouselRef.current, {
+        cellAlign: 'center',
+        contain: true,
+        wrapAround: true, // Enables infinite scrolling
+        autoPlay: 3000, // Auto-plays slides every 3 seconds
+        draggable: true, // Enables dragging
+        prevNextButtons: false, // Hides default prev/next buttons
+        pageDots: false, // We'll use our custom dots
+        accessibility: true, // For accessibility
+        adaptiveHeight: false,
+        imagesLoaded: true, // Ensures proper sizing when images load
+      });
+    }
 
-  const nextSlide = () => {
-    setCurrentIndex((prevIndex) => (prevIndex + 1) % carouselItems.length);
+    // Clean up Flickity instance on component unmount
+    return () => {
+      if (flickityInstance.current) {
+        flickityInstance.current.destroy();
+        flickityInstance.current = null;
+      }
+    };
+  }, []);
+
+  // Update carousel when dot is clicked
+  const handleDotClick = (index) => {
+    if (flickityInstance.current) {
+      flickityInstance.current.select(index);
+    }
   };
-
-  const prevSlide = () => {
-    setCurrentIndex(
-      (prevIndex) =>
-        (prevIndex - 1 + carouselItems.length) % carouselItems.length
-    );
-  };
-
-  const handleDotClick = (index: number) => {
-    setCurrentIndex(index);
-  };
-
-  // Handle swipe events
-  const swipeHandlers = useSwipeable({
-    onSwipedLeft: nextSlide,
-    onSwipedRight: prevSlide,
-  });
 
   return (
     <div className="relative w-full">
-      {/* Carousel Component */}
-      <Carousel>
-        <CarouselContent>
-          {carouselItems.map((item, index) => {
-            if (index === currentIndex) {
-              return (
-                <CarouselItem key={item.id}>
-                  <div
-                    className="relative w-full h-[30vh] sm:h-[50vh] md:h-[60vh] lg:h-[80vh]"
-                    {...swipeHandlers}
-                  >
-                    {/* Image component */}
-                    <Image
-                      src={item.image}
-                      fill
-                      className="object-cover"
-                      priority
-                      alt={""}
-                      quality={75}
-                      sizes="(max-width: 768px) 100vw, (max-width: 1200px) 90vw, 80vw"
-                    />
-                  </div>
-                </CarouselItem>
-              );
-            }
-            return null;
-          })}
-        </CarouselContent>
-      </Carousel>
+      {/* SearchSection Component */}
+      <div className="absolute top-0 left-1/2 transform -translate-x-1/2 z-10  w-full sm:w-[60%] md:w-[50%] lg:w-[40%]">
+        <SearchSection />
+      </div>
 
-      {/* Dot Navigation */}
+      {/* Flickity Carousel */}
+      <div ref={carouselRef} className="w-full">
+        {carouselItems.map((item) => (
+          <div 
+            key={item.id}
+            className="carousel-cell w-full h-[30vh] sm:h-[50vh] md:h-[60vh] lg:h-[80vh] relative"
+          >
+            <Image
+              src={item.image}
+              fill
+              className="object-cover"
+              priority
+              alt={""}
+              quality={75}
+              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 90vw, 80vw"
+            />
+          </div>
+        ))}
+      </div>
+
+      {/* Custom Dot Navigation */}
       <div className="absolute bottom-5 left-1/2 transform -translate-x-1/2 flex space-x-2 z-10">
         {carouselItems.map((_, index) => (
           <div
             key={index}
             onClick={() => handleDotClick(index)}
-            className={`w-3 h-3 rounded-full cursor-pointer ${
-              currentIndex === index ? "bg-gray-800" : "bg-gray-400"
-            }`}
+            className={`w-3 h-3 rounded-full cursor-pointer bg-gray-400 hover:bg-gray-600 transition-colors`}
+            aria-label={`Go to slide ${index + 1}`}
           />
         ))}
       </div>
