@@ -55,7 +55,7 @@ const Header: React.FC<HeaderProps> = ({ locale = "en" }) => {
   const menuVisibilityClass = isMenuOpen ? "block" : "hidden";
 
   return (
-    <nav className="bg-[#F8F9FA] w-full z-20 top-0 start-0 sticky">
+    <nav className="bg-[#FFFFFF] w-full z-20 top-0 start-0 sticky border-b-4 border-[#4eb7f0]">
       <Container>
         <div className="max-w-[1150px] flex items-center justify-between mx-auto px-4 py-3">
           {/* Logo */}
@@ -89,12 +89,12 @@ const Header: React.FC<HeaderProps> = ({ locale = "en" }) => {
 
           {/* On Larger Screens, Show Language Switcher next to Search */}
           {maxWidth && maxWidth > 640 && (
-            <div className="flex items-center order-2 bg-[#F8F9FA]">
+            <div className="flex items-center order-2 bg-[#FFFFFF]">
               <LanguageSwitcher menuDirection="right" locale={locale} />
             </div>
           )}
 
-          <div className="flex items-center order-2 bg-[#F8F9FA]">
+          <div className="flex items-center order-2 bg-[#FFFFFF]">
             {/* Hamburger Button */}
             <button
               data-collapse-toggle="navbar-sticky"
@@ -144,7 +144,7 @@ const Header: React.FC<HeaderProps> = ({ locale = "en" }) => {
           <div
             className={`
               ${menuVisibilityClass}
-              absolute left-0 right-0 top-full bg-[#F8F9FA]
+              absolute left-0 right-0 top-full bg-[#FFFFFF]
               transition-all duration-300 ease-in-out
               ${
                 isMenuOpen
