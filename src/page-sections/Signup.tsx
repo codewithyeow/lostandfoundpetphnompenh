@@ -118,12 +118,13 @@ const Signup: React.FC = () => {
 
           {/* Submit Button */}
           <div className="mt-8">
-            <button
-              type="submit"
-              className="flex w-full justify-center rounded-md bg-blue-600 px-3 lg:py-3 py-2 lg:text-lg text-sm font-semibold leading-6 text-white shadow-sm hover:bg-blue-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
-            >
-              Sign up
-            </button>
+          <button
+  type="button"
+  className="text-[#4eb7f0] border-2 border-[#4eb7f0] font-medium text-sm py-3 rounded-full hover:bg-[#4eb7f0] hover:text-white transition-colors duration-200"
+>
+  Sign up!
+</button>
+
           </div>
 
           {/* Login Link */}

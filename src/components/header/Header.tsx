@@ -7,7 +7,7 @@ import { useMaxWidth } from "../../utils/useMaxWidth";
 import LanguageSwitcher from "@component/LanguageSwitcher";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Skeleton } from "@/components/ui/skeleton";
-import SearchComponentMobile from "./../../components/home/search-section/Search-Section-Mobile";
+import SearchComponentMobile from "../home/search-section/Search-Section-Mobile";
 
 type HeaderProps = {
   locale?: string;

@@ -96,7 +96,7 @@ const MenuItemNavigator: React.FC<MenuItemNavigatorProps> = ({
                   : item.href && router.push(item.href)
               }
             >
-              <span className="md:text-[12px] xl:text-[12px]">{item.name}</span>
+              <span className="md:text-[14px] xl:text-[14px]">{item.name}</span>
               {item.subItem && (
                 <svg
                   className={`w-2.5 h-2.5 text-black ms-2 transform transition-transform ${
@@ -142,7 +142,7 @@ const MenuItemNavigator: React.FC<MenuItemNavigatorProps> = ({
                         className={`block px-4 py-1 text-black font-semibold ${
                           isMobile
                             ? "text-[14px]"
-                            : "md:text-[12px] xl:text-[12px]"
+                            : "md:text-[14px] xl:text-[14px]"
                         }`}
                       >
                         {subItem.name}
@@ -157,7 +157,7 @@ const MenuItemNavigator: React.FC<MenuItemNavigatorProps> = ({
 
         <li className="mt-4 md:mt-0">
           <a href="/login">
-            <button className="w-full md:w-auto text-white bg-[#4eb7f0] px-4 py-2 text-[0.70rem] rounded-full hover:bg-[#2463EB] transition-colors duration-200 font-bold ">
+            <button className="w-full md:w-auto text-white bg-[#4eb7f0] px-4 py-2 text-16px rounded-full transition-colors duration-200 font-bold ">
               LOGIN
             </button>
           </a>

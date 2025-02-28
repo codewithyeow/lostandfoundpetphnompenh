@@ -53,7 +53,7 @@ const Login: React.FC = () => {
   };
 
   return (
-    <div className="bg-[#E4EAEE] min-h-screen flex flex-col lg:px-8 px-4 w-full">
+    <div className="bg-[#EFEEF1] min-h-screen flex flex-col lg:px-8 px-4 w-full">
       <div className="sm:mx-auto lg:max-w-2xl sm:w-full sm:max-w-sm">
         <h2 className="mt-10 text-center font-bold leading-9 tracking-tight text-customGray lg:text-2xl text-lg">
           {t('Login To Lost & Found Pet')}
@@ -146,6 +146,7 @@ const Login: React.FC = () => {
             >
               Sign up!
             </button>
+            
           </div>
         </form>
       </div>

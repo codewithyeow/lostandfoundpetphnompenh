@@ -1,8 +1,7 @@
 "use client";
 import { ThemeProvider } from "styled-components";
-import Section1 from "../components/home/section-1";
-import Section2 from "../components/home/section-2";
-import { SearchSection } from "@component/home/search-section";
+
+import dynamic from "next/dynamic";
 
 const theme = {
   colors: {
@@ -12,11 +11,15 @@ const theme = {
   },
 };
 
+const Section1 = dynamic(() => import("@component/home/section-1/Section1"), { ssr: false });
+const Section2 = dynamic(() => import("@component/home/section-2/Section2"), { ssr: false });
+
 export default function Home() {
   return (
     <ThemeProvider theme={theme}>
       <div className="min-h-screen flex flex-col">
         {/* Search Section */}
+        {/* <SearchSection /> */}
 
         {/* Main Content - Ensure it takes full height */}
         <div className="flex-1">
