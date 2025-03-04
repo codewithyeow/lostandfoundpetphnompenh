@@ -26,17 +26,15 @@ export default function SearchSectionMobile({
 
   const handleSearch = () => {
     if (searchQuery.trim()) {
-      // Implement your search logic here
       console.log("Searching for:", searchQuery);
-      // You can use router.push(`/search?q=${encodeURIComponent(searchQuery)}`);
       toggleSearch();
     }
   };
 
   const handleSearchKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter') {
+    if (e.key === "Enter") {
       handleSearch();
-    } else if (e.key === 'Escape') {
+    } else if (e.key === "Escape") {
       toggleSearch();
     }
   };
@@ -45,10 +43,10 @@ export default function SearchSectionMobile({
   if (isMobile) {
     return isSearchOpen ? (
       <div className="fixed inset-0 bg-black bg-opacity-60 z-50 flex flex-col animate-fadeIn">
-        <div className="bg-white p-4 shadow-lg">
-          <div className="flex items-center justify-between mb-2">
+        <div className="bg-white p-4 shadow-lg rounded-t-xl">
+          <div className="flex items-center justify-between mb-4">
             <h2 className="text-lg font-semibold">Search</h2>
-            <button 
+            <button
               onClick={toggleSearch}
               className="p-2 rounded-full hover:bg-gray-200 transition-colors"
               aria-label="Close search"
@@ -56,8 +54,8 @@ export default function SearchSectionMobile({
               <X className="w-6 h-6" />
             </button>
           </div>
-          <div className="flex items-stretch gap-2">
-            <div className="flex-grow relative rounded-full overflow-hidden border-2 border-blue-500 focus-within:border-blue-600 transition-colors">
+          <div className="flex items-center gap-2 mb-4">
+            <div className="relative w-full rounded-full border-2 border-blue-500 focus-within:border-blue-600 transition-all duration-200">
               <input
                 ref={searchInputRef}
                 type="text"
@@ -65,23 +63,23 @@ export default function SearchSectionMobile({
                 onChange={(e) => setSearchQuery(e.target.value)}
                 onKeyDown={handleSearchKeyDown}
                 placeholder="What are you looking for?"
-                className="w-full py-3 px-5 focus:outline-none text-black"
+                className="w-full py-3 px-5 focus:outline-none text-black rounded-full"
               />
               {searchQuery && (
-                <button 
-                  onClick={() => setSearchQuery('')}
-                  className="absolute right-3 top-1/2 -translate-y-1/2"
+                <button
+                  onClick={() => setSearchQuery("")}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500"
                   aria-label="Clear search"
                 >
-                  <X className="w-5 h-5 text-gray-500" />
+                  <X className="w-5 h-5" />
                 </button>
               )}
             </div>
-            <button 
+            <button
               onClick={handleSearch}
-              className="bg-blue-600 text-white px-5 py-3 rounded-full hover:bg-blue-700 transition-colors font-medium flex items-center"
+              className="bg-blue-600 text-white px-5 py-3 rounded-full hover:bg-blue-700 transition-colors flex items-center"
             >
-              <Search className="w-5 h-5 mr-1" />
+              <Search className="w-5 h-5 mr-2" />
               Search
             </button>
           </div>
@@ -129,7 +127,7 @@ export default function SearchSectionMobile({
           onChange={(e) => setSearchQuery(e.target.value)}
           onKeyDown={handleSearchKeyDown}
         />
-        <button 
+        <button
           className="bg-blue-600 text-white p-2 flex items-center justify-center"
           onClick={handleSearch}
         >
@@ -138,4 +136,4 @@ export default function SearchSectionMobile({
       </div>
     </div>
   );
-};
+}

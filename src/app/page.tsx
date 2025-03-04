@@ -11,8 +11,12 @@ const theme = {
   },
 };
 
-const Section1 = dynamic(() => import("@component/home/section-1/Section1"), { ssr: false });
-const Section2 = dynamic(() => import("@component/home/section-2/Section2"), { ssr: false });
+const Section1 = dynamic(() => import("@component/home/section-1/Section1"), {
+  ssr: false,
+});
+const Section2 = dynamic(() => import("@component/home/section-2/Section2"), {
+  ssr: false,
+});
 
 export default function Home() {
   return (

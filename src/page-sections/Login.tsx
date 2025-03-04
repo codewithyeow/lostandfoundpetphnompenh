@@ -1,6 +1,10 @@
 "use client";
 import React, { useState } from "react";
-import { FaEnvelope, FaLock } from "react-icons/fa"; // Add the necessary icons
+import Link from "next/link";
+import { useFormik } from "formik";
+import * as yup from "yup";
+
+import { FaEnvelope, FaLock } from "react-icons/fa";
 import {
   Card,
   CardHeader,
@@ -9,20 +13,49 @@ import {
   CardDescription,
   CardContent,
 } from "../components/ui/card";
+import { useAuthContext } from "../context/auth-context/AuthContext";
+import { useRouter } from 'next/navigation';
+import { login } from "@server/actions/auth-action";
+import { toast } from "react-toastify";
+import { AuthStatus } from '../context/types';
 
-export default function LoginPage() {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [loading, setLoading] = useState(false);
+const initialValues = { email: "", password: "" };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    setLoading(true);
-    // Perform login logic here...
-    setTimeout(() => {
-      setLoading(false);
-    }, 2000);
-  };
+const Login: React.FC = () => {
+  const router = useRouter();
+  const { getUser } = useAuthContext();
+  const [status, setStatus] = useState<undefined | AuthStatus>();
+
+  const handleFormSubmit = async (values: any) => {
+    try {
+      const response = await login({
+        email: values.email,
+        password: values.password,
+      });
+
+      console.log("API Response:", response); // Debugging
+
+      if (!response.success) {
+        // If there's an error, display a toast message
+        toast.error(response.message || "Invalid email or password. Please try again.");
+      } else if (response.result && response.result.user) {
+        toast.success("Logged in successfully!");
+        setStatus("loggedIn");
+        await getUser(); 
+        router.push('/'); 
+      }
+    } catch (error) {
+      toast.error("An unexpected error occurred. Please try again.");
+      console.error("Unexpected Error:", error);
+    }
+};
+
+
+  const { values, errors, touched, handleBlur, handleChange, handleSubmit } =
+    useFormik({
+      initialValues,
+      onSubmit: handleFormSubmit,
+    });
 
   return (
     <section className="w-full bg-gradient-to-b from-[#f8f8fa] to-[#EFEEF1] px-4 md:px-8 lg:px-12 py-12">
@@ -59,8 +92,8 @@ export default function LoginPage() {
                   id="email"
                   type="email"
                   placeholder="Email Address"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
+                  value={values.email}
+                  onChange={handleChange}
                   className="w-full py-3 px-4 border-2 border-[#4eb7f0] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#4eb7f0] transition-all"
                   required
                 />
@@ -81,8 +114,8 @@ export default function LoginPage() {
                   id="password"
                   type="password"
                   placeholder="Password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
+                  value={values.password}
+                  onChange={handleChange}
                   className="w-full py-3 px-4 border-2 border-[#4eb7f0] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#4eb7f0] transition-all"
                   required
                 />
@@ -92,9 +125,8 @@ export default function LoginPage() {
               <button
                 type="submit"
                 className="w-full border-2 text-[#4eb7f0] hover:bg-[#4eb7f0] hover:text-white rounded-full border-[#4eb7f0] py-3 transition-colors duration-200"
-                disabled={loading}
               >
-                {loading ? "Logging in..." : "Login"}
+                Login
               </button>
             </form>
 
@@ -113,4 +145,5 @@ export default function LoginPage() {
       </div>
     </section>
   );
-}
+};
+export default Login;
