@@ -43,16 +43,20 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
           }
         );
   
-        if (data.success) {  // Use 'success' instead of 'status'
-          const user = data.result?.user; // Extract user from 'result'
-          const token = data.result?.access_token; // Extract token from 'result'
+        if (data.success) {  
+          const user = data.result?.user; 
+          const token = data.result?.access_token; 
           
           if (token) {
-            set_cookie("token", token, { expires: 30 });
+            set_cookie("token", token, { expires: 30 }); // Store token in cookies
           }
   
           setUser(user);
           setStatus("loggedIn");  
+  
+          // ✅ Save to localStorage
+          localStorage.setItem("authStatus", "loggedIn");
+          localStorage.setItem("user", JSON.stringify(user));
   
           return user;
         } else {
@@ -66,24 +70,36 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   );
   
   
+  
 
   const logout = useCallback<Logout>(async () => {
     try {
       await axios.post(`/api/frontend/auth/logout`);
     } catch {
     } finally {
-       setUser(null);
-       setStatus('loggedOut');
-       remove_cookie('token');
-       remove_cookie('user');
-       localStorage.clear();
+      setUser(null);
+      setStatus('loggedOut');
+      remove_cookie('token');
+      localStorage.removeItem("authStatus");
+      localStorage.removeItem("user");
     }
- }, []);
+  }, []);
+  
 
 
  const getUser = useCallback<GetUser>(async () => {
   try {
     setLoading(true);
+    
+    // 🔹 First, check localStorage
+    const storedUser = localStorage.getItem("user");
+    if (storedUser) {
+      setUser(JSON.parse(storedUser));
+      setStatus("loggedIn");
+      return JSON.parse(storedUser);
+    }
+
+    // 🔹 If no stored user, fetch from API
     const { data }: { data: ApiResponse<User> } = await axios.get(
       `/api/frontend/auth/profile?meta=1`
     );
@@ -93,6 +109,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
       
       setUser(user);
       setStatus('loggedIn');
+
+      // ✅ Save to localStorage
+      localStorage.setItem("authStatus", "loggedIn");
+      localStorage.setItem("user", JSON.stringify(user));
     } else {
       setStatus('loggedOut');
     }
@@ -104,6 +124,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     setLoading(false);
   }
 }, []);
+
 
 
   useEffect(() => {

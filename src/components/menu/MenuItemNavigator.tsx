@@ -21,6 +21,9 @@ const MenuItemNavigator: React.FC<MenuItemNavigatorProps> = ({
   const pathname = usePathname();
   const { status, setStatus } = useAuthContext();
 
+  // Get auth context with error handling
+  const authContext = useAuthContext();
+
   const menuItems = [
     ...(status === "loggedIn"
       ? [
@@ -175,7 +178,7 @@ const MenuItemNavigator: React.FC<MenuItemNavigatorProps> = ({
           </li>
         ))}
 
-        {status === "loggedIn" && (
+        {status === "loggedIn" ? (
           <li className="mt-4 md:mt-0 flex items-center gap-4">
             {/* Profile Icon */}
             <button
@@ -191,6 +194,16 @@ const MenuItemNavigator: React.FC<MenuItemNavigatorProps> = ({
               className="w-full md:w-auto text-white bg-[#4eb7f0] px-4 py-2 rounded-full font-bold hover:bg-[#3a9cd3]"
             >
               LOGOUT
+            </button>
+          </li>
+        ) : (
+          /* Login Button (shown when user is not logged in) */
+          <li className="mt-4 md:mt-0">
+            <button
+              onClick={() => router.push("/login")}
+              className="w-full md:w-auto text-white bg-[#4eb7f0] px-4 py-2 rounded-full font-bold hover:bg-[#3a9cd3]"
+            >
+              LOGIN
             </button>
           </li>
         )}
