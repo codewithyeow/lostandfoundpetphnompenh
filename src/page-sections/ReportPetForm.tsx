@@ -1,166 +1,190 @@
 import React, { useState } from "react";
-import Button from "../components/buttons/Button";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { FaDog, FaMapMarkerAlt, FaImage } from "react-icons/fa";
+import { MapPin, Calendar, Image as ImageIcon, Dog, Info } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from "@component/ui/card";
 
 interface SpeciesOption {
   value: string;
   label: string;
+  icon: React.ReactNode;
 }
 
 export default function ReportFoundPetForm() {
   const router = useRouter();
-  const [selectedSpecies, setSelectedSpecies] = useState<string>("");
-  const [location, setLocation] = useState<string>("");
-  const [showMap, setShowMap] = useState<boolean>(false);
-  const [image, setImage] = useState<File | null>(null);
   const [currentStep, setCurrentStep] = useState<number>(1);
+  const [formData, setFormData] = useState({
+    petName: "",
+    dateSeen: "",
+    image: null as File | null,
+    nearestLocation: "",
+    locationFound: "",
+    species: "",
+  });
 
-  const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>): void => {
+  const speciesOptions: SpeciesOption[] = [
+    { value: "Dog", label: "Dog", icon: <Dog className="mr-2 text-[#4eb7f0]" /> },
+    { value: "Cat", label: "Cat", icon: <Dog className="mr-2 text-[#4eb7f0]" /> },
+    { value: "Bird", label: "Bird", icon: <Dog className="mr-2 text-[#4eb7f0]" /> },
+    { value: "Other", label: "Other", icon: <Dog className="mr-2 text-[#4eb7f0]" /> },
+  ];
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
+
+  const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
-      setImage(file);
+      setFormData(prev => ({
+        ...prev,
+        image: file
+      }));
     }
   };
 
-  const handleSubmit = (event: React.FormEvent<HTMLFormElement>): void => {
+  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     router.push("/confirmation");
   };
 
-  const speciesOptions: SpeciesOption[] = [
-    { value: "Dog", label: "Dog" },
-    { value: "Cat", label: "Cat" },
-    { value: "Bird", label: "Bird" },
-    { value: "Other", label: "Other" },
-  ];
-
-  return (
-    <div className="bg-[#E4EAEE] min-h-screen flex flex-col lg:px-8 px-4 w-full py-2 ">
-      <div className="sm:mx-auto lg:max-w-2xl sm:w-full sm:max-w-sm">
-        <h2 className="mt-10 text-center font-bold leading-9 tracking-tight text-customGray lg:text-2xl text-lg">
-          Report Found Pet - Step {currentStep} of 3
-        </h2>
-      </div>
-
-      <div className="mt-10 sm:mx-auto lg:max-w-2xl sm:w-full sm:max-w-sm">
-        <form onSubmit={handleSubmit} className="space-y-6 lg:p-8 p-4 bg-white rounded-lg shadow-md">
-          {/* Step 1: Pet Information + Upload Image */}
-          {currentStep === 1 && (
-            <>
-              <div className="flex items-center mb-4">
-                <FaDog className="mr-2 text-gray-500 lg:text-xl" />
-                <label className="block lg:text-lg text-sm font-medium leading-6 text-balance text-customGray">
+  const renderStepContent = () => {
+    switch (currentStep) {
+      case 1:
+        return (
+          <>
+            <div className="space-y-4">
+              <div>
+                <label className="flex items-center mb-2 text-sm font-medium text-gray-700">
+                  <Dog className="mr-2 text-[#4eb7f0]" />
                   Pet Name
                 </label>
+                <input
+                  type="text"
+                  name="petName"
+                  value={formData.petName}
+                  onChange={handleInputChange}
+                  placeholder="Enter pet name"
+                  className="w-full p-3 border rounded-lg focus:ring-[#4eb7f0] focus:border-[#4eb7f0]"
+                />
               </div>
-              <input
-                type="text"
-                className="p-3 block w-full rounded-md border-0 bg-white/5 lg:py-3 py-1.5 shadow-sm ring-1 ring-inset ring-customGrey focus:ring-customGreen lg:text-lg sm:text-sm sm:leading-6"
-                placeholder="Enter pet name"
-              />
 
-              <div className="flex items-center mb-4 mt-6">
-                <FaMapMarkerAlt className="mr-2 text-gray-500 lg:text-xl" />
-                <label className="block lg:text-lg text-sm font-medium leading-6 text-balance text-customGray">
+              <div>
+                <label className="flex items-center mb-2 text-sm font-medium text-gray-700">
+                  <Calendar className="mr-2 text-[#4eb7f0]" />
                   Date Last Seen
                 </label>
+                <input
+                  type="date"
+                  name="dateSeen"
+                  value={formData.dateSeen}
+                  onChange={handleInputChange}
+                  className="w-full p-3 border rounded-lg focus:ring-[#4eb7f0] focus:border-[#4eb7f0]"
+                />
               </div>
-              <input
-                type="date"
-                className="p-3 block w-full rounded-md border-0 bg-white/5 lg:py-3 py-1.5 shadow-sm ring-1 ring-inset ring-customGrey focus:ring-customGreen lg:text-lg sm:text-sm sm:leading-6"
-              />
 
-              {/* Image Upload Section */}
-              <div className="flex items-center mb-4 mt-6">
-                <FaImage className="mr-2 text-gray-500 lg:text-xl" />
-                <label className="block lg:text-lg text-sm font-medium leading-6 text-balance text-customGray">
+              <div>
+                <label className="flex items-center mb-2 text-sm font-medium text-gray-700">
+                  <ImageIcon className="mr-2 text-[#4eb7f0]" />
                   Upload Pet Image
                 </label>
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={handleImageUpload}
+                  className="w-full p-3 border rounded-lg file:mr-4 file:rounded-full file:border-0 file:bg-[#4eb7f0]/10 file:px-4 file:py-2 file:text-[#4eb7f0]"
+                />
+                {formData.image && (
+                  <div className="mt-4 relative w-full h-56 overflow-hidden rounded-lg">
+                    <Image
+                      src={URL.createObjectURL(formData.image)}
+                      alt="Uploaded pet"
+                      layout="fill"
+                      objectFit="cover"
+                      className="rounded-lg"
+                    />
+                  </div>
+                )}
               </div>
-              <input
-                type="file"
-                accept="image/*"
-                onChange={handleImageUpload}
-                className="lg:text-lg"
-              />
-              {image && (
-                <div className="mt-4">
-                  <img
-                    src={URL.createObjectURL(image)}
-                    alt="Uploaded pet"
-                    className="max-w-full lg:h-60 h-40 object-cover rounded-lg"
-                  />
-                </div>
-              )}
+            </div>
+            <div className="flex justify-end mt-6">
+              <button
+                type="button" 
+                onClick={() => setCurrentStep(2)} 
+                className="text-[#4eb7f0] border-2 border-[#4eb7f0] font-medium text-sm flex-grow py-3 rounded-full hover:bg-[#4eb7f0] hover:text-white transition-colors duration-200 flex items-center justify-center"
+              >
+                NEXT
+                <Info className="ml-2" size={16} />
+              </button>
+            </div>
+          </>
+        );
 
-              <div className="flex justify-between mt-6 flex-wrap">
-                <Button
-                  variant="outlined"
-                  size="large"
-                  width="48%"
-                  height="48px"
-                  style={{ fontSize: "16px", borderColor: "#2463EB", color: "#2463EB" }}
-                  onClick={() => setCurrentStep(2)}
-                >
-                  Next
-                </Button>
-              </div>
-            </>
-          )}
-
-          {/* Combined Step 2 & 3: Location + Species Selection */}
-          {currentStep === 2 && (
-            <>
-              <div className="flex items-center mb-4">
-                <FaMapMarkerAlt className="mr-2 text-gray-500 lg:text-xl" />
-                <label className="block lg:text-lg text-sm font-medium leading-6 text-balance text-customGray">
+      case 2:
+        return (
+          <>
+            <div className="space-y-4">
+              <div>
+                <label className="flex items-center mb-2 text-sm font-medium text-gray-700">
+                  <MapPin className="mr-2 text-[#4eb7f0]" />
                   Nearest Location
                 </label>
+                <input
+                  type="text"
+                  name="nearestLocation"
+                  value={formData.nearestLocation}
+                  onChange={handleInputChange}
+                  placeholder="Enter nearest location"
+                  className="w-full p-3 border rounded-lg focus:ring-[#4eb7f0] focus:border-[#4eb7f0]"
+                />
               </div>
-              <input
-                type="text"
-                className="p-3 block w-full rounded-md border-0 bg-white/5 lg:py-3 py-1.5 shadow-sm ring-1 ring-inset ring-customGrey focus:ring-customGreen lg:text-lg sm:text-sm sm:leading-6"
-                placeholder="Enter nearest location"
-              />
 
-              <div className="flex items-center mb-4 mt-6">
-                <FaMapMarkerAlt className="mr-2 text-gray-500 lg:text-xl" />
-                <label className="block lg:text-lg text-sm font-medium leading-6 text-balance text-customGray">
+              <div>
+                <label className="flex items-center mb-2 text-sm font-medium text-gray-700">
+                  <MapPin className="mr-2 text-[#4eb7f0]" />
                   Location Found
                 </label>
+                <input
+                  type="text"
+                  name="locationFound"
+                  value={formData.locationFound}
+                  onChange={handleInputChange}
+                  placeholder="Enter location"
+                  className="w-full p-3 border rounded-lg focus:ring-[#4eb7f0] focus:border-[#4eb7f0]"
+                />
               </div>
-              <input
-                type="text"
-                className="p-3 block w-full rounded-md border-0 bg-white/5 lg:py-3 py-1.5 shadow-sm ring-1 ring-inset ring-customGrey focus:ring-customGreen lg:text-lg sm:text-sm sm:leading-6"
-                value={location}
-                onChange={(e) => setLocation(e.target.value)}
-                placeholder="Enter location or use map"
-              />
 
-              <div className="flex items-center mb-4 mt-6">
-                <FaDog className="mr-2 text-gray-500 lg:text-xl" />
-                <label className="block lg:text-lg text-sm font-medium leading-6 text-balance text-customGray">
+              <div>
+                <label className="flex items-center mb-2 text-sm font-medium text-gray-700">
+                  <Dog className="mr-2 text-[#4eb7f0]" />
                   Species
                 </label>
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                  {speciesOptions.map((species) => (
+                    <div
+                      key={species.value}
+                      onClick={() => setFormData(prev => ({ ...prev, species: species.value }))}
+                      className={`
+                        cursor-pointer flex items-center justify-center p-2 transition-all 
+                        ${formData.species === species.value 
+                          ? 'bg-[#4eb7f0] text-white' 
+                          : 'bg-white text-[#4eb7f0] border-[#4eb7f0] hover:bg-[#4eb7f0]/10'
+                        }
+                      `}
+                    >
+                      {species.icon}
+                      {species.label}
+                    </div>
+                  ))}
+                </div>
               </div>
-              <select
-                value={selectedSpecies}
-                onChange={(e) => setSelectedSpecies(e.target.value)}
-                className="p-3 block w-full rounded-md border-0 bg-white/5 lg:py-3 py-1.5 shadow-sm ring-1 ring-inset ring-customGrey focus:ring-customGreen lg:text-lg sm:text-sm sm:leading-6"
-              >
-                <option value="" disabled>
-                  Select species
-                </option>
-                {speciesOptions.map((species) => (
-                  <option key={species.value} value={species.value}>
-                    {species.label}
-                  </option>
-                ))}
-              </select>
 
               <div className="w-full mt-4">
-                <div className="w-full h-[300px] sm:h-[400px] lg:h-[500px] rounded-lg overflow-hidden">
+                <div className="w-full h-64 sm:h-80 rounded-lg overflow-hidden">
                   <iframe
                     src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3164.795123456!2d106.79323951512696!3d-6.186462363203507!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x2e69f132cd9ba219%3A0x4f69f6e8b5b7a3b7!2sGreen%20Lake%20City%2C%20Jakarta%20Barat!5e0!3m2!1sen!2sid!4v1673924553258!5m2!1sen!2sid"
                     width="100%"
@@ -172,63 +196,101 @@ export default function ReportFoundPetForm() {
                   ></iframe>
                 </div>
               </div>
+            </div>
+            
+            <div className="flex justify-between mt-6 gap-4">
+              <button
+                type="button" 
+                onClick={() => setCurrentStep(1)} 
+                className="text-[#4eb7f0] border-2 border-[#4eb7f0] font-medium text-sm flex-grow py-3 rounded-full hover:bg-[#4eb7f0] hover:text-white transition-colors duration-200"
+              >
+                PREVIOUS
+              </button>
+              <button
+                type="button"
+                onClick={() => setCurrentStep(3)} 
+                className="text-[#4eb7f0] border-2 border-[#4eb7f0] font-medium text-sm flex-grow py-3 rounded-full hover:bg-[#4eb7f0] hover:text-white transition-colors duration-200 flex items-center justify-center"
+              >
+                NEXT
+                <Info className="ml-2" size={16} />
+              </button>
+            </div>
+          </>
+        );
 
-              <div className="flex justify-between mt-6 flex-wrap">
-                <Button
-                  variant="outlined"
-                  size="large"
-                  width="48%"
-                  height="48px"
-                  style={{ fontSize: "16px", borderColor: "#2463EB", color: "#2463EB" }}
-                  onClick={() => setCurrentStep(1)}
-                >
-                  Previous
-                </Button>
-                <Button
-                  variant="contained"
-                  size="large"
-                  width="48%"
-                  height="48px"
-                  style={{ fontSize: "16px", backgroundColor: "#2463EB" }}
-                  onClick={() => setCurrentStep(3)}
-                >
-                  Next
-                </Button>
+      case 3:
+        return (
+          <div className="text-center space-y-4">
+            <h2 className="text-xl font-bold text-[#4eb7f0]">Review Submission</h2>
+            
+            <div className="bg-gray-100 p-4 rounded-lg space-y-2">
+              <div className="flex justify-between">
+                <span className="font-medium">Pet Name:</span>
+                <span>{formData.petName || 'Not provided'}</span>
               </div>
-            </>
-          )}
-
-          {/* Step 3: Confirmation */}
-          {currentStep === 3 && (
-            <div className="text-center">
-              <h2 className="font-bold text-lg text-customGray">Review your submission</h2>
-              <p className="mt-4">Species: {selectedSpecies}</p>
-              <p>Location: {location}</p>
-              <div className="mt-6 flex justify-between gap-4">
-                <Button
-                  variant="outlined"
-                  size="large"
-                  width="48%"
-                  height="48px"
-                  style={{ fontSize: "16px", borderColor: "#2463EB", color: "#2463EB" }}
-                  onClick={() => setCurrentStep(2)}
-                >
-                  Previous
-                </Button>
-                <Button
-                  variant="contained"
-                  size="large"
-                  width="48%"
-                  height="48px"
-                  style={{ fontSize: "16px", backgroundColor: "#2463EB" }}
-                >
-                  Submit
-                </Button>
+              <div className="flex justify-between">
+                <span className="font-medium">Date Seen:</span>
+                <span>{formData.dateSeen || 'Not provided'}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="font-medium">Species:</span>
+                <span>{formData.species || 'Not selected'}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="font-medium">Location:</span>
+                <span>{formData.locationFound || 'Not provided'}</span>
               </div>
             </div>
-          )}
-        </form>
-      </div>
+
+            {formData.image && (
+              <div className="relative w-full h-56 overflow-hidden rounded-lg">
+                <Image
+                  src={URL.createObjectURL(formData.image)}
+                  alt="Uploaded pet"
+                  layout="fill"
+                  objectFit="cover"
+                  className="rounded-lg"
+                />
+              </div>
+            )}
+            
+            <div className="flex justify-between mt-6 gap-4">
+              <button
+                type="button" 
+                onClick={() => setCurrentStep(2)} 
+                className="text-[#4eb7f0] border-2 border-[#4eb7f0] font-medium text-sm flex-grow py-3 rounded-full hover:bg-[#4eb7f0] hover:text-white transition-colors duration-200"
+              >
+                PREVIOUS
+              </button>
+              <button
+                type="submit" 
+                className="text-[#4eb7f0] border-2 border-[#4eb7f0] font-medium text-sm flex-grow py-3 rounded-full hover:bg-[#4eb7f0] hover:text-white transition-colors duration-200"
+              >
+                SUBMIT
+              </button>
+            </div>
+          </div>
+        );
+
+      default:
+        return null;
+    }
+  };
+
+  return (
+    <div className="bg-gradient-to-b from-[#f8f8fa] to-[#EFEEF1] min-h-screen flex items-center justify-center px-4 py-12">
+      <Card className="w-full max-w-lg shadow-xl">
+        <CardHeader className="text-center">
+          <CardTitle className="text-[#4eb7f0] text-xl font-bold">
+            Report Found Pet - Step {currentStep} of 3
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <form onSubmit={handleSubmit}>
+            {renderStepContent()}
+          </form>
+        </CardContent>
+      </Card>
     </div>
   );
 }
