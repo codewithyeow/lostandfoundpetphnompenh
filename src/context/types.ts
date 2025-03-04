@@ -66,13 +66,6 @@ export type AuthContext = {
    logout: Logout;
    login: Login;
    getUser: GetUser;
-   preRegister: PreRegister;
-   verifyRegister: VerifyRegister;
-   updateProfileInfo: UpdateProfile;
-   requestChangePassword: RequestChangePassword;
-   verifyChangePassword: VerifyResetPassword;
-   resetPassword: ResetPassword;
-   changePassword: ChangePassword;
 };
 
 export type UseAuthContext = () => AuthContext;
