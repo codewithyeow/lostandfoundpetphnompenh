@@ -1,4 +1,5 @@
 // src/utils/cookie.ts
+
 import Cookies from 'js-cookie';
 
 export const set_cookie = (key: string, value: string, options?: Cookies.CookieAttributes) => {
@@ -12,3 +13,4 @@ export const get_cookie = (key: string) => {
 export const remove_cookie = (key: string, options?: Cookies.CookieAttributes) => {
    Cookies.remove(key, options);
 };
+
