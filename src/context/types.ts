@@ -1,6 +1,7 @@
 import User from '@models/User';
 import { ApiResponse } from 'interfaces';
 import React from 'react';
+import { VariantArgs } from 'styled-system';
 
 type RegisterArgs = {
    name: string;
@@ -25,12 +26,20 @@ export type VerifyRegister = (
    args: RegisterArgs & { otp_code: string }
 ) => Promise<ApiResponse<any>>;
 
+export type Register =(args: {
+   email?: string;
+   password: string;
+   confirm_password: string;
+   captcha_token: string;
+}) => Promise<User | null | undefined>;
+
 export type Login = (args: {
    email: any;
    password: string;
 }) => Promise<User | null | undefined>;
 
 export type Logout = () => Promise<void>;
+
 
 export type GetUser = () => Promise<User | null | undefined>;
 
@@ -55,7 +64,7 @@ export type ChangePassword = (args: {
    new_password: string;
 }) => Promise<ApiResponse<any>>;
 
-export type AuthStatus = 'loggedOut' | 'loggedIn' ;
+export type AuthStatus = 'loggedOut' | 'loggedIn' | 'registered' ;
 
 export type AuthContext = {
    status: undefined | AuthStatus;
@@ -65,6 +74,7 @@ export type AuthContext = {
    setStatus: React.Dispatch<React.SetStateAction<AuthStatus | undefined>>;
    logout: Logout;
    login: Login;
+   register: Register
    getUser: GetUser;
 };
 
