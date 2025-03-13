@@ -32,6 +32,7 @@ export interface LoginResponse {
     };
 }
 
+
 export interface ErrorResponse {
     errors: Record<string, string[]>;
 }
