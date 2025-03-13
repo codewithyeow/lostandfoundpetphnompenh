@@ -1,6 +1,10 @@
 "use client";
 import React, { useState, useRef, useEffect } from "react";
+import { toast } from "react-toastify";
 import { useRouter, usePathname } from "next/navigation";
+import { useAuthContext } from "../../context/auth-context/AuthContext";
+import { logout } from "@server/actions/auth-action";
+import { User } from "lucide-react";
 
 type MenuItemNavigatorProps = {
   isMobile: boolean;
@@ -15,13 +19,21 @@ const MenuItemNavigator: React.FC<MenuItemNavigatorProps> = ({
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
   const dropdownRef = useRef<HTMLDivElement | null>(null);
   const pathname = usePathname();
+  const { status, setStatus } = useAuthContext();
+
+  // Get auth context with error handling
+  const authContext = useAuthContext();
 
   const menuItems = [
-    {
-      name: "MY PET",
-      key: "my-pet",
-      href: "/dashboard/mypet", 
-    },
+    ...(status === "loggedIn"
+      ? [
+          {
+            name: "MY PET",
+            key: "my-pet",
+            href: "/dashboard/mypet",
+          },
+        ]
+      : []),
     {
       name: "FOUND PETS",
       key: "found-pets",
@@ -50,7 +62,6 @@ const MenuItemNavigator: React.FC<MenuItemNavigatorProps> = ({
       key: "about-us",
       href: "/about",
     },
-   
   ];
 
   const toggleDropdown = (key: string) => {
@@ -66,6 +77,19 @@ const MenuItemNavigator: React.FC<MenuItemNavigatorProps> = ({
     }
   };
 
+  const handleLogout = async () => {
+    try {
+      await logout();
+      setStatus("loggedOut");
+      localStorage.clear();
+      toast.success("Logged out successfully!");
+      router.push("/login");
+    } catch (error) {
+      toast.error("Failed to logout. Please try again.");
+      console.error("Logout Error:", error);
+    }
+  };
+
   useEffect(() => {
     document.addEventListener("mousedown", handleClickOutside);
     return () => {
@@ -76,7 +100,6 @@ const MenuItemNavigator: React.FC<MenuItemNavigatorProps> = ({
   useEffect(() => {
     setActiveDropdown(null);
   }, [pathname]);
-
   return (
     <div
       className={`${isMenuOpen ? "block" : "hidden"} md:block`}
@@ -86,7 +109,7 @@ const MenuItemNavigator: React.FC<MenuItemNavigatorProps> = ({
         {menuItems.map((item) => (
           <li
             key={item.name}
-            className={`relative ${isMobile ? "w-full" : "md:px-1 xl:px-0"}`} 
+            className={`relative ${isMobile ? "w-full" : "md:px-1 xl:px-0"}`}
           >
             <div
               className="flex items-center justify-between py-2 px-3 text-black font-semibold rounded cursor-pointer"
@@ -125,7 +148,7 @@ const MenuItemNavigator: React.FC<MenuItemNavigatorProps> = ({
                 ${
                   isMobile
                     ? "relative w-full bg-white border border-gray-200 rounded"
-                     : "absolute left-0 bg-white shadow-md rounded-md"
+                    : "absolute left-0 bg-white shadow-md rounded-md"
                 }
                  ${activeDropdown === item.key ? "block" : "hidden"}
                   mt-1 overflow-hidden transition-all duration-200 min-w-[200px]
@@ -155,13 +178,35 @@ const MenuItemNavigator: React.FC<MenuItemNavigatorProps> = ({
           </li>
         ))}
 
-        <li className="mt-4 md:mt-0">
-          <a href="/login">
-            <button className="w-full md:w-auto text-white bg-[#4eb7f0] px-4 py-2 text-16px rounded-full transition-colors duration-200 font-bold ">
+        {status === "loggedIn" ? (
+          <li className="mt-4 md:mt-0 flex items-center gap-4">
+            {/* Profile Icon */}
+            <button
+              onClick={() => router.push("/profile")}
+              className="text-gray-600 hover:text-gray-800 transition"
+            >
+              <User className="w-6 h-6" />
+            </button>
+
+            {/* Logout Button */}
+            <button
+              onClick={handleLogout}
+              className="w-full md:w-auto text-white bg-[#4eb7f0] px-4 py-2 rounded-full font-bold hover:bg-[#3a9cd3]"
+            >
+              LOGOUT
+            </button>
+          </li>
+        ) : (
+          /* Login Button (shown when user is not logged in) */
+          <li className="mt-4 md:mt-0">
+            <button
+              onClick={() => router.push("/login")}
+              className="w-full md:w-auto text-white bg-[#4eb7f0] px-4 py-2 rounded-full font-bold hover:bg-[#3a9cd3]"
+            >
               LOGIN
             </button>
-          </a>
-        </li>
+          </li>
+        )}
       </ul>
     </div>
   );
