@@ -17,6 +17,8 @@ interface Response<T = undefined> {
   error: boolean;
   message?: string;
   data?: T;
+  verify_token?: string;
+  expires_in?: number;
 }
 
 interface LoginArgs {
@@ -35,6 +37,127 @@ interface RegisterArgs {
   password: string;
   password_confirmation: string;
 }
+
+interface ResetPasswordArgs {
+  newPassword: string;
+  passwordConfirmation: string;
+  reset_token: string;
+}
+
+export async function sendOTP(email: string): Promise<Response> {
+  try {
+    const endpoint = `/api/frontend/auth/send-otp?email=${encodeURIComponent(email)}`;
+    const { data } = await axios.post(endpoint, {}, { headers: {} }); 
+
+    console.log("Send OTP Response:", data); // Add this line to inspect the response
+
+    // Extract verify_token and expires_in from the response
+    const { verify_token, expires_in } = data.result || {};
+
+    return {
+      error: false,
+      status: data.code || 200,
+      message:
+        data.message || "OTP sent successfully. Please check your email.",
+        verify_token, 
+      expires_in,
+
+    };
+  } catch (error: any) {
+    console.error("Send OTP Error:", error.response?.data);
+
+    return {
+      error: true,
+      status: error.response?.status || 500,
+      message:
+        error.response?.data?.message ||
+        "Failed to send OTP. Please try again later.",
+    };
+  }
+}
+
+export const verifyOTP = async (args: {
+  otp: string;
+  verify_token: string;
+  email: string;
+}): Promise<ApiResponse<any>> => {
+  try {
+    const response = await axios.post(
+      `/api/frontend/auth/verify-otp`,
+      {
+        otp: args.otp,
+        verify_token: args.verify_token,
+        email: args.email,
+      },
+      {
+        headers: {
+          ...getAuthHeaders(),
+          "Content-Type": "application/json",
+        }
+      }
+    );
+    console.log("Verify OTP Response:", response.data);
+
+    if (!response.data.success) {
+      throw new Error(response.data.message || "OTP verification failed.");
+    }
+
+    return response.data;
+  } catch (error: any) {
+    console.error("Error in verifyOTP:", error);
+    return {
+      success: false,
+      code: error.response?.status || 500,
+      title: "OTP Verification Failed",
+      message: error.response?.data?.message || "Failed to verify OTP",
+      result: null,
+    };
+  }
+};
+
+
+export const resetPassword = async (
+  newPassword: string,
+  passwordConfirmation: string,
+  reset_token: string
+) => {
+  try {
+    const response = await axios.post(
+      "/api/frontend/auth/reset-password",
+      {
+        new_password: newPassword,
+        password_confirmation: passwordConfirmation,
+        reset_token: reset_token,
+      },
+      { headers: {} } 
+    );
+
+    const data = response.data;
+
+    if (data.success) {
+      return {
+        success: true,
+        status: data.status || 200,
+        message: data.message || "Password reset successfully",
+      };
+    } else {
+      return {
+        success: false,
+        status: data.status || 400,
+        message: data.message || "An error occurred",
+      };
+    }
+  } catch (error: any) {
+    console.error("Error resetting password:", error);
+    return {
+      success: false,
+      status: error.response?.status || 500,
+      message:
+        error.response?.data?.message ||
+        "An error occurred while resetting the password",
+    };
+  }
+};
 
 export async function login(args: LoginArgs): Promise<ApiResponse<User>> {
   try {
@@ -151,7 +274,7 @@ export async function getUserProfile(): Promise<Response<User>> {
     return {
       error: false,
       status: data.code || 200,
-      data: data.result, // Fix: Extract result instead of incorrect data nesting
+      data: data.result,
     };
   } catch (error: any) {
     return {

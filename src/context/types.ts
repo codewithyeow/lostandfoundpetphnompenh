@@ -52,11 +52,14 @@ export type VerifyResetPassword = (
    args: ChangePasswordArgs & {
       type: string;
       otp_code: string;
+      verify_token: string;
+      expires_in: number;
    }
 ) => Promise<ApiResponse<any>>;
 
 export type ResetPassword = (args: {
-   password: string;
+   newPassword: string;
+   confirmPassword: string;
    token: string;
 }) => Promise<ApiResponse<any>>;
 
@@ -74,6 +77,9 @@ export type AuthContext = {
    setUser: (user: User | null) => void;
    setStatus: React.Dispatch<React.SetStateAction<AuthStatus | undefined>>;
    logout: Logout;
+   sendOtp: RequestChangePassword;
+   verifyOtp: VerifyResetPassword;
+   resetPassword: ResetPassword;
    login: Login;
    register: Register
    getUser: GetUser;

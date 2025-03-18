@@ -4,7 +4,7 @@ import { useFormik } from "formik";
 import * as yup from "yup";
 import { toast } from "react-toastify";
 import { useRouter } from "next/navigation";
-import { sendOTP, verifyOTP, resetPassword } from "@server/actions/auth-action"; // Importing actions
+import { sendOTP, verifyOTP, resetPassword } from "@server/actions/auth-action";
 import {
   Card,
   CardContent,
