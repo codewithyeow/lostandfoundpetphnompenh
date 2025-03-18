@@ -9,6 +9,7 @@ import { cookies } from "next/headers";
 import { ApiResponse } from "interfaces";
 import { getInitialApiResponse } from "@utils/utils";
 import { ResponseCookie } from "next/dist/compiled/@edge-runtime/cookies";
+import { verify } from "crypto";
 
 const cookieOption: Partial<ResponseCookie> = { maxAge: 30 * 24 * 60 * 60 }; // 30 days
 
@@ -49,9 +50,7 @@ export async function sendOTP(email: string): Promise<Response> {
     const endpoint = `/api/frontend/auth/send-otp?email=${encodeURIComponent(email)}`;
     const { data } = await axios.post(endpoint, {}, { headers: {} }); 
 
-    console.log("Send OTP Response:", data); // Add this line to inspect the response
-
-    // Extract verify_token and expires_in from the response
+    console.log("Send OTP Response:", data); 
     const { verify_token, expires_in } = data.result || {};
 
     return {
@@ -91,20 +90,16 @@ export const verifyOTP = async (args: {
       },
       {
         headers: {
-          ...getAuthHeaders(),
+          "Authorization": `Bearer ${args.verify_token}`, 
           "Content-Type": "application/json",
-        }
+        },
       }
     );
+
     console.log("Verify OTP Response:", response.data);
-
-    if (!response.data.success) {
-      throw new Error(response.data.message || "OTP verification failed.");
-    }
-
     return response.data;
   } catch (error: any) {
-    console.error("Error in verifyOTP:", error);
+    console.error("❌ Error in verifyOTP:", error);
     return {
       success: false,
       code: error.response?.status || 500,
@@ -115,12 +110,11 @@ export const verifyOTP = async (args: {
   }
 };
 
-
 export const resetPassword = async (
   newPassword: string,
   passwordConfirmation: string,
   reset_token: string
-) => {
+): Promise<ApiResponse<any>> => {
   try {
     const response = await axios.post(
       "/api/frontend/auth/reset-password",
@@ -129,35 +123,35 @@ export const resetPassword = async (
         password_confirmation: passwordConfirmation,
         reset_token: reset_token,
       },
-      { headers: {} } 
+      {
+        headers: {
+          "Authorization": `Bearer ${reset_token}`, 
+          "Content-Type": "application/json",
+        },
+      }
     );
 
-    const data = response.data;
-
-    if (data.success) {
-      return {
-        success: true,
-        status: data.status || 200,
-        message: data.message || "Password reset successfully",
-      };
-    } else {
-      return {
-        success: false,
-        status: data.status || 400,
-        message: data.message || "An error occurred",
-      };
-    }
+    console.log("Reset Password Response:", response.data);
+    return {
+      success: true,
+      status: response.data.code || 200,
+      message: response.data.message || "Password reset successfully",
+      title: "Password Reset Successful",
+      code: response.data.code || 200,
+    };
   } catch (error: any) {
-    console.error("Error resetting password:", error);
+    console.error("❌ Error resetting password:", error);
+
     return {
       success: false,
-      status: error.response?.status || 500,
-      message:
-        error.response?.data?.message ||
-        "An error occurred while resetting the password",
+      code: error.response?.status || 500,
+      title: "OTP Verification Failed",
+      message: error.response?.data?.message || "Failed to verify OTP",
+      result: null,
     };
   }
 };
+
 
 export async function login(args: LoginArgs): Promise<ApiResponse<User>> {
   try {
