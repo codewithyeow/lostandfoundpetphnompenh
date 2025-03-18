@@ -1,11 +1,11 @@
 // Update ApiResponse interface to match your API response structure
 export interface ApiResponse<T> {
+    status: number;
     success: boolean;
     title: string;
     code: number;
     message: string;
-    result?: T; // Optional because errors don't return this
-    errors?: Record<string, string[]>; // Handles validation errors like in the failed login response
+    result?: T;
 }
 
 export interface LoginResponse {

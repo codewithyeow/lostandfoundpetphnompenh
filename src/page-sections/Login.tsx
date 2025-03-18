@@ -14,10 +14,10 @@ import {
   CardContent,
 } from "../components/ui/card";
 import { useAuthContext } from "../context/auth-context/AuthContext";
-import { useRouter } from 'next/navigation';
+import { useRouter } from "next/navigation";
 import { login } from "@server/actions/auth-action";
 import { toast } from "react-toastify";
-import { AuthStatus } from '../context/types';
+import { AuthStatus } from "../context/types";
 
 const initialValues = { email: "", password: "" };
 
@@ -36,20 +36,20 @@ const Login: React.FC = () => {
       console.log("API Response:", response); // Debugging
 
       if (!response.success) {
-        // If there's an error, display a toast message
-        toast.error(response.message || "Invalid email or password. Please try again.");
+        toast.error(
+          response.message || "Invalid email or password. Please try again."
+        );
       } else if (response.result && response.result.user) {
         toast.success("Logged in successfully!");
         setStatus("loggedIn");
-        await getUser(); 
-        router.push('/'); 
+        await getUser();
+        router.push("/");
       }
     } catch (error) {
       toast.error("An unexpected error occurred. Please try again.");
       console.error("Unexpected Error:", error);
     }
-};
-
+  };
 
   const { values, errors, touched, handleBlur, handleChange, handleSubmit } =
     useFormik({
@@ -76,7 +76,7 @@ const Login: React.FC = () => {
           </CardHeader>
 
           <CardContent>
-            <form onSubmit={handleSubmit} className="p-5 space-y-5">
+            <form onSubmit={handleSubmit} className="p-2 space-y-5">
               {/* Email Input */}
               <div>
                 <div className="flex items-center mb-2">
@@ -119,6 +119,13 @@ const Login: React.FC = () => {
                   className="w-full py-3 px-4 border-2 border-[#4eb7f0] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#4eb7f0] transition-all"
                   required
                 />
+                <div className="text-right mt-2">
+                  <Link href="/forgotPassword">
+                    <span className="text-[#4eb7f0] text-sm font-medium hover:underline">
+                      Forgot Password?
+                    </span>
+                  </Link>
+                </div>
               </div>
 
               {/* Submit Button */}
@@ -131,14 +138,13 @@ const Login: React.FC = () => {
             </form>
 
             {/* Link to Signup Page */}
-            <p className="text-sm text-center text-gray-500">
+            <p className="text-sm text-center text-gray-500 mt-4">
               Don't have an account?{" "}
-              <a
-                href="/register"
-                className="text-[#4eb7f0] font-medium hover:underline"
-              >
-                Sign up
-              </a>
+              <Link href="/register">
+                <span className="text-[#4eb7f0] font-medium hover:underline">
+                  Sign up
+                </span>
+              </Link>
             </p>
           </CardContent>
         </Card>
