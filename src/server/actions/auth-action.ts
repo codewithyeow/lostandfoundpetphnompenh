@@ -9,13 +9,6 @@ import { cookies } from "next/headers";
 import { ApiResponse } from "interfaces";
 import { getInitialApiResponse } from "@utils/utils";
 import { ResponseCookie } from "next/dist/compiled/@edge-runtime/cookies";
-import { Verify } from "crypto";
-
-interface VerifyResetPassword {
-  status: number;
-  error: boolean;
-  message: string;
-}
 
 const cookieOption: Partial<ResponseCookie> = { maxAge: 30 * 24 * 60 * 60 }; // 30 days
 
@@ -23,8 +16,6 @@ interface Response<T = undefined> {
   status: number;
   error: boolean;
   message?: string;
-  verify_token?: string;
-  expires_in?: number;
   data?: T;
 }
 
@@ -43,12 +34,6 @@ interface RegisterArgs {
   email: string;
   password: string;
   password_confirmation: string;
-}
-
-interface VerifyArgs {
-  email: string;
-  otp: string;
-  verify_token: string;
 }
 
 export async function login(args: LoginArgs): Promise<ApiResponse<User>> {
@@ -79,11 +64,11 @@ export async function login(args: LoginArgs): Promise<ApiResponse<User>> {
     return {
       success: false,
       title: "Login Failed",
-      status: error.response?.status || 500,
       code: error.response?.status || 500,
       message:
         error.response?.data?.message ||
         "Invalid credentials. Please try again.",
+      errors: error.response?.data?.errors || {},
     };
   }
 }
@@ -122,17 +107,17 @@ export async function register(args: RegisterArgs): Promise<ApiResponse<User>> {
       return {
         success: false,
         title: "Registration Failed",
-        status: 400,
         code: 400,
         message: errorData?.message || "The email has already been taken.",
+        errors: errorData?.errors || {},
       };
     }
     return {
       success: false,
       title: "Registration Failed",
-      status: error.response?.status || 500,
       code: error.response?.status || 500,
       message: errorData?.message || "Registration failed. Please try again.",
+      errors: errorData?.errors || {},
     };
   }
 }
@@ -153,117 +138,6 @@ export async function logout(): Promise<void> {
     revalidatePath("/(auth)", "layout");
   }
 }
-
-export async function sendOTP(email: string): Promise<Response> {
-  try {
-    const endpoint = `/api/frontend/auth/send-otp?email=${encodeURIComponent(
-      email
-    )}`;
-    const { data }: { data: ApiResponse<any> } = await axios.post(
-      endpoint,
-      {},
-      { headers: getAuthHeaders() }
-    );
-
-    console.log("Send OTP Response:", data); // Add this line to inspect the response
-
-    // Extract verify_token and expires_in from the response
-    const { verify_token, expires_in } = data.result || {};
-
-    return {
-      error: false,
-      status: data.code || 200,
-      message:
-        data.message || "OTP sent successfully. Please check your email.",
-      verify_token, // Include verify_token in the response
-      expires_in, // Include expires_in in the response
-    };
-  } catch (error: any) {
-    console.error("Send OTP Error:", error.response?.data);
-
-    return {
-      error: true,
-      status: error.response?.status || 500,
-      message:
-        error.response?.data?.message ||
-        "Failed to send OTP. Please try again later.",
-    };
-  }
-}
-
-// Update the verifyOTP function in auth-action.ts
-export const verifyOTP = async (args: {
-  otp: string;
-  verify_token: string;
-  email: string;
-}): Promise<ApiResponse<any>> => {
-  try {
-    const response = await axios.post(
-      `/api/frontend/auth/verify-otp`,
-      {
-        otp: args.otp,
-        verify_token: args.verify_token,
-        email: args.email,
-      },
-      { headers: getAuthHeaders() }
-    );
-    console.log("Verify OTP Response:", response.data);
-    return response.data;
-  } catch (error: any) {
-    console.error("Error in verifyOTP:", error);
-    return {
-      success: false,
-      status: error.response?.status || 500,
-      code: error.response?.status || 500,
-      title: "OTP Verification Failed",
-      message: error.response?.data?.message || "Failed to verify OTP",
-      result: null,
-    };
-  }
-};
-
-export const resetPassword = async (
-  newPassword: string,
-  passwordConfirmation: string,
-  reset_token: string
-) => {
-  try {
-    const response = await axios.post(
-      "/api/frontend/auth/reset-password",
-      {
-        new_password: newPassword,
-        password_confirmation: passwordConfirmation,
-        reset_token: reset_token,
-      },
-      { headers: getAuthHeaders() }
-    );
-
-    const data = response.data;
-
-    if (data.success) {
-      return {
-        success: true,
-        status: data.status || 200,
-        message: data.message || "Password reset successfully",
-      };
-    } else {
-      return {
-        success: false,
-        status: data.status || 400,
-        message: data.message || "An error occurred",
-      };
-    }
-  } catch (error: any) {
-    console.error("Error resetting password:", error);
-    return {
-      success: false,
-      status: error.response?.status || 500,
-      message:
-        error.response?.data?.message ||
-        "An error occurred while resetting the password",
-    };
-  }
-};
 
 export async function getUserProfile(): Promise<Response<User>> {
   try {
