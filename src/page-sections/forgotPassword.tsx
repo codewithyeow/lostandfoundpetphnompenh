@@ -37,7 +37,6 @@ const validationSchemas = {
   }),
 };
 
-const initialValues = { email: "", otp: "", verifyOtp: "" };
 const ForgotPassword: React.FC = () => {
   const router = useRouter();
   const [step, setStep] = useState(1);
@@ -74,9 +73,7 @@ const ForgotPassword: React.FC = () => {
           toast.error(response.message);
         }
       } else if (step === 2) {
-        // Use the updated verifyOTP function with the correct parameters
         if (!verifyToken) {
-          // Try to retrieve from localStorage as a fallback
           const storedToken = localStorage.getItem("verify_token");
           const storedEmail = localStorage.getItem("user_email");
 
@@ -93,13 +90,6 @@ const ForgotPassword: React.FC = () => {
           }
         }
 
-        const verifyArgs = {
-          email: userEmail,
-          otp: values.otp,
-          verify_token:
-            verifyToken || localStorage.getItem("verify_token") || "",
-        };
-
         const response = await verifyOTP({
           otp: values.otp,
           verify_token:
@@ -112,7 +102,8 @@ const ForgotPassword: React.FC = () => {
           if (response.result?.reset_token) {
             setResetToken(response.result.reset_token);
             localStorage.setItem("reset_token", response.result.reset_token);
-          }
+            console.log("Stored reset token:", response.result.reset_token);
+          }          
           setStep(3);
         } else {
           toast.error(response.message || "Failed to verify OTP.");
@@ -137,10 +128,10 @@ const ForgotPassword: React.FC = () => {
         if (response.success) {
           toast.success("Password reset successfully!");
           // Clean up stored tokens
-          localStorage.removeItem("verify_token");
-          localStorage.removeItem("reset_token");
+          // localStorage.removeItem("verify_token");
+          // localStorage.removeItem("reset_token");
           localStorage.removeItem("user_email");
-          router.push("/login"); // Redirect to login after success
+          router.push("/login"); 
         } else {
           toast.error(response.message || "Failed to reset password.");
         }
@@ -281,7 +272,7 @@ const ForgotPassword: React.FC = () => {
                 className="text-[#4eb7f0] font-medium hover:underline"
               >
                 Back to Login
-              </Link>
+              </Link> 
             </p>
           </CardContent>
         </Card>
