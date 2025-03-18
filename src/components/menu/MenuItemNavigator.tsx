@@ -104,12 +104,12 @@ const MenuItemNavigator: React.FC<MenuItemNavigatorProps> = ({
   useEffect(() => {
     const storedStatus = localStorage.getItem("authStatus");
     console.log("Stored auth status on navigation mount:", storedStatus);
-  
+
     if (storedStatus === "loggedIn") {
       setStatus("loggedIn");
     }
   }, [setStatus]);
-  
+
   return (
     <div
       className={`${isMenuOpen ? "block" : "hidden"} md:block`}
@@ -188,7 +188,7 @@ const MenuItemNavigator: React.FC<MenuItemNavigatorProps> = ({
           </li>
         ))}
 
-{status === "loggedIn" || status === "registered" ? (
+        {status === "loggedIn" ? (
           <li className="mt-4 md:mt-0 flex items-center gap-4">
             {/* Profile Icon */}
             <button

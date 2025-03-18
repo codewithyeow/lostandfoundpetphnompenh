@@ -8,7 +8,7 @@ const nextConfig = {
     theme: 'DEFAULT',
   },
   images: {
-    domains: ['www.pawboost.com'], // Add the domain to the list
+    domains: ['www.pawboost.com'],
   },
 };
 

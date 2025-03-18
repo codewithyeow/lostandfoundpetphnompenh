@@ -26,8 +26,11 @@ import type {
   VerifyResetPassword,
   ResetPassword,
   GetUser,
+  VerifyArgs,
 } from "../types";
 import axios from "@lib/axios";
+import { verifyOTP } from "@server/actions/auth-action";
+import { toast } from "react-toastify";
 
 const Context = createContext({} as AuthContext);
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
@@ -74,10 +77,191 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     [setUser, setStatus]
   );
 
+  const sendOtp = useCallback<RequestChangePassword>(
+    async (args) => {
+      try {
+        setLoading(true);
+        if (!args.email) {
+          throw new Error("Email is required to send OTP.");
+        }
+
+        // Call to the backend to send OTP
+        const {
+          data,
+        }: {
+          data: ApiResponse<{
+            verify_token: string;
+            expires_in: number;
+            email: string;
+          }>;
+        } = await axios.post(
+          `/api/frontend/auth/send-otp?email=${encodeURIComponent(args.email)}`
+        );
+
+        if (data.success && data.result) {
+          const { verify_token, expires_in, email } = data.result;
+
+          // ✅ Save token for verification in future steps
+          localStorage.setItem("verify_token", verify_token);
+
+          // Return the success response matching ApiResponse<T>
+          return {
+            success: true,
+            status: 200, // HTTP status code for success
+            title: "OK", // Title of the response
+            code: 200, // Custom code for this action, if required
+            message: data.message || "OTP sent successfully.",
+            result: { verify_token, expires_in, email }, // Added email to result
+          };
+        } else {
+          throw new Error(data.message || "Failed to send OTP. Try again.");
+        }
+      } catch (error: any) {
+        console.error("Send OTP Error:", error);
+        return {
+          success: false, // False in case of error
+          status: error.response?.status || 400, // HTTP status code for error
+          title: "Error", // Title for the error
+          code: error.response?.status || 400, // Custom code or HTTP status code
+          message:
+            error.response?.data?.message ||
+            "Failed to send OTP. Please try again.",
+          result: null, // No result in case of error
+          errors: error.response?.data?.errors || {}, // Validation errors or additional error info
+        };
+      } finally {
+        setLoading(false);
+      }
+    },
+    [setLoading]
+  );
+  const verifyOtp = useCallback<VerifyResetPassword>(async (args) => {
+    try {
+      setLoading(true);
+
+      if (!args.otp_code || !args.verifyToken || !args.email) {
+        throw new Error("OTP code, verify token, and email are required.");
+      }
+
+      // Call verifyOTP with the object structure
+      const response = await verifyOTP({
+        otp: args.otp_code,
+        verify_token: args.verifyToken,
+        email: args.email,
+      });
+
+      console.log("Verify OTP response:", response);
+
+      if (response.success === false) {
+        toast.error(response.message || "Failed to verify OTP.");
+        return {
+          success: false,
+          status: response.status || 400,
+          title: "Error",
+          code: response.status || 400,
+          message: response.message || "Failed to verify OTP.",
+          result: null,
+        };
+      }
+
+      // Store the reset token for the next step
+      if (response.result?.reset_token) {
+        localStorage.setItem("reset_token", response.result.reset_token);
+      }
+
+      toast.success(response.message || "OTP verified successfully.");
+      return {
+        success: true,
+        status: response.status || 200,
+        title: "Success",
+        code: response.status || 200,
+        message: response.message || "OTP verified successfully.",
+        result: response.result,
+      };
+    } catch (error) {
+      console.error("Error verifying OTP:", error);
+      return {
+        success: false,
+        status: 500,
+        title: "Error",
+        code: 500,
+        message: "An unexpected error occurred while verifying OTP.",
+        result: null,
+      };
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  // Update the resetPassword function to use the reset token
+  const resetPassword = useCallback<ResetPassword>(async (args) => {
+    try {
+      const { newPassword, confirmPassword } = args;
+
+      // Get the reset token from localStorage
+      const reset_token = localStorage.getItem("reset_token");
+
+      if (!reset_token) {
+        toast.error("Reset token not found. Please verify your OTP first.");
+        return {
+          success: false,
+          title: "Error",
+          status: 400,
+          code: 400,
+          message: "Reset token not found. Please verify your OTP first.",
+          result: null,
+        };
+      }
+
+      // Call the resetPassword function with the reset token
+      const result = await resetPassword(
+        newPassword,
+        confirmPassword,
+        reset_token
+      );
+
+      if (result.success) {
+        // Clear the reset token from localStorage
+        localStorage.removeItem("reset_token");
+
+        toast.success(result.message || "Password reset successfully!");
+        return {
+          success: true,
+          title: "Success",
+          status: 200,
+          code: 200,
+          message: result.message || "Password reset successfully.",
+          result: null,
+        };
+      } else {
+        toast.error(result.message || "Failed to reset password.");
+        return {
+          success: false,
+          title: "Error",
+          status: result.status || 400,
+          code: result.status || 400,
+          message: result.message || "Failed to reset password.",
+          result: null,
+        };
+      }
+    } catch (error) {
+      toast.error("Error resetting password.");
+      return {
+        success: false,
+        title: "Error",
+        status: 500,
+        code: 500,
+        message: "An unexpected error occurred while resetting password.",
+        result: null,
+      };
+    }
+  }, []);
+
   const register = useCallback<Register>(
     async (args) => {
       try {
         const { data } = await axios.post(`/api/frontend/auth/register`, {
+          name: args.name,
           email: args.email,
           password: args.password,
           confirm_password: args.confirm_password,
@@ -127,22 +311,23 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     try {
       setLoading(true);
 
-      // 🔹 First, check localStorage
+      // Check if user is in localStorage
       const storedUser = localStorage.getItem("user");
       if (storedUser) {
+        console.log("User loaded from localStorage:", storedUser); // Debugging
         setUser(JSON.parse(storedUser));
         setStatus("loggedIn");
         return JSON.parse(storedUser);
       }
 
-      // 🔹 If no stored user, fetch from API
+      // Fetch user from API if not in localStorage
       const { data }: { data: ApiResponse<User> } = await axios.get(
         `/api/frontend/auth/profile?meta=1`
       );
 
       if (data.success) {
         const user = data.result;
-
+        console.log("User loaded from API:", user); // Debugging
         setUser(user);
         setStatus("loggedIn");
 
@@ -153,8 +338,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
       }
 
       return data.result;
-    } catch {
+    } catch (error) {
       setStatus("loggedOut");
+      console.error("Error fetching user:", error); // Debugging
     } finally {
       setLoading(false);
     }
@@ -169,6 +355,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
         status,
         user,
         loading,
+        sendOtp,
+        verifyOtp,
+        resetPassword,
         setUser,
         setStatus,
         login,
