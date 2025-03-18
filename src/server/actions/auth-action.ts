@@ -23,9 +23,9 @@ interface Response<T = undefined> {
   status: number;
   error: boolean;
   message?: string;
-  data?: T;
   verify_token?: string;
   expires_in?: number;
+  data?: T;
 }
 
 interface LoginArgs {

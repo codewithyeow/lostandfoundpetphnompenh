@@ -2,7 +2,7 @@
 
 import User from "@models/User";
 import { remove_cookie, set_cookie } from "@utils/cookie";
-
+import { toast } from "react-toastify";
 import { ApiResponse } from "interfaces";
 import React, {
   createContext,
@@ -29,8 +29,7 @@ import type {
   VerifyArgs,
 } from "../types";
 import axios from "@lib/axios";
-import { verifyOTP } from "@server/actions/auth-action";
-import { toast } from "react-toastify";
+import exp from "constants";
 
 const Context = createContext({} as AuthContext);
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
@@ -40,42 +39,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   const [user, setUser] = useState<User | null>();
   const [status, setStatus] = useState<AuthStatus>("loggedOut");
 
-  const login = useCallback<Login>(
-    async (args) => {
-      try {
-        const { data }: { data: ApiResponse<User> } = await axios.post(
-          `/api/frontend/auth/login`,
-          {
-            email: args.email,
-            password: args.password,
-          }
-        );
-
-        if (data.success) {
-          const user = data.result?.user;
-          const token = data.result?.access_token;
-
-          if (token) {
-            set_cookie("token", token, { expires: 30 }); // Store token in cookies
-          }
-
-          setUser(user);
-          setStatus("loggedIn");
-
-          // ✅ Save to localStorage
-          localStorage.setItem("authStatus", "loggedIn");
-          localStorage.setItem("user", JSON.stringify(user));
-
-          return user;
-        } else {
-          throw new Error(data.message || "Login failed");
-        }
-      } catch (error) {
-        throw error;
-      }
-    },
-    [setUser, setStatus]
-  );
 
   const sendOtp = useCallback<RequestChangePassword>(
     async (args) => {
@@ -139,15 +102,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     try {
       setLoading(true);
 
-      if (!args.otp_code || !args.verifyToken || !args.email) {
+      if (!args.otp_code || !args.verify_token || !args.email || !args.expires_in) {
         throw new Error("OTP code, verify token, and email are required.");
       }
 
       // Call verifyOTP with the object structure
-      const response = await verifyOTP({
+      const response = await verifyOtp({
         otp: args.otp_code,
-        verify_token: args.verifyToken,
+        verify_token: args.verify_token,
         email: args.email,
+        expires_in: args.expires_in,
       });
 
       console.log("Verify OTP response:", response);
@@ -257,6 +221,44 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     }
   }, []);
 
+  const login = useCallback<Login>(
+    async (args) => {
+      try {
+        const { data }: { data: ApiResponse<User> } = await axios.post(
+          `/api/frontend/auth/login`,
+          {
+            email: args.email,
+            password: args.password,
+          }
+        );
+
+        if (data.success) {
+          const user = data.result?.user;
+          const token = data.result?.access_token;
+
+          if (token) {
+            set_cookie("token", token, { expires: 30 }); // Store token in cookies
+          }
+
+          setUser(user);
+          setStatus("loggedIn");
+
+          // ✅ Save to localStorage
+          localStorage.setItem("authStatus", "loggedIn");
+          localStorage.setItem("user", JSON.stringify(user));
+
+          return user;
+        } else {
+          throw new Error(data.message || "Login failed");
+        }
+      } catch (error) {
+        throw error;
+      }
+    },
+    [setUser, setStatus]
+  );
+
+
   const register = useCallback<Register>(
     async (args) => {
       try {
@@ -349,6 +351,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   useEffect(() => {
     getUser();
   }, [getUser]);
+
   return (
     <Context.Provider
       value={{
