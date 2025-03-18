@@ -188,8 +188,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
       );
 
       if (result.success) {
-        // Clear the reset token from localStorage
-        localStorage.removeItem("reset_token");
+        // // Clear the reset token from localStorage
+        // localStorage.removeItem("reset_token");
 
         toast.success(result.message || "Password reset successfully!");
         return {

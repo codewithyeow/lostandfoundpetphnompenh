@@ -11,7 +11,7 @@ import { getInitialApiResponse } from "@utils/utils";
 import { ResponseCookie } from "next/dist/compiled/@edge-runtime/cookies";
 import { verify } from "crypto";
 
-const cookieOption: Partial<ResponseCookie> = { maxAge: 30 * 24 * 60 * 60 }; // 30 days
+const cookieOption: Partial<ResponseCookie> = { maxAge: 30 * 24 * 60 * 60 }; 
 
 interface Response<T = undefined> {
   status: number;
@@ -48,19 +48,22 @@ interface ResetPasswordArgs {
 export async function sendOTP(email: string): Promise<Response> {
   try {
     const endpoint = `/api/frontend/auth/send-otp?email=${encodeURIComponent(email)}`;
-    const { data } = await axios.post(endpoint, {}, { headers: {} }); 
+    const { data } = await axios.post(endpoint, {}, { headers: {} });
 
-    console.log("Send OTP Response:", data); 
     const { verify_token, expires_in } = data.result || {};
+
+    if (verify_token) {
+      // Store verify token in localStorage
+      localStorage.setItem("verify_token", verify_token);
+      localStorage.setItem("expires_in", expires_in);
+    }
 
     return {
       error: false,
       status: data.code || 200,
-      message:
-        data.message || "OTP sent successfully. Please check your email.",
-        verify_token, 
+      message: data.message || "OTP sent successfully. Please check your email.",
+      verify_token,
       expires_in,
-
     };
   } catch (error: any) {
     console.error("Send OTP Error:", error.response?.data);
@@ -74,6 +77,7 @@ export async function sendOTP(email: string): Promise<Response> {
     };
   }
 }
+
 
 export const verifyOTP = async (args: {
   otp: string;
@@ -125,11 +129,11 @@ export const resetPassword = async (
       },
       {
         headers: {
-          "Authorization": `Bearer ${reset_token}`, 
+          "Authorization": `Bearer ${reset_token}`,
           "Content-Type": "application/json",
         },
       }
-    );
+    );    
 
     console.log("Reset Password Response:", response.data);
     return {

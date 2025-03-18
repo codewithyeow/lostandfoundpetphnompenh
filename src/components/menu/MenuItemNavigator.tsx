@@ -25,15 +25,7 @@ const MenuItemNavigator: React.FC<MenuItemNavigatorProps> = ({
   const authContext = useAuthContext();
 
   const menuItems = [
-    ...(status === "loggedIn"
-      ? [
-          {
-            name: "MY PET",
-            key: "my-pet",
-            href: "/dashboard/mypet",
-          },
-        ]
-      : []),
+
     {
       name: "FOUND PETS",
       key: "found-pets",
@@ -192,7 +184,7 @@ const MenuItemNavigator: React.FC<MenuItemNavigatorProps> = ({
           <li className="mt-4 md:mt-0 flex items-center gap-4">
             {/* Profile Icon */}
             <button
-              onClick={() => router.push("/profile")}
+              onClick={() => router.push("/dashboard/profile")}
               className="text-gray-600 hover:text-gray-800 transition"
             >
               <User className="w-6 h-6" />
