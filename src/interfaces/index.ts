@@ -4,8 +4,9 @@ export interface ApiResponse<T> {
     title: string;
     code: number;
     message: string;
-    result?: T; // Optional because errors don't return this
-    errors?: Record<string, string[]>; // Handles validation errors like in the failed login response
+    result?: T;
+    errors?: Record<string, string[]>;
+    status?: number;
 }
 
 
