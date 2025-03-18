@@ -1,7 +1,7 @@
 "use client";
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
-import { FaEnvelope, FaLock, FaCheckCircle } from "react-icons/fa";
+import { FaEnvelope,FaUser, FaLock, FaCheckCircle } from "react-icons/fa";
 import { register } from "@server/actions/auth-action";
 import { useAuthContext } from "../context/auth-context/AuthContext";
 import { toast } from "react-toastify";
@@ -15,6 +15,7 @@ const Signup: React.FC = () => {
   const handleSignup = async (values: any) => {
     try {
       const response = await register({
+        name: values.name,
         email: values.email,
         password: values.password,
         password_confirmation: values.password_confirmation,
@@ -22,9 +23,8 @@ const Signup: React.FC = () => {
 
       if (response.success) {
         await getUser();
-
         toast.success("Signup successful!");
-        setAuthStatus("loggedIn");
+        // setAuthStatus("loggedIn");
         setTimeout(() => {
           router.push("/login");
         }, 300);
@@ -56,6 +56,28 @@ const Signup: React.FC = () => {
           </h3>
 
           <form className="space-y-5" onSubmit={formik.handleSubmit}>
+          <div>
+              <div className="flex items-center mb-2">
+                <FaUser className="mr-2 text-gray-500" />
+                <label
+                  htmlFor="name"
+                  className="block text-sm font-medium text-gray-700"
+                >
+                  Name
+                </label>
+              </div>
+              <input
+                id="name"
+                name="name"
+                type="text"
+                autoComplete="name"
+                required
+                placeholder="Enter your name"
+                value={formik.values.name}
+                onChange={formik.handleChange}
+                className="w-full py-3 px-4 border-2 border-[#4eb7f0] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#4eb7f0] transition-all"
+              />
+            </div>
             {/* Email Input */}
             <div>
               <div className="flex items-center mb-2">

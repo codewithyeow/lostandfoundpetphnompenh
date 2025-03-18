@@ -51,12 +51,16 @@ export type VerifyResetPassword = (
    args: ChangePasswordArgs & {
       type: string;
       otp_code: string;
+      verify_token: string;
+      expires_in: number;
    }
 ) => Promise<ApiResponse<any>>;
 
 export type ResetPassword = (args: {
-   password: string;
-   token: string;
+
+   newPassword: string;
+   confirmPassword: string;
+   resetToken: string;
 }) => Promise<ApiResponse<any>>;
 
 export type ChangePassword = (args: {
