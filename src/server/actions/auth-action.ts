@@ -47,10 +47,12 @@ interface ResetPasswordArgs {
 
 export async function sendOTP(email: string): Promise<Response> {
   try {
-    const endpoint = `/api/frontend/auth/send-otp?email=${encodeURIComponent(email)}`;
-    const { data } = await axios.post(endpoint, {}, { headers: {} }); 
+    const endpoint = `/api/frontend/auth/send-otp?email=${encodeURIComponent(
+      email
+    )}`;
+    const { data } = await axios.post(endpoint, {}, { headers: {} });
 
-    console.log("Send OTP Response:", data); 
+    console.log("Send OTP Response:", data);
     const { verify_token, expires_in } = data.result || {};
 
     return {
@@ -58,9 +60,8 @@ export async function sendOTP(email: string): Promise<Response> {
       status: data.code || 200,
       message:
         data.message || "OTP sent successfully. Please check your email.",
-        verify_token, 
+      verify_token,
       expires_in,
-
     };
   } catch (error: any) {
     console.error("Send OTP Error:", error.response?.data);
@@ -90,7 +91,7 @@ export const verifyOTP = async (args: {
       },
       {
         headers: {
-          "Authorization": `Bearer ${args.verify_token}`, 
+          Authorization: `Bearer ${args.verify_token}`,
           "Content-Type": "application/json",
         },
       }
@@ -125,7 +126,7 @@ export const resetPassword = async (
       },
       {
         headers: {
-          "Authorization": `Bearer ${reset_token}`, 
+          Authorization: `Bearer ${reset_token}`,
           "Content-Type": "application/json",
         },
       }
@@ -151,7 +152,6 @@ export const resetPassword = async (
     };
   }
 };
-
 
 export async function login(args: LoginArgs): Promise<ApiResponse<User>> {
   try {
@@ -215,7 +215,6 @@ export async function register(args: RegisterArgs): Promise<ApiResponse<User>> {
 
     return data;
   } catch (error: any) {
-    // Capture error response from API
     const errorData = error.response?.data;
     console.error("Registration Error:", errorData);
 
