@@ -25,7 +25,7 @@ const Login: React.FC = () => {
   const router = useRouter();
   const { getUser } = useAuthContext();
   const [status, setStatus] = useState<undefined | AuthStatus>();
-  const [showPassword, setShowPassword] = useState(false); // State to toggle password visibility
+  const [showPassword, setShowPassword] = useState(false);
 
   const handleFormSubmit = async (values: any) => {
     try {
@@ -114,7 +114,7 @@ const Login: React.FC = () => {
                 <div className="relative">
                   <input
                     id="password"
-                    type={showPassword ? "text" : "password"} // Toggle between text and password
+                    type={showPassword ? "text" : "password"}
                     placeholder="Password"
                     value={values.password}
                     onChange={handleChange}
@@ -123,11 +123,10 @@ const Login: React.FC = () => {
                   />
                   <div
                     className="absolute right-3 top-1/2 transform -translate-y-1/2 cursor-pointer"
-                    onClick={() => setShowPassword(!showPassword)} 
+                    onClick={() => setShowPassword(!showPassword)}
                   >
                     {showPassword ? (
-                               <FaEye className="text-gray-500" />
-
+                      <FaEye className="text-gray-500" />
                     ) : (
                       <FaEyeSlash className="text-gray-500" />
                     )}
