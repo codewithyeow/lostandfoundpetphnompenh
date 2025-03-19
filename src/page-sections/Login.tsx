@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useFormik } from "formik";
 import * as yup from "yup";
 
-import { FaEnvelope, FaLock } from "react-icons/fa";
+import { FaEnvelope, FaLock, FaEye, FaEyeSlash } from "react-icons/fa";
 import {
   Card,
   CardHeader,
@@ -25,6 +25,7 @@ const Login: React.FC = () => {
   const router = useRouter();
   const { getUser } = useAuthContext();
   const [status, setStatus] = useState<undefined | AuthStatus>();
+  const [showPassword, setShowPassword] = useState(false); // State to toggle password visibility
 
   const handleFormSubmit = async (values: any) => {
     try {
@@ -110,15 +111,28 @@ const Login: React.FC = () => {
                     Password
                   </label>
                 </div>
-                <input
-                  id="password"
-                  type="password"
-                  placeholder="Password"
-                  value={values.password}
-                  onChange={handleChange}
-                  className="w-full py-3 px-4 border-2 border-[#4eb7f0] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#4eb7f0] transition-all"
-                  required
-                />
+                <div className="relative">
+                  <input
+                    id="password"
+                    type={showPassword ? "text" : "password"} // Toggle between text and password
+                    placeholder="Password"
+                    value={values.password}
+                    onChange={handleChange}
+                    className="w-full py-3 px-4 border-2 border-[#4eb7f0] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#4eb7f0] transition-all"
+                    required
+                  />
+                  <div
+                    className="absolute right-3 top-1/2 transform -translate-y-1/2 cursor-pointer"
+                    onClick={() => setShowPassword(!showPassword)} 
+                  >
+                    {showPassword ? (
+                               <FaEye className="text-gray-500" />
+
+                    ) : (
+                      <FaEyeSlash className="text-gray-500" />
+                    )}
+                  </div>
+                </div>
                 <div className="text-right mt-2">
                   <Link href="/forgotPassword">
                     <span className="text-[#4eb7f0] text-sm font-medium hover:underline">

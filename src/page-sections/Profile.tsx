@@ -264,73 +264,6 @@ const ProfilePage = () => {
     setEditingProfile(false);
   };
 
-  const initialValues = {
-    newPassword: "",
-    confirmPassword: "",
-  };
-
-  const validationSchemas = yup.object({
-    newPassword: yup
-      .string()
-      .min(6, "Password must be at least 6 characters")
-      .required("Password is required"),
-    confirmPassword: yup
-      .string()
-      .oneOf([yup.ref("newPassword"), undefined], "Passwords must match")
-      .required("Confirm Password is required"),
-  });
-
-  const [resetToken, setResetToken] = useState<string | null>(null);
-  const handlePasswordChange = async (values: any) => {
-    setLoading(true);
-    try {
-      // Check if reset token exists in localStorage first
-      const token = resetToken || localStorage.getItem("reset_token");
-
-      console.log("Reset token:", token);
-
-      if (!token) {
-        console.error("Reset token not available");
-        toast.error("Reset token is missing. Please restart the process.");
-        return;
-      }
-
-      // Log the values being passed to resetPassword for debugging
-      console.log("Requesting password reset with values:", {
-        newPassword: values.newPassword,
-        confirmPassword: values.confirmPassword,
-        resetToken: token,
-      });
-
-      // Proceed with the password reset if the token is available
-      const response = await resetPassword(
-        values.newPassword,
-        values.confirmPassword,
-        token
-      );
-
-      if (response.success) {
-        toast.success("Password reset successfully!");
-        // Clean up stored tokens
-        localStorage.removeItem("reset_token");
-        localStorage.removeItem("verify_token"); // Clear verify token
-        localStorage.removeItem("user_email"); // Clear user email
-      } else {
-        toast.error(response.message || "Failed to reset password.");
-      }
-    } catch (error) {
-      console.error("Error in password change:", error);
-      toast.error("An unexpected error occurred. Please try again.");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const { values, handleChange, handleSubmit, errors, touched } = useFormik({
-    initialValues,
-    validationSchema: validationSchemas,
-    onSubmit: handlePasswordChange,
-  });
   const renderPetCard = (pet: any, type: string) => (
     <Card
       key={pet.id}
@@ -606,7 +539,7 @@ const ProfilePage = () => {
         )}
 
         <Tabs defaultValue="myPets" className="space-y-6">
-          <TabsList className="grid grid-cols-4 max-w-2xl mx-auto bg-[#e4e3e7]">
+          <TabsList className="grid grid-cols-3 max-w-2xl mx-auto bg-[#e4e3e7]">
             <TabsTrigger
               value="myPets"
               className="data-[state=active]:bg-[#4eb7f0] data-[state=active]:text-white"
@@ -628,13 +561,13 @@ const ProfilePage = () => {
               <AlertTriangle size={16} className="mr-2" />
               Reported
             </TabsTrigger>
-            <TabsTrigger
+            {/* <TabsTrigger
               value="security"
               className="data-[state=active]:bg-[#4eb7f0] data-[state=active]:text-white"
             >
               <KeyRound size={16} className="mr-2" />
               Security
-            </TabsTrigger>
+            </TabsTrigger> */}
           </TabsList>
 
           <TabsContent value="myPets">
@@ -809,64 +742,7 @@ const ProfilePage = () => {
             </div>
           </TabsContent>
 
-          <TabsContent value="security">
-            <div className="max-w-2xl mx-auto">
-              <Card className="bg-white shadow-md rounded-xl overflow-hidden">
-                <CardHeader>
-                  <CardTitle className="flex items-center">
-                    <KeyRound className="mr-2 text-[#4eb7f0]" size={20} />
-                    Change Password
-                  </CardTitle>
-                  <CardDescription>
-                    Update your password to keep your account secure
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <form onSubmit={handleSubmit} className="space-y-4">
-                    {" "}
-                    {/* Use handleSubmit here */}
-                    <div className="space-y-2">
-                      <Label htmlFor="newPassword">New Password</Label>
-                      <Input
-                        type="password"
-                        name="newPassword"
-                        placeholder="New Password"
-                        value={values.newPassword}
-                        onChange={handleChange}
-                        className="w-full py-3 px-4 border-2 border-[#4eb7f0] rounded-lg"
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="confirmPassword">
-                        Confirm New Password
-                      </Label>
-                      <Input
-                        type="password"
-                        name="confirmPassword"
-                        placeholder="Confirm New Password"
-                        value={values.confirmPassword}
-                        onChange={handleChange}
-                        className="w-full py-3 px-4 border-2 border-[#4eb7f0] rounded-lg"
-                      />
-                      {touched.confirmPassword &&
-                        typeof errors.confirmPassword === "string" && (
-                          <div className="text-red-500 text-sm">
-                            {errors.confirmPassword}
-                          </div>
-                        )}
-                    </div>
-                    <Button
-                      type="submit"
-                      className="w-full bg-[#4eb7f0] hover:bg-[#3aa0d9]"
-                      disabled={loading}
-                    >
-                      {loading ? "Updating..." : "Update Password"}
-                    </Button>
-                  </form>
-                </CardContent>
-              </Card>
-            </div>
-          </TabsContent>
+          
         </Tabs>
       </div>
     </section>
