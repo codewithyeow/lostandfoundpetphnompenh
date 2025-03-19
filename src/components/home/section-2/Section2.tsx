@@ -1,3 +1,4 @@
+"use client";
 import React, { useState, useEffect } from "react";
 import {
   Card,
@@ -11,8 +12,9 @@ import Image from "next/image";
 import { Badge } from "../../../components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Heart, MapPin, Calendar, Info } from "lucide-react";
+import Link from "next/link";
 
-const petData = [
+export const petData = [
   {
     id: 1,
     name: "Fluffy",
@@ -82,13 +84,26 @@ export default function Section2() {
   // Simulate data loading delay
   useEffect(() => {
     const timeout = setTimeout(() => setLoading(false), 2000);
+    
+    // Get favorites from localStorage
+    const storedFavorites = localStorage.getItem('petFavorites');
+    if (storedFavorites) {
+      setFavorites(JSON.parse(storedFavorites));
+    }
+    
     return () => clearTimeout(timeout); // Clear timeout when component unmounts
   }, []);
 
-  const toggleFavorite = (id) => {
-    setFavorites(prev => 
-      prev.includes(id) ? prev.filter(itemId => itemId !== id) : [...prev, id]
-    );
+  const toggleFavorite = (e: React.MouseEvent, id: number) => {
+    e.preventDefault(); // Prevent navigation
+    e.stopPropagation(); // Prevent card click event from firing
+    
+    const newFavorites = favorites.includes(id) 
+      ? favorites.filter(itemId => itemId !== id) 
+      : [...favorites, id];
+      
+    setFavorites(newFavorites);
+    localStorage.setItem('petFavorites', JSON.stringify(newFavorites));
   };
 
   return (
@@ -134,76 +149,85 @@ export default function Section2() {
               ))
           : // Show actual pet data when loading is complete
             petData.map((pet) => (
-              <Card
-                key={pet.id}
-                className="relative bg-white shadow-lg rounded-2xl overflow-hidden hover:shadow-xl transition-all duration-300 w-full group"
-              >
-                <button 
-                  onClick={() => toggleFavorite(pet.id)}
-                  className="absolute top-3 right-3 z-10 bg-white p-2 rounded-full shadow-md transition-transform hover:scale-110"
+                <Link href={`/pet-detail/${pet.id}`} key={pet.id} passHref>
+                <Card
+                  className="relative bg-white shadow-lg rounded-2xl overflow-hidden hover:shadow-xl transition-all duration-300 w-full group cursor-pointer"
                 >
-                  <Heart 
-                    size={20} 
-                    className={favorites.includes(pet.id) ? "fill-red-500 text-red-500" : "text-gray-400"} 
-                  />
-                </button>
-                
-                <Badge
-                  variant="default"
-                  className={`absolute top-3 left-3 z-10 text-white text-xs font-medium px-3 py-1 rounded-full shadow-md ${
-                    pet.badgeType === "Lost"
-                      ? "bg-red-500"
-                      : pet.badgeType === "Found"
-                      ? "bg-[#8DC63F]"
-                      : "bg-yellow-500"
-                  }`}
-                >
-                  {pet.badgeType}
-                </Badge>
-                
-                <CardContent className="p-0">
-                  <div className="relative w-full h-56 sm:h-64 overflow-hidden">
-                    <Image
-                      src={pet.image}
-                      alt={pet.name}
-                      layout="fill"
-                      objectFit="cover"
-                      className="group-hover:scale-105 transition-transform duration-500"
+                  <button 
+                    onClick={(e) => toggleFavorite(e, pet.id)}
+                    className="absolute top-3 right-3 z-10 bg-white p-2 rounded-full shadow-md transition-transform hover:scale-110"
+                  >
+                    <Heart 
+                      size={20} 
+                      className={favorites.includes(pet.id) ? "fill-red-500 text-red-500" : "text-gray-400"} 
                     />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                  </div>
+                  </button>
                   
-                  <div className="p-5">
-                    <CardTitle className="text-lg sm:text-xl font-bold">
-                      {pet.name}
-                    </CardTitle>
-                    
-                    <div className="flex flex-wrap text-sm text-gray-500 mt-2 mb-3">
-                      <div className="flex items-center mr-4 mb-2">
-                        <MapPin size={14} className="mr-1 text-[#4eb7f0]" />
-                        <span>{pet.location}</span>
-                      </div>
-                      <div className="flex items-center mb-2">
-                        <Calendar size={14} className="mr-1 text-[#4eb7f0]" />
-                        <span>{pet.date}</span>
-                      </div>
+                  <Badge
+                    variant="default"
+                    className={`absolute top-3 left-3 z-10 text-white text-xs font-medium px-3 py-1 rounded-full shadow-md ${
+                      pet.badgeType === "Lost"
+                        ? "bg-red-500"
+                        : pet.badgeType === "Found"
+                        ? "bg-[#8DC63F]"
+                        : "bg-yellow-500"
+                    }`}
+                  >
+                    {pet.badgeType}
+                  </Badge>
+                  
+                  <CardContent className="p-0">
+                    <div className="relative w-full h-56 sm:h-64 overflow-hidden">
+                      <Image
+                        src={pet.image}
+                        alt={pet.name}
+                        layout="fill"
+                        objectFit="cover"
+                        className="group-hover:scale-105 transition-transform duration-500"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                     </div>
                     
-                    <CardDescription className="text-sm line-clamp-2 mb-5">
-                      {pet.description}
-                    </CardDescription>
-                    
-                    <div className="flex justify-between items-center gap-2">
-                      <button className="text-[#4eb7f0] border-2 border-[#4eb7f0] font-medium text-sm flex-grow py-3 rounded-full hover:bg-[#4eb7f0] hover:text-white transition-colors duration-200">
-                        CONTACT OWNER
-                      </button>
-                      <button className="p-3 border-2 border-gray-200 rounded-full hover:bg-gray-100 transition-colors duration-200">
-                        <Info size={18} className="text-gray-500" />
-                      </button>
+                    <div className="p-5">
+                      <CardTitle className="text-lg sm:text-xl font-bold">
+                        {pet.name}
+                      </CardTitle>
+                      
+                      <div className="flex flex-wrap text-sm text-gray-500 mt-2 mb-3">
+                        <div className="flex items-center mr-4 mb-2">
+                          <MapPin size={14} className="mr-1 text-[#4eb7f0]" />
+                          <span>{pet.location}</span>
+                        </div>
+                        <div className="flex items-center mb-2">
+                          <Calendar size={14} className="mr-1 text-[#4eb7f0]" />
+                          <span>{pet.date}</span>
+                        </div>
+                      </div>
+                      
+                      <CardDescription className="text-sm line-clamp-2 mb-5">
+                        {pet.description}
+                      </CardDescription>
+                      
+                      <div className="flex justify-between items-center gap-2">
+                        <Link 
+                          href={`/pets/${pet.id}#contact`}
+                          onClick={(e) => e.stopPropagation()}
+                          className="text-[#4eb7f0] border-2 border-[#4eb7f0] font-medium text-sm flex-grow py-3 rounded-full hover:bg-[#4eb7f0] hover:text-white transition-colors duration-200 text-center"
+                        >
+                          CONTACT OWNER
+                        </Link>
+                        <Link 
+                          href={`/pets/${pet.id}`}
+                          onClick={(e) => e.stopPropagation()}
+                          className="p-3 border-2 border-gray-200 rounded-full hover:bg-gray-100 transition-colors duration-200 flex items-center justify-center"
+                        >
+                          <Info size={18} className="text-gray-500" />
+                        </Link>
+                      </div>
                     </div>
-                  </div>
-                </CardContent>
-              </Card>
+                  </CardContent>
+                </Card>
+              </Link>
             ))}
       </div>
     </section>

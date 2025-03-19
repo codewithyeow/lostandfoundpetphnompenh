@@ -36,14 +36,14 @@ export default function ReportLostPetForm() {
   ];
 
   return (
-    <div className="bg-[#E4EAEE] min-h-screen flex flex-col lg:px-8 px-4 w-full py-2 ">
-      <div className="sm:mx-auto lg:max-w-2xl sm:w-full sm:max-w-sm">
+    <div className="bg-[#E4EAEE] min-h-screen flex flex-col px-4 py-2 w-full">
+      <div className="sm:mx-auto lg:max-w-2xl sm:w-full sm:max-w-sm flex-1">
         <h2 className="mt-10 text-center font-bold leading-9 tracking-tight text-customGray lg:text-2xl text-lg">
           Report Lost Pet - Step {currentStep} of 3
         </h2>
       </div>
 
-      <div className="mt-10 sm:mx-auto lg:max-w-2xl sm:w-full sm:max-w-sm">
+      <div className="mt-10 sm:mx-auto lg:max-w-2xl sm:w-full sm:max-w-sm flex-1">
         <form onSubmit={handleSubmit} className="space-y-6 lg:p-8 p-4 bg-white rounded-lg shadow-md">
           {/* Step 1: Pet Information + Upload Image */}
           {currentStep === 1 && (
