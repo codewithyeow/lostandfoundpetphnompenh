@@ -2,7 +2,6 @@ import React, { ReactNode } from "react";
 
 interface FormFieldProps {
   label: string;
-  name: string;
   required?: boolean;
   icon?: ReactNode;
   children: ReactNode;
@@ -10,7 +9,6 @@ interface FormFieldProps {
 
 export const FormField: React.FC<FormFieldProps> = ({
   label,
-  name,
   required = false,
   icon,
   children,

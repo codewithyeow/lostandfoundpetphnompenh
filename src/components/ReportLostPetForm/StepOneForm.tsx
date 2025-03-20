@@ -89,10 +89,6 @@ const StepOneForm = ({
 
         {/* Replace species section with SpeciesSelector */}
         <div className="w-full md:w-1/2">
-          <label className="flex items-center mb-1 text-sm font-medium text-gray-700">
-            Species
-            <span className="text-red-500 ml-1">*</span>
-          </label>
           <SpeciesSelector
             selectedSpecies={formData.species}
             onChange={(selected) =>
@@ -216,9 +212,6 @@ const StepOneForm = ({
         <label className="flex items-center mb-1 text-sm font-medium text-gray-700">
           <ImageIcon className="mr-2 text-green-500" size={16} />
           Upload Pet Images
-          <span className="text-sm text-gray-500 ml-2">
-            (Upload multiple images)
-          </span>
         </label>
         <input
           type="file"

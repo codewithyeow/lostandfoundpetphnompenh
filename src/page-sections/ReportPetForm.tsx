@@ -2,11 +2,11 @@ import React, { useState } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import useGoogleMap from "../hook/useGoogleMap";
-import  StepOneForm  from "../components/found-pet-form/StepOneForm";
+import StepOneForm from "../components/found-pet-form/StepOneForm";
 import { StepTwoForm } from "../components/found-pet-form/StepTwoForm";
 import { StepThreeForm } from "../components/found-pet-form/StepThreeForm";
-import {reportFoundPetAction} from "../server/actions/animal-action";
-import { getSpecies} from "../server/actions/animal-action";
+import { reportFoundPetAction } from "../server/actions/animal-action";
+import { getSpecies } from "../server/actions/animal-action";
 
 interface SpeciesOption {
   value: string;
@@ -55,7 +55,6 @@ export default function ReportFoundPetForm() {
   const [speciesOptions, setSpeciesOptions] = useState<SpeciesOption[]>([]);
   const [speciesLoading, setSpeciesLoading] = useState(true);
   const [speciesError, setSpeciesError] = useState<string | null>(null);
-
 
   const handleSpeciesChange = (species: string) => {
     setFormData((prev) => ({
@@ -115,20 +114,19 @@ export default function ReportFoundPetForm() {
     }
   };
 
-
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-  
+
     try {
       const result = await reportFoundPetAction({
         animal_name: formData.petName,
         date_last_seen: formData.dateFound,
-        image_file: formData.images[0],  // assuming only one image
+        image_file: formData.images[0], // assuming only one image
         nearest_location: formData.nearestLocation,
         species: formData.species,
         breed_id: formData.breed,
       });
-  
+
       if (result.success) {
         // Redirect or show a success message
         router.push("/confirmation");
@@ -143,12 +141,14 @@ export default function ReportFoundPetForm() {
     }
   };
 
-    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
-      const { name, value } = e.target;
-      setFormData({ ...formData, [name]: value });
-    };
-  
-
+  const handleInputChange = (
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
+    >
+  ) => {
+    const { name, value } = e.target;
+    setFormData({ ...formData, [name]: value });
+  };
 
   const renderStepContent = () => {
     switch (currentStep) {
@@ -162,9 +162,11 @@ export default function ReportFoundPetForm() {
             handleImageUpload={handleImageUpload}
             handleRemoveImage={handleRemoveImage}
             nextStep={nextStep}
-            speciesOptions={speciesOptions} onSpeciesChange={undefined} onImageUpload={undefined} onImageRemove={undefined} onNextStep={undefined}          />
+            speciesOptions={speciesOptions}
+            onSpeciesChange={undefined}
+            onImageUpload={undefined}
+          />
         );
-
       case 2:
         return (
           <StepTwoForm
