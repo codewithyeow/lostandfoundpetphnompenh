@@ -1,9 +1,9 @@
 "use client";
 import React, { useEffect, useState } from "react";
-import { Calendar, Info, ArrowRight } from "lucide-react";
+import { ArrowRight, Calendar, ImageIcon, Info, X } from "lucide-react";
 import { FormField } from "./FormField";
+import Image from "next/image";
 import { SpeciesSelector } from "./SpeciesSelector";
-import { ImageUploader } from "./ImageUploader";
 import { getBreedsBySpecies } from "@server/actions/animal-action";
 
 interface PetFormData {
@@ -31,20 +31,17 @@ interface StepOneFormProps {
   onImageRemove: (index: number) => void;
   onNextStep: () => void;
 }
-
 const StepOneForm = ({
   formData,
   onInputChange,
+  onSpeciesChange,
+  onImageUpload,
   setFormData,
   handleInputChange,
   handleImageUpload,
   handleRemoveImage,
-  onSpeciesChange,
-  onImageUpload,
-  onImageRemove,
   nextStep,
   speciesOptions,
-  onNextStep,
 }) => {
   const [breeds, setBreeds] = useState<any[]>([]);
 
@@ -73,22 +70,24 @@ const StepOneForm = ({
   }, [formData.species]);
 
   return (
-    <div className="space-y-4">
-      {/* Pet Basic Information Row */}
+    <div className="space-y-3">
       <div className="flex flex-col md:flex-row gap-4">
         <div className="w-full md:w-1/2">
-          <FormField label="Pet Name (if known)" name={""} required>
-            <input
-              type="text"
-              name="petName"
-              value={formData.petName}
-              onChange={onInputChange}
-              placeholder="Enter pet name if known"
-              className="w-full p-2 border rounded-md focus:ring-green-500 focus:border-green-500"
-            />
-          </FormField>
+          <label className="flex items-center mb-1 text-sm font-medium text-gray-700">
+            Pet Name
+            <span className="text-red-500 ml-1">*</span>
+          </label>
+          <input
+            type="text"
+            name="petName"
+            value={formData.petName}
+            onChange={handleInputChange}
+            placeholder="Enter pet name"
+            className="w-full p-2 border rounded-md focus:ring-green-500 focus:border-green-500"
+          />
         </div>
 
+        {/* Replace species section with SpeciesSelector */}
         <div className="w-full md:w-1/2">
           <SpeciesSelector
             selectedSpecies={formData.species}
@@ -100,10 +99,9 @@ const StepOneForm = ({
         </div>
       </div>
 
-      {/* Breed and Color Row */}
       <div className="flex flex-col md:flex-row gap-4">
         <div className="w-full">
-          <FormField label="Breed (Optional)" name={""} required>
+          <FormField label="Breed (Optional)" >
             {breeds.length > 0 ? (
               <select
                 name="breed"
@@ -132,97 +130,130 @@ const StepOneForm = ({
         </div>
 
         <div className="w-full md:w-1/2">
-          <FormField label="Color" name={""} required>
-            <input
-              type="text"
-              name="color"
-              value={formData.color}
-              onChange={onInputChange}
-              placeholder="Enter color"
-              className="w-full p-2 border rounded-md focus:ring-green-500 focus:border-green-500"
-              required
-            />
-          </FormField>
+          <label className="flex items-center mb-1 text-sm font-medium text-gray-700">
+            Color
+          </label>
+          <input
+            type="text"
+            name="color"
+            value={formData.color}
+            onChange={handleInputChange}
+            placeholder="Enter color"
+            className="w-full p-2 border rounded-md focus:ring-green-500 focus:border-green-500"
+          />
         </div>
       </div>
 
-      {/* Gender and Size Row */}
       <div className="flex flex-col md:flex-row gap-4">
         <div className="w-full md:w-1/2">
-        <label className="flex items-center mb-1 text-sm font-medium text-gray-700">
-          <FormField label="Gender (Optional)" name={""} required>
-            <div className="flex gap-4 mt-1">
-              <label className="flex items-center cursor-pointer">
-                <input
-                  type="radio"
-                  name="gender"
-                  value="Male"
-                  checked={formData.gender === "Male"}
-                  onChange={onInputChange}
-                  className="mr-2 text-green-500"
-                />
-                Male
-              </label>
-              <label className="flex items-center cursor-pointer">
-                <input
-                  type="radio"
-                  name="gender"
-                  value="Female"
-                  checked={formData.gender === "Female"}
-                  onChange={onInputChange}
-                  className="mr-2 text-green-500"
-                />
-                Female
-              </label>
-
-            </div>
-          </FormField>
+          <label className="flex items-center mb-1 text-sm font-medium text-gray-700">
+            Gender (Optional)
           </label>
+          <div className="flex gap-4 mt-1">
+            <label className="flex items-center">
+              <input
+                type="radio"
+                name="gender"
+                value="Male"
+                checked={formData.gender === "Male"}
+                onChange={handleInputChange}
+                className="mr-2 text-green-500"
+              />
+              Male
+            </label>
+            <label className="flex items-center">
+              <input
+                type="radio"
+                name="gender"
+                value="Female"
+                checked={formData.gender === "Female"}
+                onChange={handleInputChange}
+                className="mr-2 text-green-500"
+              />
+              Female
+            </label>
+          </div>
         </div>
 
         <div className="w-full md:w-1/2">
-          <FormField label="Size (Optional)" name={""} required>
-            <select
-              name="size"
-              value={formData.size}
-              onChange={onInputChange}
-              className="w-full p-2 border rounded-md focus:ring-green-500 focus:border-green-500"
-            >
-              <option value="">Select size</option>
-              <option value="Small">Small</option>
-              <option value="Medium">Medium</option>
-              <option value="Large">Large</option>
-            </select>
-          </FormField>
+          <label className="flex items-center mb-1 text-sm font-medium text-gray-700">
+            Size (Optional)
+          </label>
+          <select
+            name="size"
+            value={formData.size}
+            onChange={handleInputChange}
+            className="w-full p-2 border rounded-md focus:ring-green-500 focus:border-green-500"
+          >
+            <option value="">Select size</option>
+            <option value="Small">Small</option>
+            <option value="Medium">Medium</option>
+            <option value="Large">Large</option>
+          </select>
         </div>
       </div>
 
-      {/* Date Found Field */}
-      <FormField
-        label="Date Found"
-        name=""
-        required
-        icon={<Calendar size={16} />}
-      >
+      <div>
+        <label className="flex items-center mb-1 text-sm font-medium text-gray-700">
+          <Calendar className="mr-2 text-green-500" size={16} />
+          Date Lost
+          <span className="text-red-500 ml-1">*</span>
+        </label>
         <input
           type="date"
-          name="dateFound"
-          value={formData.dateFound}
-          onChange={onInputChange}
+          name="dateLost"
+          value={formData.dateLost}
+          onChange={handleInputChange}
           className="w-full p-2 border rounded-md focus:ring-green-500 focus:border-green-500"
-          required
         />
-      </FormField>
+      </div>
 
-      {/* Image Upload Section */}
-      <ImageUploader
-        images={formData.images}
-        onUpload={onImageUpload}
-        onRemove={onImageRemove}
-      />
+      <div>
+        <label className="flex items-center mb-1 text-sm font-medium text-gray-700">
+          <ImageIcon className="mr-2 text-green-500" size={16} />
+          Upload Pet Images
+        </label>
+        <input
+          type="file"
+          accept="image/*"
+          multiple
+          onChange={handleImageUpload}
+          className="w-full p-2 border rounded-md file:mr-4 file:rounded-md file:border-0 file:bg-green-100 file:px-3 file:py-1 file:text-green-500"
+        />
 
-      {/* Pet Condition Field */}
-      <FormField label="Pet's Condition" name="" icon={<Info size={16} />}>
+        {formData.images.length > 0 && (
+          <div className="mt-2">
+            <p className="text-sm text-gray-600 mb-2">
+              {formData.images.length}{" "}
+              {formData.images.length === 1 ? "image" : "images"} uploaded
+            </p>
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
+              {formData.images.map((image, index) => (
+                <div key={index} className="relative group">
+                  <div className="h-32 relative rounded-md overflow-hidden">
+                    <Image
+                      src={URL.createObjectURL(image)}
+                      alt={`Pet image ${index + 1}`}
+                      layout="fill"
+                      objectFit="cover"
+                      className="rounded-md"
+                    />
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => handleRemoveImage(index)}
+                    className="absolute top-1 right-1 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
+                  >
+                    <X size={16} />
+                  </button>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Pet Condition Field */}
+      <FormField label="Pet's Condition" icon={<Info size={16} />}>
         <select
           name="petCondition"
           value={formData.petCondition}
@@ -236,16 +267,16 @@ const StepOneForm = ({
           <option value="Unsure">Unsure</option>
         </select>
       </FormField>
+      </div>
 
-      {/* Navigation Button */}
-      <div className="flex justify-center mt-6">
+      <div className="flex justify-center mt-4">
         <button
           type="button"
-          onClick={onNextStep}
-          className="w-full py-2 px-4 bg-white font-medium rounded-full border border-[#4eb7f0] text-[#4eb7f0] hover:bg-[#4eb7f0] hover:text-white transition-colors duration-200 flex items-center justify-center"
+          onClick={nextStep}
+          className="w-full py-2 px-4 bg-white font-medium rounded-full border border-[#4eb7f0] text-[#4eb7f0] hover:bg-[#4eb7f0] hover:text-white transition-colors duration-200"
         >
           Next: Location Information
-          <ArrowRight className="ml-2" size={16} />
+          <ArrowRight className="ml-1 inline" size={16} />
         </button>
       </div>
     </div>

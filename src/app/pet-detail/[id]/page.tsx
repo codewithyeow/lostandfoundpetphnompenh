@@ -187,11 +187,11 @@ export default function PetDetailPage({ params }: PageProps) {
     reward:
       pet.badgeType === "Lost"
         ? pet.name === "Fluffy"
-          ? "$100 reward for safe return"
+          ? "$100 "
           : pet.name === "Max"
-          ? "$50 reward for safe return"
+          ? "$50 "
           : pet.name === "Buddy"
-          ? "$200 reward for safe return"
+          ? "$200"
           : ""
         : "",
     shelterInfo:
@@ -233,7 +233,7 @@ export default function PetDetailPage({ params }: PageProps) {
 
         <div className="bg-white rounded-2xl shadow-lg overflow-hidden">
           <div className="relative">
-            <div className="w-full h-60 md:h-96 relative">
+            <div className="w-full h-48 md:h-64 lg:h-96 relative">
               <Image
                 src={pet.image}
                 alt={pet.name}
@@ -245,7 +245,7 @@ export default function PetDetailPage({ params }: PageProps) {
 
             <Badge
               variant="default"
-              className={`absolute top-4 left-4 z-10 text-white text-sm font-medium px-4 py-1.5 rounded-full shadow-md ${
+              className={`absolute top-4 left-4 z-10 text-white text-xs md:text-sm font-medium px-3 py-1 md:px-4 md:py-1.5 rounded-full shadow-md ${
                 isLostPet
                   ? "bg-red-500"
                   : isFoundPet
@@ -257,19 +257,19 @@ export default function PetDetailPage({ params }: PageProps) {
             </Badge>
 
             {isLostPet && petDetails.reward && (
-              <Badge
-                variant="outline"
-                className="absolute top-4 right-4 z-10 bg-orange-100 text-orange-700 border-orange-300 px-3 py-1.5 text-sm font-medium rounded-full shadow-md"
-              >
-                {petDetails.reward}
-              </Badge>
-            )}
+  <Badge
+    variant="outline"
+    className="absolute top-4 right-4 z-10 bg-gradient-to-r from-red-500 to-red-700 text-white border-red-600 px-3 py-1.5 md:px-4 md:py-2 text-xs md:text-sm font-semibold rounded-full shadow-lg transform hover:scale-110 transition-all duration-300 animate-bounce motion-safe:animate-pulse"
+  >
+    <span className="inline-block animate-pulse">💰</span> REWARD: {petDetails.reward}
+  </Badge>
+)}
           </div>
 
-          <div className="p-6 md:p-8">
-            <div className="flex flex-col md:flex-row justify-between items-start mb-6">
+          <div className="p-4 md:p-6 lg:p-8">
+            <div className="flex flex-col md:flex-row justify-between items-start mb-4 md:mb-6">
               <div>
-                <h1 className="text-2xl md:text-3xl font-bold mb-2">
+                <h1 className="text-xl md:text-2xl lg:text-3xl font-bold mb-2">
                   {isStrayPet ? pet.name || "Unnamed Stray" : pet.name}
                 </h1>
                 <div className="flex flex-wrap text-sm text-gray-500 mb-2">
@@ -281,42 +281,56 @@ export default function PetDetailPage({ params }: PageProps) {
               </div>
             </div>
 
-            {/* Lost Pet Information Section */}
+            {/* Lost Pet Information Section - Mobile Optimized */}
             {isLostPet && (
-              <div className="bg-red-50 border border-red-100 rounded-xl p-4 mb-6">
-                <h2 className="text-lg font-bold text-red-700 mb-2 flex items-center">
-                  <AlertCircle size={20} className="mr-2" />
+              <div className="bg-red-50 border border-red-100 rounded-xl p-3 md:p-4 mb-4 md:mb-6">
+                <h2 className="text-base md:text-lg font-bold text-red-700 mb-2 flex items-center">
+                  <AlertCircle size={18} className="mr-2 flex-shrink-0" />
                   Lost Pet Information
                 </h2>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 gap-3">
                   <div className="flex items-start">
-                    <Calendar size={16} className="mr-2 text-red-600 mt-1" />
-                    <div>
-                      <p className="font-medium text-gray-700">Date Lost</p>
-                      <p>{petDetails.dateLost}</p>
+                    <Calendar
+                      size={16}
+                      className="mr-2 text-red-600 mt-1 flex-shrink-0"
+                    />
+                    <div className="min-w-0">
+                      <p className="font-medium text-gray-700 text-sm md:text-base">
+                        Date Lost
+                      </p>
+                      <p className="text-sm md:text-base break-words">
+                        {petDetails.dateLost}
+                      </p>
                     </div>
                   </div>
 
                   <div className="flex items-start">
-                    <MapPin size={16} className="mr-2 text-red-600 mt-1" />
-                    <div>
-                      <p className="font-medium text-gray-700">Location</p>
-                      <p>{petDetails.locationLost}</p>
+                    <MapPin
+                      size={16}
+                      className="mr-2 text-red-600 mt-1 flex-shrink-0"
+                    />
+                    <div className="min-w-0">
+                      <p className="font-medium text-gray-700 text-sm md:text-base">
+                        Location
+                      </p>
+                      <p className="text-sm md:text-base break-words">
+                        {petDetails.locationLost}
+                      </p>
                       <Button
                         variant="link"
-                        className="text-red-600 hover:text-red-800 p-0 h-auto mt-1"
+                        className="text-red-600 hover:text-red-800 p-0 h-auto mt-1 text-sm"
                         onClick={toggleMap}
                       >
-                        <Map size={16} className="mr-1" />
+                        <Map size={14} className="mr-1" />
                         {showMap ? "Hide map" : "Show on map"}
                       </Button>
                     </div>
                   </div>
 
                   {showMap && (
-                    <div className="col-span-2 w-full h-64 bg-gray-100 rounded-lg relative overflow-hidden">
-                      <div className="absolute inset-0 p-4 flex items-center justify-center">
+                    <div className="w-full h-48 md:h-64 bg-gray-100 rounded-lg relative overflow-hidden">
+                      <div className="absolute inset-0 p-2 md:p-4 flex items-center justify-center">
                         <div className="w-full h-full relative rounded-lg overflow-hidden">
                           <Image
                             src="/api/placeholder/600/300"
@@ -332,11 +346,11 @@ export default function PetDetailPage({ params }: PageProps) {
                               transform: "translate(-50%, -100%)",
                             }}
                           >
-                            <MapPin size={36} className="text-red-600" />
+                            <MapPin size={28} className="text-red-600" />
                           </div>
-                          <div className="absolute bottom-2 right-2 bg-white py-1 px-3 rounded-md text-sm shadow-md">
-                            Lat: {petDetails.geoLocation.lat}, Lng:{" "}
-                            {petDetails.geoLocation.lng}
+                          <div className="absolute bottom-2 right-2 bg-white py-1 px-2 rounded-md text-xs md:text-sm shadow-md">
+                            Lat: {petDetails.geoLocation.lat.toFixed(4)}, Lng:{" "}
+                            {petDetails.geoLocation.lng.toFixed(4)}
                           </div>
                         </div>
                       </div>
@@ -344,68 +358,92 @@ export default function PetDetailPage({ params }: PageProps) {
                   )}
 
                   {petDetails.lastSeenDetails && (
-                    <div className="flex items-start col-span-2">
-                      <Info size={16} className="mr-2 text-red-600 mt-1" />
-                      <div>
-                        <p className="font-medium text-gray-700">Last Seen</p>
-                        <p>{petDetails.lastSeenDetails}</p>
+                    <div className="flex items-start">
+                      <Info
+                        size={16}
+                        className="mr-2 text-red-600 mt-1 flex-shrink-0"
+                      />
+                      <div className="min-w-0">
+                        <p className="font-medium text-gray-700 text-sm md:text-base">
+                          Last Seen
+                        </p>
+                        <p className="text-sm md:text-base break-words">
+                          {petDetails.lastSeenDetails}
+                        </p>
                       </div>
                     </div>
                   )}
 
                   {petDetails.reward && (
-                    <div className="flex items-start col-span-2">
+                    <div className="flex items-start">
                       <DollarSign
                         size={16}
-                        className="mr-2 text-red-600 mt-1"
+                        className="mr-2 text-red-600 mt-1 flex-shrink-0"
                       />
-                      <div>
-                        <p className="font-medium text-gray-700">Reward</p>
-                        <p>{petDetails.reward}</p>
+                      <div className="min-w-0">
+                        <p className="font-medium text-gray-700 text-sm md:text-base">
+                          Reward
+                        </p>
+                        <p className="text-sm md:text-base break-words">
+                          {petDetails.reward}
+                        </p>
                       </div>
                     </div>
                   )}
                 </div>
               </div>
             )}
-            {/* Found Pet Information Section */}
+
+            {/* Found Pet Information Section - Mobile Optimized */}
             {isFoundPet && (
-              <div className="bg-green-50 border border-green-100 rounded-xl p-4 mb-6">
-                <h2 className="text-lg font-bold text-green-700 mb-2 flex items-center">
-                  <Info size={20} className="mr-2" />
+              <div className="bg-green-50 border border-green-100 rounded-xl p-3 md:p-4 mb-4 md:mb-6">
+                <h2 className="text-base md:text-lg font-bold text-green-700 mb-2 flex items-center">
+                  <Info size={18} className="mr-2 flex-shrink-0" />
                   Found Pet Information
                 </h2>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 gap-3">
                   <div className="flex items-start">
-                    <Calendar size={16} className="mr-2 text-green-600 mt-1" />
-                    <div>
-                      <p className="font-medium text-gray-700">Date Found</p>
-                      <p>{petDetails.dateFound}</p>
+                    <Calendar
+                      size={16}
+                      className="mr-2 text-green-600 mt-1 flex-shrink-0"
+                    />
+                    <div className="min-w-0">
+                      <p className="font-medium text-gray-700 text-sm md:text-base">
+                        Date Found
+                      </p>
+                      <p className="text-sm md:text-base break-words">
+                        {petDetails.dateFound}
+                      </p>
                     </div>
                   </div>
 
                   <div className="flex items-start">
-                    <MapPin size={16} className="mr-2 text-green-600 mt-1" />
-                    <div>
-                      <p className="font-medium text-gray-700">
+                    <MapPin
+                      size={16}
+                      className="mr-2 text-green-600 mt-1 flex-shrink-0"
+                    />
+                    <div className="min-w-0">
+                      <p className="font-medium text-gray-700 text-sm md:text-base">
                         Location Found
                       </p>
-                      <p>{petDetails.locationFound}</p>
+                      <p className="text-sm md:text-base break-words">
+                        {petDetails.locationFound}
+                      </p>
                       <Button
                         variant="link"
-                        className="text-green-600 hover:text-green-800 p-0 h-auto mt-1"
+                        className="text-green-600 hover:text-green-800 p-0 h-auto mt-1 text-sm"
                         onClick={toggleMap}
                       >
-                        <Map size={16} className="mr-1" />
+                        <Map size={14} className="mr-1" />
                         {showMap ? "Hide map" : "Show on map"}
                       </Button>
                     </div>
                   </div>
 
                   {showMap && (
-                    <div className="col-span-2 w-full h-64 bg-gray-100 rounded-lg relative overflow-hidden">
-                      <div className="absolute inset-0 p-4 flex items-center justify-center">
+                    <div className="w-full h-48 md:h-64 bg-gray-100 rounded-lg relative overflow-hidden">
+                      <div className="absolute inset-0 p-2 md:p-4 flex items-center justify-center">
                         <div className="w-full h-full relative rounded-lg overflow-hidden">
                           <Image
                             src="/api/placeholder/600/300"
@@ -421,11 +459,11 @@ export default function PetDetailPage({ params }: PageProps) {
                               transform: "translate(-50%, -100%)",
                             }}
                           >
-                            <MapPin size={36} className="text-green-600" />
+                            <MapPin size={28} className="text-green-600" />
                           </div>
-                          <div className="absolute bottom-2 right-2 bg-white py-1 px-3 rounded-md text-sm shadow-md">
-                            Lat: {petDetails.geoLocation.lat}, Lng:{" "}
-                            {petDetails.geoLocation.lng}
+                          <div className="absolute bottom-2 right-2 bg-white py-1 px-2 rounded-md text-xs md:text-sm shadow-md">
+                            Lat: {petDetails.geoLocation.lat.toFixed(4)}, Lng:{" "}
+                            {petDetails.geoLocation.lng.toFixed(4)}
                           </div>
                         </div>
                       </div>
@@ -433,11 +471,18 @@ export default function PetDetailPage({ params }: PageProps) {
                   )}
 
                   {petDetails.foundDetails && (
-                    <div className="flex items-start col-span-2">
-                      <Info size={16} className="mr-2 text-green-600 mt-1" />
-                      <div>
-                        <p className="font-medium text-gray-700">Details</p>
-                        <p>{petDetails.foundDetails}</p>
+                    <div className="flex items-start">
+                      <Info
+                        size={16}
+                        className="mr-2 text-green-600 mt-1 flex-shrink-0"
+                      />
+                      <div className="min-w-0">
+                        <p className="font-medium text-gray-700 text-sm md:text-base">
+                          Details
+                        </p>
+                        <p className="text-sm md:text-base break-words">
+                          {petDetails.foundDetails}
+                        </p>
                       </div>
                     </div>
                   )}
@@ -445,44 +490,56 @@ export default function PetDetailPage({ params }: PageProps) {
               </div>
             )}
 
-            {/* Stray Pet Information Section */}
+            {/* Stray Pet Information Section - Mobile Optimized */}
             {isStrayPet && (
-              <div className="bg-amber-50 border border-amber-100 rounded-xl p-4 mb-6">
-                <h2 className="text-lg font-bold text-amber-700 mb-2 flex items-center">
-                  <Info size={20} className="mr-2" />
+              <div className="bg-amber-50 border border-amber-100 rounded-xl p-3 md:p-4 mb-4 md:mb-6">
+                <h2 className="text-base md:text-lg font-bold text-amber-700 mb-2 flex items-center">
+                  <Info size={18} className="mr-2 flex-shrink-0" />
                   Stray Pet Information
                 </h2>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 gap-3">
                   <div className="flex items-start">
-                    <Calendar size={16} className="mr-2 text-amber-600 mt-1" />
-                    <div>
-                      <p className="font-medium text-gray-700">Date Reported</p>
-                      <p>{petDetails.dateReported}</p>
+                    <Calendar
+                      size={16}
+                      className="mr-2 text-amber-600 mt-1 flex-shrink-0"
+                    />
+                    <div className="min-w-0">
+                      <p className="font-medium text-gray-700 text-sm md:text-base">
+                        Date Reported
+                      </p>
+                      <p className="text-sm md:text-base break-words">
+                        {petDetails.dateReported}
+                      </p>
                     </div>
                   </div>
 
                   <div className="flex items-start">
-                    <MapPin size={16} className="mr-2 text-amber-600 mt-1" />
-                    <div>
-                      <p className="font-medium text-gray-700">
+                    <MapPin
+                      size={16}
+                      className="mr-2 text-amber-600 mt-1 flex-shrink-0"
+                    />
+                    <div className="min-w-0">
+                      <p className="font-medium text-gray-700 text-sm md:text-base">
                         Location Spotted
                       </p>
-                      <p>{petDetails.locationSpotted}</p>
+                      <p className="text-sm md:text-base break-words">
+                        {petDetails.locationSpotted}
+                      </p>
                       <Button
                         variant="link"
-                        className="text-amber-600 hover:text-amber-800 p-0 h-auto mt-1"
+                        className="text-amber-600 hover:text-amber-800 p-0 h-auto mt-1 text-sm"
                         onClick={toggleMap}
                       >
-                        <Map size={16} className="mr-1" />
+                        <Map size={14} className="mr-1" />
                         {showMap ? "Hide map" : "Show on map"}
                       </Button>
                     </div>
                   </div>
 
                   {showMap && (
-                    <div className="col-span-2 w-full h-64 bg-gray-100 rounded-lg relative overflow-hidden">
-                      <div className="absolute inset-0 p-4 flex items-center justify-center">
+                    <div className="w-full h-48 md:h-64 bg-gray-100 rounded-lg relative overflow-hidden">
+                      <div className="absolute inset-0 p-2 md:p-4 flex items-center justify-center">
                         <div className="w-full h-full relative rounded-lg overflow-hidden">
                           <Image
                             src="/api/placeholder/600/300"
@@ -498,11 +555,11 @@ export default function PetDetailPage({ params }: PageProps) {
                               transform: "translate(-50%, -100%)",
                             }}
                           >
-                            <MapPin size={36} className="text-amber-600" />
+                            <MapPin size={28} className="text-amber-600" />
                           </div>
-                          <div className="absolute bottom-2 right-2 bg-white py-1 px-3 rounded-md text-sm shadow-md">
-                            Lat: {petDetails.geoLocation.lat}, Lng:{" "}
-                            {petDetails.geoLocation.lng}
+                          <div className="absolute bottom-2 right-2 bg-white py-1 px-2 rounded-md text-xs md:text-sm shadow-md">
+                            Lat: {petDetails.geoLocation.lat.toFixed(4)}, Lng:{" "}
+                            {petDetails.geoLocation.lng.toFixed(4)}
                           </div>
                         </div>
                       </div>
@@ -510,21 +567,18 @@ export default function PetDetailPage({ params }: PageProps) {
                   )}
 
                   {petDetails.strayDetails && (
-                    <div className="flex items-start col-span-2">
-                      <Info size={16} className="mr-2 text-amber-600 mt-1" />
-                      <div>
-                        <p className="font-medium text-gray-700">Details</p>
-                        <p>{petDetails.strayDetails}</p>
-                      </div>
-                    </div>
-                  )}
-
-                  {petDetails.foundDetails && (
-                    <div className="flex items-start col-span-2">
-                      <Info size={16} className="mr-2 text-amber-600 mt-1" />
-                      <div>
-                        <p className="font-medium text-gray-700">Details</p>
-                        <p>{petDetails.foundDetails}</p>
+                    <div className="flex items-start">
+                      <Info
+                        size={16}
+                        className="mr-2 text-amber-600 mt-1 flex-shrink-0"
+                      />
+                      <div className="min-w-0">
+                        <p className="font-medium text-gray-700 text-sm md:text-base">
+                          Details
+                        </p>
+                        <p className="text-sm md:text-base break-words">
+                          {petDetails.strayDetails}
+                        </p>
                       </div>
                     </div>
                   )}
@@ -532,14 +586,17 @@ export default function PetDetailPage({ params }: PageProps) {
               </div>
             )}
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
-              {/* Left column */}
+            {/* Pet details and contact information - Mobile Optimized */}
+            <div className="space-y-6">
+              {/* Pet Details Section */}
               <div>
-                <h2 className="text-xl font-bold mb-3">Pet Details</h2>
-                <div className="grid grid-cols-2 gap-x-4 gap-y-3">
+                <h2 className="text-lg md:text-xl font-bold mb-3">
+                  Pet Details
+                </h2>
+                <div className="grid grid-cols-2 gap-x-3 gap-y-2 text-sm md:text-base">
                   {(pet.name || isStrayPet) && (
                     <div>
-                      <p className="text-gray-500 text-sm">Name</p>
+                      <p className="text-gray-500 text-xs md:text-sm">Name</p>
                       <p className="font-semibold">
                         {pet.name || (isStrayPet ? "Unknown/Unnamed" : "")}
                       </p>
@@ -547,51 +604,51 @@ export default function PetDetailPage({ params }: PageProps) {
                   )}
 
                   <div>
-                    <p className="text-gray-500 text-sm">Species</p>
+                    <p className="text-gray-500 text-xs md:text-sm">Species</p>
                     <p className="font-semibold">{petDetails.species}</p>
                   </div>
 
                   {petDetails.breed && (
                     <div>
-                      <p className="text-gray-500 text-sm">Breed</p>
+                      <p className="text-gray-500 text-xs md:text-sm">Breed</p>
                       <p className="font-semibold">{petDetails.breed}</p>
                     </div>
                   )}
 
                   {petDetails.color && (
                     <div>
-                      <p className="text-gray-500 text-sm">Color</p>
+                      <p className="text-gray-500 text-xs md:text-sm">Color</p>
                       <p className="font-semibold">{petDetails.color}</p>
                     </div>
                   )}
 
                   {petDetails.age && (
                     <div>
-                      <p className="text-gray-500 text-sm">Age</p>
+                      <p className="text-gray-500 text-xs md:text-sm">Age</p>
                       <p className="font-semibold">{petDetails.age}</p>
                     </div>
                   )}
 
                   {petDetails.gender && (
                     <div>
-                      <p className="text-gray-500 text-sm">Gender</p>
+                      <p className="text-gray-500 text-xs md:text-sm">Gender</p>
                       <p className="font-semibold">{petDetails.gender}</p>
                     </div>
                   )}
 
                   {petDetails.size && (
                     <div>
-                      <p className="text-gray-500 text-sm">Size</p>
+                      <p className="text-gray-500 text-xs md:text-sm">Size</p>
                       <p className="font-semibold">{petDetails.size}</p>
                     </div>
                   )}
 
                   {petDetails.distinctiveFeatures && (
                     <div className="col-span-2">
-                      <p className="text-gray-500 text-sm">
+                      <p className="text-gray-500 text-xs md:text-sm">
                         Distinctive Features
                       </p>
-                      <p className="font-semibold">
+                      <p className="font-semibold break-words">
                         {petDetails.distinctiveFeatures}
                       </p>
                     </div>
@@ -600,38 +657,49 @@ export default function PetDetailPage({ params }: PageProps) {
                   {petDetails.collarInfo &&
                     petDetails.collarInfo !== "No collar" && (
                       <div className="col-span-2">
-                        <p className="text-gray-500 text-sm">Collar</p>
-                        <p className="font-semibold">{petDetails.collarInfo}</p>
+                        <p className="text-gray-500 text-xs md:text-sm">
+                          Collar
+                        </p>
+                        <p className="font-semibold break-words">
+                          {petDetails.collarInfo}
+                        </p>
                       </div>
                     )}
                 </div>
 
                 {petDetails.description && (
-                  <div className="mt-6">
-                    <h2 className="text-xl font-bold mb-3">Description</h2>
-                    <p className="text-gray-600">{pet.description}</p>
+                  <div className="mt-4">
+                    <h2 className="text-lg md:text-xl font-bold mb-2">
+                      Description
+                    </h2>
+                    <p className="text-gray-600 text-sm md:text-base">
+                      {pet.description}
+                    </p>
                   </div>
                 )}
               </div>
 
-              {/* Right column */}
+              {/* Contact Information Section */}
               <div>
-                <h2 className="text-xl font-bold mb-4" id="contact">
+                <h2 className="text-lg md:text-xl font-bold mb-3" id="contact">
                   Contact Information
                 </h2>
-                <Card className="bg-gray-50 border-0 rounded-xl mb-6">
-                  <CardContent className="p-6">
-                    <div className="flex items-center mb-4">
-                      <User size={18} className="text-[#4eb7f0] mr-2" />
-                      <div>
-                        <p className="text-gray-500 text-sm">
+                <Card className="bg-gray-50 border-0 rounded-xl mb-4">
+                  <CardContent className="p-4">
+                    <div className="flex items-center mb-3">
+                      <User
+                        size={16}
+                        className="text-[#4eb7f0] mr-2 flex-shrink-0"
+                      />
+                      <div className="min-w-0">
+                        <p className="text-gray-500 text-xs md:text-sm">
                           {isFoundPet
                             ? "Found by"
                             : isStrayPet
                             ? "Reported by"
                             : "Owner Name"}
                         </p>
-                        <p className="font-medium">
+                        <p className="font-medium text-sm md:text-base break-words">
                           {isStrayPet
                             ? petDetails.reportedBy
                             : petDetails.ownerName}
@@ -639,11 +707,16 @@ export default function PetDetailPage({ params }: PageProps) {
                       </div>
                     </div>
 
-                    <div className="flex items-center mb-4">
-                      <Phone size={18} className="text-[#4eb7f0] mr-2" />
-                      <div>
-                        <p className="text-gray-500 text-sm">Phone Number</p>
-                        <p className="font-medium">
+                    <div className="flex items-center mb-3">
+                      <Phone
+                        size={16}
+                        className="text-[#4eb7f0] mr-2 flex-shrink-0"
+                      />
+                      <div className="min-w-0">
+                        <p className="text-gray-500 text-xs md:text-sm">
+                          Phone Number
+                        </p>
+                        <p className="font-medium text-sm md:text-base break-words">
                           {isStrayPet && petDetails.contactInfoForStray
                             ? petDetails.contactInfoForStray.phone
                             : petDetails.contactPhone}
@@ -652,10 +725,15 @@ export default function PetDetailPage({ params }: PageProps) {
                     </div>
 
                     <div className="flex items-center">
-                      <Mail size={18} className="text-[#4eb7f0] mr-2" />
-                      <div>
-                        <p className="text-gray-500 text-sm">Contact Email</p>
-                        <p className="font-medium">
+                      <Mail
+                        size={16}
+                        className="text-[#4eb7f0] mr-2 flex-shrink-0"
+                      />
+                      <div className="min-w-0">
+                        <p className="text-gray-500 text-xs md:text-sm">
+                          Contact Email
+                        </p>
+                        <p className="font-medium text-sm md:text-base break-words">
                           {isStrayPet && petDetails.contactInfoForStray
                             ? petDetails.contactInfoForStray.email
                             : petDetails.contactEmail}
@@ -665,22 +743,24 @@ export default function PetDetailPage({ params }: PageProps) {
                   </CardContent>
                 </Card>
 
-                <div className="grid grid-cols-1 gap-4">
-                  <Button className="bg-[#4eb7f0] hover:bg-[#3a9fd8] text-white py-6 rounded-full">
-                    <Phone size={18} className="mr-2" />
-                    {isFoundPet
-                      ? "Call Finder"
-                      : isStrayPet
-                      ? "Call Reporter"
-                      : "Call Owner"}
-                  </Button>
-                </div>
+                {/* Call Owner Button */}
+                <Button className="w-full bg-[#4eb7f0] hover:bg-[#3a9fd8] text-white py-2 h-auto rounded-full mb-4">
+                  <Phone size={16} className="mr-2" />
+                  {isFoundPet
+                    ? "Call Finder"
+                    : isStrayPet
+                    ? "Call Reporter"
+                    : "Call Owner"}
+                </Button>
 
+                {/* Additional Images */}
                 {petDetails.additionalImages &&
                   petDetails.additionalImages.length > 0 && (
-                    <div className="mt-6">
-                      <h2 className="text-xl font-bold mb-4">Photos</h2>
-                      <div className="grid grid-cols-2 gap-4">
+                    <div className="mt-4">
+                      <h2 className="text-lg md:text-xl font-bold mb-3">
+                        Photos
+                      </h2>
+                      <div className="grid grid-cols-2 gap-3">
                         {petDetails.additionalImages.map((img, index) => (
                           <div
                             key={index}
@@ -698,13 +778,14 @@ export default function PetDetailPage({ params }: PageProps) {
                     </div>
                   )}
               </div>
-            </div>
 
-            <div className="mt-8 flex justify-center">
-              <Button variant="ghost" className="text-gray-500">
-                <Share2 size={18} className="mr-2" />
-                Share This Post
-              </Button>
+              {/* Share Button - Now positioned close to the Call Owner button */}
+              <div className="mt-8 flex justify-center">
+                <Button variant="ghost" className="text-gray-500">
+                  <Share2 size={18} className="mr-2" />
+                  Share This Post
+                </Button>
+              </div>
             </div>
           </div>
         </div>

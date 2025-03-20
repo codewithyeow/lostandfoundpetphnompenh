@@ -58,7 +58,7 @@ export const SpeciesSelector: React.FC<SpeciesSelectorProps> = ({ selectedSpecie
     return (
       <div className="w-full">
         <label className="flex items-center mb-1 text-sm font-medium text-gray-700">
-          <Dog className="mr-2 text-green-500" size={16} />
+          {/* <Dog className="mr-2 text-green-500" size={16} /> */}
           Species
           <span className="text-red-500 ml-1">*</span>
         </label>
