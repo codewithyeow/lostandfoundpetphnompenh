@@ -24,6 +24,7 @@ export const petData = [
     badgeType: "Lost",
     location: "City Center",
     date: "Feb 24, 2025",
+    petType: "Dog",
   },
   {
     id: 2,
@@ -34,6 +35,7 @@ export const petData = [
     badgeType: "Lost",
     location: "Riverside Park",
     date: "Feb 21, 2025",
+    petType: "Cat",
   },
   {
     id: 3,
@@ -44,6 +46,7 @@ export const petData = [
     badgeType: "Found",
     location: "Downtown",
     date: "Feb 25, 2025",
+    petType: "Dog",
   },
   {
     id: 4,
@@ -54,6 +57,7 @@ export const petData = [
     badgeType: "Found",
     location: "Oak Street",
     date: "Feb 22, 2025",
+    petType: "Dog",
   },
   {
     id: 5,
@@ -64,6 +68,7 @@ export const petData = [
     badgeType: "Stray",
     location: "Maple Avenue",
     date: "Feb 26, 2025",
+    petType: "Cat",
   },
   {
     id: 6,
@@ -74,6 +79,7 @@ export const petData = [
     badgeType: "Stray",
     location: "Pine District",
     date: "Feb 23, 2025",
+    petType: "Cat",
   },
 ];
 
