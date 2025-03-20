@@ -1,15 +1,12 @@
+// server/actions/animal-action.ts
 "use server";
-
 import axios from "@lib/axios";
 import { getAuthHeaders } from "@server/helper";
-import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import User from "@models/User";
 import { cookies } from "next/headers";
 import { ApiResponse } from "interfaces";
-import { getInitialApiResponse } from "@utils/utils";
 import { ResponseCookie } from "next/dist/compiled/@edge-runtime/cookies";
-import { verify } from "crypto";
 
 const cookieOption: Partial<ResponseCookie> = { maxAge: 30 * 24 * 60 * 60 }; // 30 days
 
@@ -37,12 +34,6 @@ interface RegisterArgs {
   email: string;
   password: string;
   password_confirmation: string;
-}
-
-interface ResetPasswordArgs {
-  newPassword: string;
-  passwordConfirmation: string;
-  reset_token: string;
 }
 
 export async function sendOTP(email: string): Promise<Response> {
