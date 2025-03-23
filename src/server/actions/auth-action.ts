@@ -19,15 +19,24 @@ interface Response<T = undefined> {
   expires_in?: number;
 }
 
+interface UpdateProfileData {
+  name: string;
+  email: string;
+  avatar?: File | null;
+}
+
 interface LoginArgs {
   email: string;
   password: string;
 }
 
-interface UpdateProfileData {
-  name: string;
-  avatar?: string;
-}
+// interface UpdateProfileData {
+//   name: string;
+//   email: string;
+//   avatar?: string; // Keep as string, but will be base64
+//   avatarType?: string; // Add this to store the MIME type
+// }
+
 
 interface RegisterArgs {
   name: string;
@@ -181,6 +190,107 @@ export async function login(args: LoginArgs): Promise<ApiResponse<User>> {
   }
 }
 
+
+// Update profile function
+export async function updateProfile(data: UpdateProfileData): Promise<ApiResponse<any>> {
+  try {
+    const { data: responseData } = await axios.post(`/api/frontend/auth/edit-profile`, data, {
+      headers: getAuthHeaders(),
+    });
+    
+    return {
+      success: true,
+      title: "Profile Update Successful",
+      code: 200,
+      message: "Profile updated successfully",
+      result: responseData.result
+    };
+  } catch (error: any) {
+    if (error.response?.status === 401) {
+      try {
+        // Attempt to refresh the token
+        const refreshResponse = await refreshToken();
+        
+        if (refreshResponse.success && refreshResponse.result?.access_token) {
+          const { data: responseData } = await axios.post(`/api/frontend/auth/edit-profile`, data, {
+            headers: getAuthHeaders(),
+          });
+          
+          return {
+            success: true,
+            title: "Profile Update Successful",
+            code: 200,
+            message: "Profile updated successfully",
+            result: responseData.result
+          };
+        } else {
+          // Token refresh failed
+          return {
+            success: false,
+            title: "Authentication Failed",
+            code: 401,
+            message: 'Authentication failed. Please log in again.',
+            result: undefined
+          };
+        }
+      } catch (refreshError: any) {
+        // Error during token refresh
+        return {
+          success: false,
+          title: "Session Expired",
+          code: 401,
+          message: 'Session expired. Please log in again.',
+          result: undefined
+        };
+      }
+    }
+
+    const errorData = error.response?.data;
+    return {
+      success: false,
+      title: "Update Failed",
+      code: error.response?.status || 500,
+      message: errorData?.message || 'An unexpected error occurred',
+      errors: errorData?.errors || {},
+      result: undefined
+    };
+  }
+}
+
+// Refresh token function
+export async function refreshToken(): Promise<ApiResponse<{access_token: string}>> {
+  try {
+    const { data } = await axios.post(
+      `/api/frontend/auth/refresh-token`,
+      {},
+      { headers: getAuthHeaders() }
+    );
+
+    if (data.success && data.result?.access_token) {
+      // Update the token in cookies
+      const resCookies = cookies();
+      resCookies.set("token", data.result.access_token, cookieOption);
+      return data;
+    }
+    
+    return {
+      success: false,
+      title: "Token Refresh Failed",
+      code: 401,
+      message: "Could not refresh token",
+      result: undefined
+    };
+  } catch (error: any) {
+    console.error("Token refresh error:", error.response?.data);
+    return {
+      success: false,
+      title: "Token Refresh Failed",
+      code: error.response?.status || 500,
+      message: error.response?.data?.message || "Failed to refresh token",
+      result: undefined
+    };
+  }
+}
 export async function register(args: RegisterArgs): Promise<ApiResponse<User>> {
   try {
     const registerEndpoint = `/api/frontend/auth/register`;
@@ -229,6 +339,59 @@ export async function register(args: RegisterArgs): Promise<ApiResponse<User>> {
   }
 }
 
+export async function getUserProfile(): Promise<ApiResponse<User>> {
+  try {
+    const { data } = await axios.get(`/api/frontend/auth/profile`, {
+      headers: getAuthHeaders(),
+    });
+    
+    return data;
+  } catch (error: any) {
+    // Check if error is due to authentication (usually 401)
+    if (error.response?.status === 401) {
+      try {
+        // Attempt to refresh the token
+        const refreshResponse = await refreshToken();
+        
+        if (refreshResponse.success && refreshResponse.result?.access_token) {
+          // Token refresh succeeded, retry the original request
+          const { data } = await axios.get(`/api/frontend/auth/profile`, {
+            headers: getAuthHeaders(), // This should now use the new token
+          });
+          return data;
+        } else {
+          // Token refresh failed
+          return {
+            success: false,
+            title: "Authentication Failed",
+            code: 401,
+            message: 'Session expired. Please log in again.',
+            result: undefined
+          };
+        }
+      } catch (refreshError: any) {
+        // Error during token refresh
+        return {
+          success: false,
+          title: "Authentication Failed",
+          code: 401,
+          message: 'Session expired. Please log in again.',
+          result: undefined
+        };
+      }
+    }
+    
+    // Handle other types of errors
+    return {
+      success: false,
+      title: "Profile Fetch Failed",
+      code: error.response?.status || 500,
+      message: error.response?.data?.message || 'Failed to fetch user profile',
+      result: undefined
+    };
+  }
+}
+
 export async function logout(): Promise<void> {
   try {
     await axios.post(
@@ -246,49 +409,3 @@ export async function logout(): Promise<void> {
   }
 }
 
-export async function getUserProfile(): Promise<Response<User>> {
-  try {
-    const { data }: { data: ApiResponse<User> } = await axios.get(
-      `/api/v1/auth/profile?meta=1`,
-      {
-        headers: getAuthHeaders(),
-      }
-    );
-
-    return {
-      error: false,
-      status: data.code || 200,
-      data: data.result,
-    };
-  } catch (error: any) {
-    return {
-      error: true,
-      status: error.response?.status || 500,
-      message:
-        error.response?.status === 401
-          ? "Unauthorized"
-          : error.response?.data?.message || "An unexpected error occurred",
-    };
-  }
-}
-
-export async function updateProfile(
-  data: UpdateProfileData
-): Promise<Omit<Response<any>, "data">> {
-  try {
-    await axios.post(`/api/v1/auth/update`, data, {
-      headers: getAuthHeaders(),
-    });
-    revalidatePath("/profile");
-    return {
-      error: false,
-      status: 200,
-    };
-  } catch (error: any) {
-    return {
-      error: true,
-      status: error.response?.status || 500,
-      message: error.response?.data?.message || "An unexpected error occurred",
-    };
-  }
-}

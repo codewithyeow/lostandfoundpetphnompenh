@@ -44,7 +44,8 @@ export type Logout = () => Promise<void>;
 
 export type GetUser = () => Promise<User | null | undefined>;
 
-export type UpdateProfile = (args: { name?: string; avatar?: string }) => Promise<boolean>;
+
+export type UpdateProfile = (args: { name?: string; avatar?: File ; email?: string}) => Promise<boolean>;
 
 export type RequestChangePassword = (args: ChangePasswordArgs) => Promise<ApiResponse<any>>;
 
@@ -78,6 +79,7 @@ export type AuthContext = {
    setStatus: React.Dispatch<React.SetStateAction<AuthStatus | undefined>>;
    logout: Logout;
    sendOtp: RequestChangePassword;
+   updateProfile: UpdateProfile;
    verifyOtp: VerifyResetPassword;
    resetPassword: ResetPassword;
    login: Login;
