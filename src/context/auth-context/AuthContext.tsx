@@ -4,7 +4,7 @@ import User from "@models/User";
 import { remove_cookie, set_cookie } from "@utils/cookie";
 import { toast } from "react-toastify";
 import { ApiResponse } from "interfaces";
-import { verifyOTP as verifyOtpAction } from '@server/actions/auth-action'; 
+import { verifyOTP as verifyOtpAction } from "@server/actions/auth-action";
 import React, {
   createContext,
   useCallback,
@@ -97,13 +97,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     [setLoading]
   );
 
-
-
   const verifyOtp = useCallback<VerifyResetPassword>(async (args) => {
     try {
       setLoading(true);
       const verify_token = localStorage.getItem("verify_token");
-      
+
       if (!args.otp_code || !verify_token || !args.email) {
         throw new Error("OTP code and email are required.");
       }
@@ -111,11 +109,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
       const response = await verifyOtpAction({
         otp: args.otp_code,
         verify_token: verify_token,
-        email: args.email
+        email: args.email,
       });
-  
+
       console.log("Verify OTP response:", response);
-  
+
       // 3. Remove expires_in from the request as it's not needed for verification
       if (response.success === false) {
         toast.error(response.message || "Failed to verify OTP.");
@@ -128,14 +126,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
           result: null,
         };
       }
-  
+
       if (response.result?.reset_token) {
         localStorage.setItem("reset_token", response.result.reset_token);
       }
-  
+
       // 4. Cleanup verify_token after successful verification
       localStorage.removeItem("verify_token");
-  
+
       toast.success(response.message || "OTP verified successfully.");
       return {
         success: true,
@@ -152,7 +150,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
         status: 500,
         title: "Error",
         code: 500,
-        message: error.message || "An unexpected error occurred while verifying OTP.",
+        message:
+          error.message || "An unexpected error occurred while verifying OTP.",
         result: null,
       };
     } finally {
@@ -298,19 +297,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     [setUser, setStatus]
   );
 
-  const logout = useCallback<Logout>(async () => {
-    try {
-      await axios.post(`/api/frontend/auth/logout`);
-    } catch {
-    } finally {
-      setUser(null);
-      setStatus("loggedOut");
-      remove_cookie("token");
-      localStorage.removeItem("authStatus");
-      localStorage.removeItem("user");
-    }
-  }, []);
-
   const getUser = useCallback<GetUser>(async () => {
     try {
       setLoading(true);
@@ -324,8 +310,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
       }
 
       // 🔹 If no stored user, fetch from API
+      // The axios interceptor will handle token refresh if needed
       const { data }: { data: ApiResponse<User> } = await axios.get(
-        `/api/frontend/auth/profile?meta=1`
+        `/api/frontend/auth/profile`
       );
 
       if (data.success) {
@@ -336,21 +323,143 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
 
         localStorage.setItem("authStatus", "loggedIn");
         localStorage.setItem("user", JSON.stringify(user));
+
+        return user;
       } else {
         setStatus("loggedOut");
+        return null;
       }
-
-      return data.result;
-    } catch {
+    } catch (error) {
       setStatus("loggedOut");
+      return null;
     } finally {
       setLoading(false);
     }
   }, []);
 
+  const updateProfile = useCallback<UpdateProfile>(async (args) => {
+    try {
+      // Create a FormData object to properly handle file uploads
+      const formData = new FormData();
+      if (args.name) {
+        formData.append('name', args.name);
+      }
+      if (args.email) {
+        formData.append('email', args.email);
+      } else {
+        throw new Error("Email is required.");
+      }
+      
+      // Only append avatar if it exists and is a valid File
+      if (args.avatar && args.avatar instanceof File) {
+        formData.append('avatar', args.avatar);
+      }
+      
+      // Send with proper content-type header for FormData
+      const response = await axios.post(`/api/frontend/auth/edit-profile`, formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data'
+        }
+      });
+      
+      // Check if the update was successful
+      if (response.data && response.data.success) {
+        const updatedUser = await getUser();
+        
+        if (updatedUser) {
+          return true;
+        } else {
+          throw new Error("Failed to refresh user profile");
+        }
+      } else {
+        throw new Error("Failed to update profile");
+      }
+    } catch (error) {
+      throw error;
+    }
+  }, [getUser]);
+
   useEffect(() => {
     getUser();
   }, [getUser]);
+
+  // Add this to your existing AuthContext
+
+  const refreshToken = useCallback(async (): Promise<string | null> => {
+    try {
+      const { data } = await axios.post(`/api/frontend/auth/refresh-token`);
+
+      if (data.success && data.result?.access_token) {
+        const newToken = data.result.access_token;
+
+        // Update token in cookies
+        set_cookie("token", newToken, { expires: 30 });
+
+        return newToken;
+      }
+      return null;
+    } catch (error) {
+      console.error("Token refresh error:", error);
+      return null;
+    }
+  }, []);
+
+  // Create an axios interceptor to handle 401 errors and refresh token
+  useEffect(() => {
+    const interceptor = axios.interceptors.response.use(
+      (response) => response,
+      async (error) => {
+        const originalRequest = error.config;
+
+        // If error is 401 and we haven't tried to refresh token yet
+        if (error.response?.status === 401 && !originalRequest._retry) {
+          originalRequest._retry = true;
+
+          try {
+            const newToken = await refreshToken();
+
+            if (newToken) {
+              // Update the Authorization header
+              originalRequest.headers["Authorization"] = `Bearer ${newToken}`;
+              // Retry the original request
+              return axios(originalRequest);
+            }
+          } catch (refreshError) {
+            console.error("Failed to refresh token:", refreshError);
+          }
+
+          // If refresh failed, clear auth state and redirect to login
+          setUser(null);
+          setStatus("loggedOut");
+          localStorage.removeItem("authStatus");
+          localStorage.removeItem("user");
+
+          // Navigate to login page if you have a navigation function
+          // router.push('/login');
+        }
+
+        return Promise.reject(error);
+      }
+    );
+
+    // Clean up interceptor when component unmounts
+    return () => {
+      axios.interceptors.response.eject(interceptor);
+    };
+  }, [refreshToken, setUser, setStatus]);
+
+  const logout = useCallback<Logout>(async () => {
+    try {
+      await axios.post(`/api/frontend/auth/logout`);
+    } catch {
+    } finally {
+      setUser(null);
+      setStatus("loggedOut");
+      remove_cookie("token");
+      localStorage.removeItem("authStatus");
+      localStorage.removeItem("user");
+    }
+  }, []);
 
   return (
     <Context.Provider
@@ -360,6 +469,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
         loading,
         sendOtp,
         verifyOtp,
+        updateProfile,
         resetPassword,
         setUser,
         setStatus,

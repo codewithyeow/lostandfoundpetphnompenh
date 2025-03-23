@@ -15,6 +15,7 @@ import { Input } from "@/components/ui/input";
 import { resetPassword } from "@server/actions/auth-action";
 import { useFormik } from "formik";
 import * as yup from "yup";
+import ProfileSection from "..//page-sections/ProfileSection";
 import {
   Pagination,
   PaginationContent,
@@ -213,56 +214,6 @@ const ProfilePage = () => {
     }
   }, []);
 
-  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      // Check file size (optional - limit to 5MB for example)
-      if (file.size > 5 * 1024 * 1024) {
-        toast.error("File is too large. Please select an image under 5MB.");
-        return;
-      }
-
-      const reader = new FileReader();
-
-      reader.onloadend = () => {
-        // This ensures we have a result before setting state
-        if (typeof reader.result === "string") {
-          // Set the preview immediately for visual feedback
-          setAvatarPreview(reader.result);
-
-          // Also update the edited user data
-          setEditedUserData((prevData) => ({
-            ...prevData,
-            avatar: reader.result as string,
-          }));
-
-          // For immediate display, you can also update the current userData
-          setUserData((prevData) => ({
-            ...prevData,
-            avatar: reader.result as string,
-          }));
-
-          // Optionally save to localStorage immediately
-          localStorage.setItem("userAvatar", reader.result);
-        }
-      };
-
-      reader.onerror = () => {
-        console.error("Error reading file");
-        toast.error("There was an error processing your image.");
-      };
-
-      reader.readAsDataURL(file);
-    }
-  };
-
-  const saveProfileChanges = () => {
-    setUserData({ ...editedUserData });
-    if (avatarPreview) {
-      localStorage.setItem("userAvatar", avatarPreview);
-    }
-    setEditingProfile(false);
-  };
 
   const renderPetCard = (pet: any, type: string) => (
     <Card
@@ -401,142 +352,8 @@ const ProfilePage = () => {
   return (
     <section className="w-full bg-[#EFEEF1] px-4 md:px-8 lg:px-12 py-10">
       <div className="max-w-6xl mx-auto">
-        <h2 className="text-center text-[#4eb7f0] text-2xl font-bold mb-2 flex items-center justify-center">
-          <div className="h-px w-16 bg-[#4eb7f0] mr-4"></div>
-          MY PROFILE
-          <div className="h-px w-16 bg-[#4eb7f0] ml-4"></div>
-        </h2>
-        <p className="text-center text-gray-500 max-w-2xl mx-auto mb-8">
-          Manage your account, pets, and saved listings
-        </p>
-
-        {loading ? (
-          <div className="bg-white shadow-md rounded-xl overflow-hidden mb-10">
-            <div className="p-6">
-              <div className="flex flex-col md:flex-row items-center gap-6">
-                <Skeleton className="w-24 h-24 rounded-full" />
-                <div className="flex-1">
-                  <Skeleton className="h-7 w-48 mb-3" />
-                  <Skeleton className="h-5 w-64 mb-2" />
-                  <Skeleton className="h-5 w-36" />
-                </div>
-                <Skeleton className="h-10 w-32" />
-              </div>
-            </div>
-          </div>
-        ) : (
-          <Card className="bg-white shadow-md rounded-xl overflow-hidden mb-10">
-            <CardContent className="p-6">
-              <div className="flex flex-col md:flex-row items-center gap-6">
-                <div className="relative">
-                  <Avatar className="w-24 h-24 border-2 border-[#4eb7f0]">
-                    <AvatarImage
-                      src={avatarPreview || userData.avatar}
-                      alt={userData.name}
-                      onError={(e) => {
-                        console.error("Error loading avatar image");
-                        e.currentTarget.src = "/default-avatar.jpg"; // Fallback image
-                      }}
-                    />
-                    <AvatarFallback>{userData.name.charAt(0)}</AvatarFallback>
-                  </Avatar>
-                  <input
-                    type="file"
-                    ref={fileInputRef}
-                    className="hidden"
-                    accept="image/jpeg, image/png, image/gif, image/webp"
-                    onChange={handleFileSelect}
-                  />
-                  {editingProfile && (
-                    <button
-                      className="absolute bottom-0 right-0 bg-[#4eb7f0] p-1.5 rounded-full text-white"
-                      onClick={() => fileInputRef.current?.click()}
-                      type="button"
-                    >
-                      <Camera size={14} />
-                    </button>
-                  )}
-                </div>
-
-                <div className="flex-1 text-center md:text-left">
-                  {editingProfile ? (
-                    <div className="space-y-3">
-                      <div>
-                        <Label htmlFor="name">Name</Label>
-                        <Input
-                          id="name"
-                          value={editedUserData.name}
-                          onChange={(e) =>
-                            setEditedUserData({
-                              ...editedUserData,
-                              name: e.target.value,
-                            })
-                          }
-                          className="mt-1"
-                        />
-                      </div>
-                      <div>
-                        <Label htmlFor="email">Email</Label>
-                        <Input
-                          id="email"
-                          type="email"
-                          value={editedUserData.email}
-                          onChange={(e) =>
-                            setEditedUserData({
-                              ...editedUserData,
-                              email: e.target.value,
-                            })
-                          }
-                          className="mt-1"
-                        />
-                      </div>
-                    </div>
-                  ) : (
-                    <>
-                      <h3 className="text-xl font-bold">{userData.name}</h3>
-                      <p className="text-gray-600">{userData.email}</p>
-                      <p className="text-sm text-gray-500">
-                        Member since {userData.joinDate}
-                      </p>
-                    </>
-                  )}
-                </div>
-
-                <div>
-                  {editingProfile ? (
-                    <div className="flex gap-2">
-                      <Button
-                        variant="outline"
-                        onClick={() => {
-                          setEditingProfile(false);
-                          setEditedUserData({ ...userData });
-                        }}
-                      >
-                        Cancel
-                      </Button>
-                      <Button
-                        className="bg-[#4eb7f0] hover:bg-[#3aa0d9]"
-                        onClick={saveProfileChanges}
-                      >
-                        <Save size={16} className="mr-1" />
-                        Save
-                      </Button>
-                    </div>
-                  ) : (
-                    <Button
-                      variant="outline"
-                      className="border-[#4eb7f0] text-[#4eb7f0] hover:bg-[#4eb7f0] hover:text-white"
-                      onClick={() => setEditingProfile(true)}
-                    >
-                      <Pencil size={16} className="mr-1" />
-                      Edit Profile
-                    </Button>
-                  )}
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        )}
+        {/*import profile section */}
+        <ProfileSection/>
 
         <Tabs defaultValue="myPets" className="space-y-6">
           <TabsList className="grid grid-cols-3 max-w-2xl mx-auto bg-[#e4e3e7]">
