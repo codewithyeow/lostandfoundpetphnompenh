@@ -144,7 +144,7 @@ const Header: React.FC<HeaderProps> = ({ locale = "en" }) => {
           <div
             className={`
               ${menuVisibilityClass}
-              absolute left-0 right-0 top-full bg-[#FFFFFF]
+              left-0 right-0 top-full bg-[#FFFFFF]
               transition-all duration-300 ease-in-out
               ${
                 isMenuOpen

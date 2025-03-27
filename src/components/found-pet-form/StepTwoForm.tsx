@@ -4,9 +4,11 @@ import { GoogleMap, Marker } from "@react-google-maps/api";
 
 interface StepTwoFormProps {
   formData: {
-    nearestLocation: string;
-    locationDetails: string;
-    distinguishingFeatures: string;
+    where_pet_was_found: string;
+    additional_location_details: string;
+    distinguishing_features: string;
+
+    // location_coordinates: string;  
     locationCoordinates: {
       lat: number;
       lng: number;
@@ -57,8 +59,8 @@ export const StepTwoForm: React.FC<StepTwoFormProps> = ({
           </label>
           <input
             type="text"
-            name="nearestLocation"
-            value={formData.nearestLocation}
+            name="where_pet_was_found"
+            value={formData.where_pet_was_found}
             onChange={onInputChange}
             placeholder="Enter the nearest street address or intersection"
             className="w-full p-2 border rounded-md focus:ring-green-500 focus:border-green-500"
@@ -99,7 +101,7 @@ export const StepTwoForm: React.FC<StepTwoFormProps> = ({
               </div>
             )}
           </div>
-          <div className="flex justify-between items-center mt-2">
+          {/* <div className="flex justify-between items-center mt-2">
             <p className="text-xs text-green-500">
               Location coordinates:{" "}
               {formData.locationCoordinates.lat.toFixed(6)},{" "}
@@ -112,7 +114,7 @@ export const StepTwoForm: React.FC<StepTwoFormProps> = ({
             >
               Use my current location
             </button>
-          </div>
+          </div> */}
         </div>
 
         <div>
@@ -121,8 +123,8 @@ export const StepTwoForm: React.FC<StepTwoFormProps> = ({
             Additional Location Details (Optional)
           </label>
           <textarea
-            name="locationDetails"
-            value={formData.locationDetails}
+            name="additional_location_details"
+            value={formData.additional_location_details}
             onChange={onInputChange}
             placeholder="Provide any additional details about the location that might help (landmarks, nearby buildings, etc.)"
             className="w-full p-2 border rounded-md focus:ring-green-500 focus:border-green-500"
@@ -136,8 +138,8 @@ export const StepTwoForm: React.FC<StepTwoFormProps> = ({
             Distinguishing Features (Optional)
           </label>
           <textarea
-            name="distinguishingFeatures"
-            value={formData.distinguishingFeatures}
+            name="distinguishing_features"
+            value={formData.distinguishing_features}
             onChange={onInputChange}
             placeholder="Enter any distinguishing features, collar, tags, or microchip info if available"
             className="w-full p-2 border rounded-md focus:ring-green-500 focus:border-green-500"

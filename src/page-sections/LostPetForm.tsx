@@ -20,7 +20,7 @@ import {
 } from "../components/ui/card";
 import { GoogleMap, Marker, useJsApiLoader } from "@react-google-maps/api";
 import useGoogleMap from "../hook/useGoogleMap";
-import StepOneForm from "@component/ReportLostPetForm/StepOneForm";
+import StepOneLostForm from "@component/ReportLostPetForm/StepOneLostForm";
 import StepTwoForm from "@component/ReportLostPetForm/StepTwoForm";
 import StepThreeForm from "@component/ReportLostPetForm/StepThreeForm";
 
@@ -145,15 +145,14 @@ export default function ReportLostPetForm() {
     switch (currentStep) {
       case 1:
         return (
-          <StepOneForm
+          <StepOneLostForm
             formData={formData}
             setFormData={setFormData}
             onInputChange={handleInputChange}
-            handleInputChange={handleInputChange}
-            handleImageUpload={handleImageUpload}
-            handleRemoveImage={handleRemoveImage}
             nextStep={nextStep}
-            speciesOptions={speciesOptions} onSpeciesChange={undefined} onImageUpload={undefined}          />
+            speciesOptions={speciesOptions}
+            onSpeciesChange={undefined}
+            onImageUpload={undefined}    />
         );
       case 2:
         return (

@@ -2,13 +2,27 @@ import { cookies } from 'next/headers';
 import Cookies from 'js-cookie';
 
 export const getAuthHeaders = () => {
-  if (typeof window === "undefined") {
-    // Server-side: Use next/headers
-    const token = cookies().get('token');
-    return token ? { Authorization: `Bearer ${token.value}` } : {};
-  } else {
-    // Client-side: Use js-cookie
-    const token = Cookies.get('token');
-    return token ? { Authorization: `Bearer ${token}` } : {};
+  try {
+    let token: string | undefined;
+
+    if (typeof window === "undefined") {
+      // Server-side
+      const cookie = cookies().get('token');
+      token = cookie?.value;
+    } else {
+      // Client-side
+      token = Cookies.get('token');
+    }
+
+    if (!token) {
+      console.warn('No token found.');
+      return {}; // Or throw an error, depending on your needs.
+    }
+
+    return { Authorization: `Bearer ${token}` };
+
+  } catch (error) {
+    console.error('Error getting auth headers:', error);
+    return {}; // Or throw an error.
   }
 };

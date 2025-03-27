@@ -33,6 +33,7 @@ const ProfileSection: React.FC<ProfileSectionProps> = ({ className }) => {
     name: "",
     email: "",
     avatar: "",
+    created_at: "",
   });
 
   const [editedUserData, setEditedUserData] = useState({
@@ -47,6 +48,7 @@ const ProfileSection: React.FC<ProfileSectionProps> = ({ className }) => {
         name: user.name || "",
         email: user.email || "",
         avatar: user.avatar || "",
+        created_at: user.created_at || "",
       });
 
       setEditedUserData({
@@ -59,21 +61,38 @@ const ProfileSection: React.FC<ProfileSectionProps> = ({ className }) => {
 
   // Get avatar URL with proper error handling
   // Add this in your getAvatarUrl function
-const getAvatarUrl = () => {
+  const getAvatarUrl = () => {
     if (avatarPreview) {
       console.log("Using avatar preview:", avatarPreview);
       return avatarPreview;
     }
-    
-    if (userData.avatar && process.env.NEXT_PUBLIC_API_URL) {
-      const url = `${process.env.NEXT_PUBLIC_API_URL}/storage/${userData.avatar}`;
+
+    if (userData.avatar && process.env.NEXT_PUBLIC_API_BASE_URL) {
+      const url = `${process.env.NEXT_PUBLIC_API_BASE_URL}/storage/${userData.avatar}`;
       console.log("Using server avatar URL:", url);
       console.log("Avatar path from user data:", userData.avatar);
       return url;
     }
-    
+
     console.log("Using default avatar");
     return "/default-avatar.jpg";
+  };
+
+  const formatJoinDate = (dateString) => {
+    if (!dateString) return "Unknown";
+
+    const date = new Date(dateString);
+
+    // Check if date is valid
+    if (isNaN(date.getTime())) return "Unknown";
+
+    // Format: "Month DD, YYYY"
+    const options: Intl.DateTimeFormatOptions = {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    };
+    return date.toLocaleDateString("en-US", options);
   };
 
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -122,10 +141,6 @@ const getAvatarUrl = () => {
         setAvatarPreview(null);
         setSelectedFile(null);
         toast.success("Profile updated successfully");
-        
-        // Force a re-fetch of the user profile to get the updated avatar path
-        // You might need to implement this in your AuthContext
-        // refreshUserProfile(); 
       } else {
         toast.error("Failed to update profile");
       }
@@ -235,6 +250,9 @@ const getAvatarUrl = () => {
                   <>
                     <h3 className="text-xl font-bold">{userData.name}</h3>
                     <p className="text-gray-600">{userData.email}</p>
+                    <p className="text-gray-500 text-sm mt-1">
+                      Joined {formatJoinDate(userData.created_at)}
+                    </p>
                   </>
                 )}
               </div>
