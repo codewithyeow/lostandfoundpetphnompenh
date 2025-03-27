@@ -337,47 +337,54 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     }
   }, []);
 
-  const updateProfile = useCallback<UpdateProfile>(async (args) => {
-    try {
-      // Create a FormData object to properly handle file uploads
-      const formData = new FormData();
-      if (args.name) {
-        formData.append('name', args.name);
-      }
-      if (args.email) {
-        formData.append('email', args.email);
-      } else {
-        throw new Error("Email is required.");
-      }
-      
-      // Only append avatar if it exists and is a valid File
-      if (args.avatar && args.avatar instanceof File) {
-        formData.append('avatar', args.avatar);
-      }
-      
-      // Send with proper content-type header for FormData
-      const response = await axios.post(`/api/frontend/auth/edit-profile`, formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data'
+  const updateProfile = useCallback<UpdateProfile>(
+    async (args) => {
+      try {
+        // Create a FormData object to properly handle file uploads
+        const formData = new FormData();
+        if (args.name) {
+          formData.append("name", args.name);
         }
-      });
-      
-      // Check if the update was successful
-      if (response.data && response.data.success) {
-        const updatedUser = await getUser();
-        
-        if (updatedUser) {
-          return true;
+        if (args.email) {
+          formData.append("email", args.email);
         } else {
-          throw new Error("Failed to refresh user profile");
+          throw new Error("Email is required.");
         }
-      } else {
-        throw new Error("Failed to update profile");
+
+        // Only append avatar if it exists and is a valid File
+        if (args.avatar && args.avatar instanceof File) {
+          formData.append("avatar", args.avatar);
+        }
+
+        // Send with proper content-type header for FormData
+        const response = await axios.post(
+          `/api/frontend/auth/edit-profile`,
+          formData,
+          {
+            headers: {
+              "Content-Type": "multipart/form-data",
+            },
+          }
+        );
+
+        // Check if the update was successful
+        if (response.data && response.data.success) {
+          const updatedUser = await getUser();
+
+          if (updatedUser) {
+            return true;
+          } else {
+            throw new Error("Failed to refresh user profile");
+          }
+        } else {
+          throw new Error("Failed to update profile");
+        }
+      } catch (error) {
+        throw error;
       }
-    } catch (error) {
-      throw error;
-    }
-  }, [getUser]);
+    },
+    [getUser]
+  );
 
   useEffect(() => {
     getUser();

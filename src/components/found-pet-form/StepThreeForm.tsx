@@ -4,27 +4,40 @@ import { Phone, ArrowLeft } from "lucide-react";
 
 interface StepThreeFormProps {
   formData: {
-    finderName: string;
-    contactEmail: string;
-    phone: string;
-    species: string;
-    dateFound: string;
-    nearestLocation: string;
-    petCondition: string;
-    images: File[];
+    animal_name: string; // Change to string
+    image_file: File[] | null;
+    species: string; // Change to string
+    breed_id: string; // Change to string
+    color: string; // Change to string
+    sex: string; // Change to string
+    size: string; // Change to string
+    date_found: string; // Change to string
+    condition: string; // Change to string
+    distinguishing_features: string; // Change to string
+    where_pet_was_found: string; // Change to string
+    additional_location_details: string; // Change to string
+    your_name: string; // Change to string
+    contact_email: string; // Change to string
+    phone_number: string; // Change to string
+    desc: string; // Change to string
   };
   onInputChange: (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => void;
   prevStep: () => void;
+  handleSubmit: (event: React.FormEvent<HTMLFormElement>) => Promise<void>;
+  isPending: boolean;
 }
 
 export const StepThreeForm: React.FC<StepThreeFormProps> = ({
   formData,
   onInputChange,
   prevStep,
+  handleSubmit 
+  
 }) => {
   return (
+<form onSubmit={handleSubmit} method="POST" className="space-y-3">
     <div className="space-y-3">
       <div className="flex flex-col md:flex-row gap-4">
         <div className="w-full md:w-1/2">
@@ -34,8 +47,8 @@ export const StepThreeForm: React.FC<StepThreeFormProps> = ({
           </label>
           <input
             type="text"
-            name="finderName"
-            value={formData.finderName}
+            name="your_name"
+            value={formData.your_name}
             onChange={onInputChange}
             placeholder="Enter your name"
             className="w-full p-2 border rounded-md focus:ring-green-500 focus:border-green-500"
@@ -50,8 +63,8 @@ export const StepThreeForm: React.FC<StepThreeFormProps> = ({
           </label>
           <input
             type="email"
-            name="contactEmail"
-            value={formData.contactEmail}
+            name="contact_email"
+            value={formData.contact_email}
             onChange={onInputChange}
             placeholder="Enter your email"
             className="w-full p-2 border rounded-md focus:ring-green-500 focus:border-green-500"
@@ -68,8 +81,8 @@ export const StepThreeForm: React.FC<StepThreeFormProps> = ({
         </label>
         <input
           type="tel"
-          name="phone"
-          value={formData.phone}
+          name="phone_number"
+          value={formData.phone_number}
           onChange={onInputChange}
           placeholder="Enter your phone number"
           className="w-full p-2 border rounded-md focus:ring-green-500 focus:border-green-500"
@@ -101,34 +114,34 @@ export const StepThreeForm: React.FC<StepThreeFormProps> = ({
         <div className="flex justify-between">
           <span className="font-medium text-sm">Date Found:</span>
           <span className="text-sm">
-            {formData.dateFound || "Not provided"}
+            {formData.date_found || "Not provided"}
           </span>
         </div>
         <div className="flex justify-between">
           <span className="font-medium text-sm">Location:</span>
           <span className="text-sm">
-            {formData.nearestLocation || "Not provided"}
+            {formData.additional_location_details || "Not provided"}
           </span>
         </div>
-        {formData.petCondition && (
+        {formData.condition && (
           <div className="flex justify-between">
             <span className="font-medium text-sm">Pet Condition:</span>
-            <span className="text-sm">{formData.petCondition}</span>
+            <span className="text-sm">{formData.condition}</span>
           </div>
         )}
         <div className="flex justify-between">
           <span className="font-medium text-sm">Images:</span>
           <span className="text-sm">
-            {formData.images.length} uploaded
+            {formData.image_file ? formData.image_file.length : 0} uploaded
           </span>
         </div>
       </div>
 
-      {formData.images.length > 0 && (
+      {formData.image_file && formData.image_file.length > 0 && (
         <div>
           <h4 className="text-sm font-medium mb-2">Uploaded Images:</h4>
           <div className="grid grid-cols-3 md:grid-cols-4 gap-2">
-            {formData.images.map((image, index) => (
+            {formData.image_file.map((image, index) => (
               <div key={index} className="relative h-24">
                 <Image
                   src={URL.createObjectURL(image)}
@@ -160,5 +173,6 @@ export const StepThreeForm: React.FC<StepThreeFormProps> = ({
         </button>
       </div>
     </div>
+    </form>
   );
 };

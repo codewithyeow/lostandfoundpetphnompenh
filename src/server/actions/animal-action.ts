@@ -2,58 +2,115 @@
 "use server";
 import axios from "@lib/axios";
 import { getAuthHeaders } from "@server/helper";
-import { revalidatePath } from "next/cache";
 import { ApiResponse } from "interfaces";
 
-export async function reportFoundPetAction(data: {
-  animal_name: string;
-  date_last_seen: string;
-  image_file: File;
-  nearest_location: string;
-  species: string;
-  breed_id: string;
-}): Promise<ApiResponse<any>> {
+export async function CreaterReportFoundPetAction(formData: FormData) {
+  console.log('CreaterReportFoundPetAction started');
+  
+  // Log all form data entries
+  for (const [key, value] of Array.from(formData.entries())) {
+    console.log(`FormData Entry - Key: ${key}, Value:`, 
+      value instanceof File ? `File: ${value.name}` : value
+    );
+  }
+
   try {
-    const endpoint = "/api/frontend/animal/report/found";
+    // Detailed field validation
+    const requiredFields = [
+      'species', 'breed_id', 'your_name',
+      'contact_email', 'phone_number'
+    ];
+    
+    for (const field of requiredFields) {
+      const fieldValue = formData.get(field);
+      console.log(`Checking field ${field}:`, fieldValue);
+      
+      if (!fieldValue) {
+        console.error(`Missing required field: ${field}`);
+        return {
+          success: false,
+          message: `Missing required field: ${field}`
+        };
+      }
+    }
 
-    const formData = new FormData();
-    formData.append("animal_name", data.animal_name);
-    formData.append("date_last_seen", data.date_last_seen);
-    formData.append("image_file", data.image_file);
-    formData.append("nearest_location", data.nearest_location);
-    formData.append("species", data.species);
-    formData.append("breed_id", data.breed_id);
+    // More robust error handling
+    const response = await axios.post(`/api/frontend/animal/report/found`, formData, {
+      headers: {
+        ...getAuthHeaders(),
+        'Accept': 'application/json',
+        'Content-Type': 'multipart/form-data'
+      },
+      timeout: 10000 // 10 seconds timeout
+    });
+    
+    return response.data;
 
-    const header = {
-      ...getAuthHeaders(),
-      "Content-Type": "multipart/form-data",
-      Accept: "application/json",
-    };
-
-    const response = await axios.post(endpoint, formData, { headers: header });
-
-    revalidatePath("/found-pets");
-
-    return {
-      success: true,
-      code: response.data.code || 200,
-      title: "Success",
-      message: response.data.message || "Pet reported successfully",
-      result: response.data.result,
-    };
   } catch (error: any) {
-    console.error("Report Found Pet Error:", error.response?.data);
-    return {
-      success: false,
-      code: error.response?.status || 500,
-      title: "Report Failed",
-      message: error.response?.data?.message || "Failed to report found pet",
-      result: null,
-      errors: error.response?.data?.errors || {},
-    };
+    // More comprehensive error logging
+    console.error('Full Error Object:', error);
+    
+    if (error.response) {
+      // The request was made and the server responded with a status code
+      console.error('Response Error Data:', error.response.data);
+      console.error('Response Error Status:', error.response.status);
+      console.error('Response Error Headers:', error.response.headers);
+      
+      return {
+        success: false,
+        message: error.response.data?.message || 'Server responded with an error',
+        errors: error.response.data?.errors || []
+      };
+    } else if (error.request) {
+      // The request was made but no response was received
+      console.error('No response received:', error.request);
+      return {
+        success: false,
+        message: 'No response from server',
+        errors: []
+      };
+    } else {
+      // Something happened in setting up the request
+      console.error('Error setting up request:', error.message);
+      return {
+        success: false,
+        message: error.message || 'Unexpected error occurred',
+        errors: []
+      };
+    }
+  } finally {
+    console.log('CreaterReportFoundPetAction finished');
   }
 }
 
+export async function getCondition(): Promise<ApiResponse<Record<string,string>>
+>{
+  try{
+    const { data }: { data: ApiResponse<Record<string, string>> } =
+    await axios.get("/api/frontend/animal/get-conditions", {
+      headers: getAuthHeaders(),
+    });
+    return {
+      success: true,
+      title: data.title || "OK",
+      code: data.code || 200,
+      message: data.message || "Condition retrieved successfully",
+      result: data.result || {},
+    };
+  } catch (error: any) {
+    console.error("Error fetching Condition:", error.response?.data);
+
+    return {
+      success: false,
+      title: "Failed to Fetch Condition",
+      code: error.response?.status || 500,
+      message:
+        error.response?.data?.message ||
+        "Failed to retrieve Condition. Please try again.",
+      result: {},
+    };
+  }
+}
 export async function getSpecies(): Promise<
   ApiResponse<Record<string, string>>
 > {
@@ -114,6 +171,34 @@ export async function getBreedsBySpecies(
         error.response?.data?.message ||
         "Failed to retrieve breeds. Please try again.",
       result: [],
+    };
+  }
+}
+
+export async function getSize(): Promise<ApiResponse<Record<string, string>>> {
+  try {
+    const { data }: { data: ApiResponse<Record<string, string>> } =
+      await axios.get(`/api/frontend/animal/get-sizes`, {
+        headers: getAuthHeaders(),
+      });
+    return {
+      success: true,
+      title: data.title || "OK",
+      code: data.code || 200,
+      message: data.message || "Size retrieved successfully",
+      result: data.result || {},
+    };
+  } catch (error: any) {
+    console.error("Error fetching size:", error.response?.data);
+
+    return {
+      success: false,
+      title: "Failed to Fetch size",
+      code: error.response?.status || 500,
+      message:
+        error.response?.data?.message ||
+        "Failed to retrieve size. Please try again.",
+      result: {},
     };
   }
 }

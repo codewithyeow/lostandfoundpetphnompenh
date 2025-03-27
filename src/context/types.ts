@@ -20,6 +20,7 @@ type ChangePasswordArgs = {
    platform: 'website';
 };
 
+
 export type PreRegister = (args: RegisterArgs) => Promise<ApiResponse<any>>;
 
 export type VerifyRegister = (
