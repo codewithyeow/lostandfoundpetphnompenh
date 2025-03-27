@@ -532,7 +532,7 @@ export default function ReportFoundPetForm() {
   return (
     <form onSubmit={handleSubmit} className="max-w-3xl mx-auto p-4">
     <div className="mb-6">
-      <h2 className="text-2xl font-bold text-center text-gray-800">Report a Lost Pet</h2>
+      <h2 className="text-2xl font-bold text-center text-gray-800">Report a Found Pet</h2>
       <p className="text-center text-gray-600">Let's help bring your pet home</p>
     </div>
 

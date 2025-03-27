@@ -1,3 +1,4 @@
+// Header.tsx
 "use client";
 import React, { useState, useEffect } from "react";
 import { useRouter, usePathname } from "next/navigation";
@@ -20,159 +21,103 @@ const Header: React.FC<HeaderProps> = ({ locale = "en" }) => {
   const [isLogoLoading, setIsLogoLoading] = useState(true);
   const maxWidth = useMaxWidth("sm");
 
-  // Close the search box when the screen size changes to a larger screen
   useEffect(() => {
     if (maxWidth && maxWidth > 640) {
       setIsSearchOpen(false);
     }
   }, [maxWidth]);
 
-  // Close the hamburger menu and submenu when the route changes
   const pathname = usePathname();
-
   useEffect(() => {
     setIsMenuOpen(false);
   }, [pathname]);
 
   const toggleSearch = () => {
-    if (isMenuOpen) {
-      setIsMenuOpen(false);
-    }
+    if (isMenuOpen) setIsMenuOpen(false);
     setIsSearchOpen(!isSearchOpen);
   };
 
   const toggleMenu = () => {
-    if (isSearchOpen) {
-      setIsSearchOpen(false);
-    }
+    if (isSearchOpen) setIsSearchOpen(false);
     setIsMenuOpen(!isMenuOpen);
   };
 
-  const handleLogoLoad = () => {
-    setIsLogoLoading(false);
-  };
-
-  const menuVisibilityClass = isMenuOpen ? "block" : "hidden";
+  const handleLogoLoad = () => setIsLogoLoading(false);
 
   return (
-    <nav className="bg-[#FFFFFF] w-full z-20 top-0 start-0 sticky border-b-4 border-[#4eb7f0]">
+    <nav className="bg-white w-full z-50 top-0 sticky border-b-4 border-[#4eb7f0] shadow-sm">
       <Container>
-        <div className="max-w-[1150px] flex items-center justify-between mx-auto px-4 py-3">
-          {/* Logo */}
-          <a href="/" className="flex items-center space-x-2">
-            <Avatar style={{ width: "60px", height: "60px" }}>
-              {isLogoLoading && (
-                <Skeleton className="w-[60px] h-[60px] rounded-full" />
-              )}
-              <AvatarImage
-                src="/assets/logo.png"
-                alt="Logo"
-                onLoad={handleLogoLoad}
-                className={isLogoLoading ? "hidden" : "block"}
-              />
-            </Avatar>
-          </a>
+        <div className="max-w-screen-xl flex flex-wrap items-center justify-between mx-auto px-4 py-3 md:py-4">
+          {/* Logo Section */}
+          <div className="flex items-center space-x-3 rtl:space-x-reverse">
+            <a href="/" className="flex items-center">
+              <Avatar className="w-12 h-12 md:w-16 md:h-16 transition-all duration-300">
+                {isLogoLoading && <Skeleton className="w-full h-full rounded-full" />}
+                <AvatarImage
+                  src="/assets/logo.png"
+                  alt="Logo"
+                  onLoad={handleLogoLoad}
+                  className={isLogoLoading ? "hidden" : "block"}
+                />
+              </Avatar>
+            </a>
+          </div>
 
-          <div className="flex-grow"></div>
+          {/* Mobile Controls */}
+          <div className="flex md:order-2 md:space-x-4 rtl:space-x-reverse items-center">
+            {maxWidth && maxWidth <= 640 && (
+              <>
+                <SearchComponentMobile 
+                  isMobile={true} 
+                  isSearchOpen={isSearchOpen} 
+                  toggleSearch={toggleSearch} 
+                />
+                <LanguageSwitcher menuDirection="left" locale={locale} />
+              </>
+            )}
 
-          {/* Conditionally Render Search Icon and Language Switcher on Mobile */}
-          {maxWidth && maxWidth <= 640 && (
-            <>
-              <SearchComponentMobile 
-                isMobile={true} 
-                isSearchOpen={isSearchOpen} 
-                toggleSearch={toggleSearch} 
-              />
-              <LanguageSwitcher menuDirection="left" locale={locale} />
-            </>
-          )}
-
-          {/* On Larger Screens, Show Language Switcher next to Search */}
-          {maxWidth && maxWidth > 640 && (
-            <div className="flex items-center order-2 bg-[#FFFFFF]">
+            {maxWidth && maxWidth > 640 && (
               <LanguageSwitcher menuDirection="right" locale={locale} />
-            </div>
-          )}
+            )}
 
-          <div className="flex items-center order-2 bg-[#FFFFFF]">
-            {/* Hamburger Button */}
+            {/* Hamburger Menu Button */}
             <button
-              data-collapse-toggle="navbar-sticky"
-              type="button"
-              className="inline-flex items-center h-10 justify-center text-sm text-black rounded-lg focus:outline-none ml-2 lg:hidden"
-              aria-controls="navbar-sticky"
-              aria-expanded={isMenuOpen}
               onClick={toggleMenu}
+              type="button"
+              className="inline-flex items-center p-2 w-10 h-10 justify-center text-gray-500 rounded-lg md:hidden hover:bg-gray-100 focus:outline-none"
+              aria-controls="navbar-default"
+              aria-expanded={isMenuOpen}
             >
               <span className="sr-only">Open main menu</span>
-              {isMenuOpen ? (
-                <svg
-                  className="w-6 h-6"
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="none"
-                  viewBox="0 0 24 24"
+              <svg
+                className="w-5 h-5"
+                aria-hidden="true"
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 17 14"
+              >
+                <path
                   stroke="currentColor"
-                  strokeWidth={2}
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    d="M6 18L18 6M6 6l12 12"
-                  />
-                </svg>
-              ) : (
-                <svg
-                  className="w-5 h-5"
-                  aria-hidden="true"
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="none"
-                  viewBox="0 0 17 14"
-                >
-                  <path
-                    stroke="currentColor"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                    d="M1 1h15M1 7h15M1 13h15"
-                  />
-                </svg>
-              )}
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
+                  d="M1 1h15M1 7h15M1 13h15"
+                />
+              </svg>
             </button>
           </div>
 
           {/* Navigation Menu */}
           <div
-            className={`
-              ${menuVisibilityClass}
-              left-0 right-0 top-full bg-[#FFFFFF]
-              transition-all duration-300 ease-in-out
-              ${
-                isMenuOpen
-                  ? "max-h-[1000px] opacity-100"
-                  : "max-h-0 opacity-0 overflow-hidden"
-              }
-              lg:relative lg:flex lg:w-auto lg:order-1 lg:grow lg:justify-end
-              lg:opacity-100 lg:max-h-full lg:overflow-visible
-            `}
-            id="navbar-sticky"
+            className={`${
+              isMenuOpen ? "block" : "hidden"
+            } w-full md:flex md:w-auto md:order-1 transition-all duration-300`}
+            id="navbar-default"
           >
-            <div
-              className={`
-                ${isMenuOpen ? "py-2" : "py-0"} 
-                transition-all duration-300
-                lg:py-0
-              `}
-            >
-              <ul
-                className="flex flex-col lg:p-0 font-medium lg:items-center items-start lg:flex-row rtl:space-x-reverse text-md ml-2"
-                style={{ gap: "0.5rem", padding: "0.5rem", }}
-              >
-                <MenuItemNavigator
-                  isMobile={isMenuOpen}
-                  isMenuOpen={isMenuOpen}
-                />
-              </ul>
-            </div>
+            <MenuItemNavigator
+              isMobile={maxWidth ? maxWidth <= 640 : false}
+              isMenuOpen={isMenuOpen}
+            />
           </div>
         </div>
       </Container>
