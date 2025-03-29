@@ -317,18 +317,18 @@ export default function PetDetailPage({ params }: PageProps) {
                       <p className="text-sm md:text-base break-words">
                         {petDetails.locationLost}
                       </p>
-                      <Button
+                      {/* <Button
                         variant="link"
                         className="text-red-600 hover:text-red-800 p-0 h-auto mt-1 text-sm"
                         onClick={toggleMap}
                       >
                         <Map size={14} className="mr-1" />
                         {showMap ? "Hide map" : "Show on map"}
-                      </Button>
+                      </Button> */}
                     </div>
                   </div>
 
-                  {showMap && (
+                  {/* {showMap && (
                     <div className="w-full h-48 md:h-64 bg-gray-100 rounded-lg relative overflow-hidden">
                       <div className="absolute inset-0 p-2 md:p-4 flex items-center justify-center">
                         <div className="w-full h-full relative rounded-lg overflow-hidden">
@@ -355,7 +355,7 @@ export default function PetDetailPage({ params }: PageProps) {
                         </div>
                       </div>
                     </div>
-                  )}
+                  )} */}
 
                   {petDetails.lastSeenDetails && (
                     <div className="flex items-start">
@@ -526,18 +526,18 @@ export default function PetDetailPage({ params }: PageProps) {
                       <p className="text-sm md:text-base break-words">
                         {petDetails.locationSpotted}
                       </p>
-                      <Button
+                      {/* <Button
                         variant="link"
                         className="text-amber-600 hover:text-amber-800 p-0 h-auto mt-1 text-sm"
                         onClick={toggleMap}
                       >
                         <Map size={14} className="mr-1" />
                         {showMap ? "Hide map" : "Show on map"}
-                      </Button>
+                      </Button> */}
                     </div>
                   </div>
 
-                  {showMap && (
+                  {/* {showMap && (
                     <div className="w-full h-48 md:h-64 bg-gray-100 rounded-lg relative overflow-hidden">
                       <div className="absolute inset-0 p-2 md:p-4 flex items-center justify-center">
                         <div className="w-full h-full relative rounded-lg overflow-hidden">
@@ -564,7 +564,7 @@ export default function PetDetailPage({ params }: PageProps) {
                         </div>
                       </div>
                     </div>
-                  )}
+                  )} */}
 
                   {petDetails.strayDetails && (
                     <div className="flex items-start">

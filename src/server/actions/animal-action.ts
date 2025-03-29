@@ -83,6 +83,83 @@ export async function CreaterReportFoundPetAction(formData: FormData) {
   }
 }
 
+export async function CreaterReportLostPetAction(formData: FormData) {
+  for (const [key, value] of Array.from(formData.entries())) {
+    console.log(`FormData Entry - Key: ${key}, Value:`, 
+      value instanceof File ? `File: ${value.name}` : value
+    );
+  }
+
+  try {
+    // Detailed field validation
+    const requiredFields = [
+      'species', 'breed_id', 'owner_name',
+      'contact_email', 'phone_number'
+    ];
+
+    for (const field of requiredFields) {
+      const fieldValue = formData.get(field);
+      console.log(`Checking field ${field}:`, fieldValue);
+      
+      if (!fieldValue) {
+        console.error(`Missing required field: ${field}`);
+        return {
+          success: false,
+          message: `Missing required field: ${field}`
+        };
+      }
+    }
+ // More robust error handling
+ const response = await axios.post(`/api/frontend/animal/report/lost`, formData, {
+  headers: {
+    ...getAuthHeaders(),
+    'Accept': 'application/json',
+    'Content-Type': 'multipart/form-data'
+  },
+  timeout: 10000 // 10 seconds timeout
+});
+
+return response.data;
+
+} catch (error: any) {
+// More comprehensive error logging
+console.error('Full Error Object:', error);
+
+if (error.response) {
+  // The request was made and the server responded with a status code
+  console.error('Response Error Data:', error.response.data);
+  console.error('Response Error Status:', error.response.status);
+  console.error('Response Error Headers:', error.response.headers);
+  
+  return {
+    success: false,
+    message: error.response.data?.message || 'Server responded with an error',
+    errors: error.response.data?.errors || []
+  };
+} else if (error.request) {
+  // The request was made but no response was received
+  console.error('No response received:', error.request);
+  return {
+    success: false,
+    message: 'No response from server',
+    errors: []
+  };
+} else {
+  // Something happened in setting up the request
+  console.error('Error setting up request:', error.message);
+  return {
+    success: false,
+    message: error.message || 'Unexpected error occurred',
+    errors: []
+  };
+}
+} finally {
+console.log('CreatReportLostPetAction finished');
+}
+
+  }
+
+
 export async function getCondition(): Promise<ApiResponse<Record<string,string>>
 >{
   try{

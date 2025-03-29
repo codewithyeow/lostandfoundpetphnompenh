@@ -68,7 +68,7 @@ export const StepTwoForm: React.FC<StepTwoFormProps> = ({
           />
         </div>
 
-        <div className="mt-3">
+        {/* <div className="mt-3">
           <label className="flex items-center mb-1 text-sm font-medium text-gray-700">
             <MapPin className="mr-2 text-green-500" size={16} />
             Pin Exact Location on Map
@@ -101,7 +101,7 @@ export const StepTwoForm: React.FC<StepTwoFormProps> = ({
               </div>
             )}
           </div>
-          {/* <div className="flex justify-between items-center mt-2">
+          <div className="flex justify-between items-center mt-2">
             <p className="text-xs text-green-500">
               Location coordinates:{" "}
               {formData.locationCoordinates.lat.toFixed(6)},{" "}
@@ -114,8 +114,8 @@ export const StepTwoForm: React.FC<StepTwoFormProps> = ({
             >
               Use my current location
             </button>
-          </div> */}
-        </div>
+          </div>
+        </div> */}
 
         <div>
           <label className="flex items-center mb-1 text-sm font-medium text-gray-700">
