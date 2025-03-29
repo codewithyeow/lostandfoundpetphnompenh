@@ -42,3 +42,21 @@ export interface LostPetFormData {
 
 
 }
+
+export interface EditReportLostParams{
+  report_id: string;
+  report_type: string; // "1" for Lost, "2" for Found
+  animal_name: string;
+  breed_id: string;
+  species: string;
+  sex: string;
+  size: string;
+  distinguishing_features: string;
+  date_lost: string; // Format: "MM/DD/YYYY"
+  nearest_address_last_seen: string;
+  additional_details: string;
+  owner_name: string;
+  contact_email: string;
+  phone_number: string;
+  reward: string;
+}

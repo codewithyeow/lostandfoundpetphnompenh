@@ -1,21 +1,20 @@
+"use client";
+
 import React, { useState, useEffect } from "react";
+import Image from "next/image";
 import {
   Card,
-  CardHeader,
-  CardFooter,
+  CardContent,
   CardTitle,
   CardDescription,
-  CardContent,
 } from "../components/ui/card";
-import { useRef } from "react";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { resetPassword } from "@server/actions/auth-action";
-import { useFormik } from "formik";
-import * as yup from "yup";
-import ProfileSection from "..//page-sections/ProfileSection";
+import {
+  Tabs,
+  TabsList,
+  TabsTrigger,
+  TabsContent,
+} from "@/components/ui/tabs";
+import { Badge } from "../components/ui/badge";
 import {
   Pagination,
   PaginationContent,
@@ -24,11 +23,7 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from "@/components/ui/pagination";
-import { Label } from "@/components/ui/label";
-import Image from "next/image";
-import { Badge } from "../components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
-import { toast } from "react-toastify";
 import {
   Edit,
   RefreshCw,
@@ -37,185 +32,37 @@ import {
   MoreHorizontal,
   Heart,
   User,
-  KeyRound,
-  Bookmark,
   AlertTriangle,
   BookmarkPlus,
-  Pencil,
-  Save,
-  Camera,
-  X,
 } from "lucide-react";
-import router from "next/router";
+import { fetchMyPet } from "@server/actions/animal-action";
+import ProfileSection from "../page-sections/ProfileSection";
+import {editReportLostPet } from "@server/actions/animal-action";
+import {EditReportLostParams} from "../context/petFoundType";
 
-// Mock data - In a real application, this would come from your API
-const userData = {
-  id: 1,
-  name: "Jane Smith",
-  email: "jane.smith@example.com",
-  joinDate: "Jan 15, 2025",
-  avatar: "/assets/avatar.jpg",
-};
+interface PetReport {
+  id: number;
+  name: string;
+  description: string;
+  image: string;
+  badgeType: "Lost" | "Found";
+  location: string;
+  date: string;
+  status: "Active" | "Reunited";
+  reward?: string;
+}
 
-const petData = [
-  {
-    id: 1,
-    name: "Fluffy",
-    description:
-      "Fluffy is a friendly dog who loves playing in the park. He went missing near the city center.",
-    image: "/assets/image.jpg",
-    badgeType: "Lost",
-    location: "City Center",
-    date: "Feb 24, 2025",
-    status: "Active",
-  },
-  {
-    id: 2,
-    name: "Bella",
-    description:
-      "Bella is a calm and gentle cat. She has been lost since last Wednesday.",
-    image: "/assets/image1.jpg",
-    badgeType: "Lost",
-    location: "Riverside Park",
-    date: "Feb 21, 2025",
-    status: "Active",
-  },
-  {
-    id: 3,
-    name: "Max",
-    description:
-      "Max is an energetic puppy, and he was last seen in the downtown area.",
-    image: "/assets/image2.jpg",
-    badgeType: "Found",
-    location: "Downtown",
-    date: "Feb 25, 2025",
-    status: "Active",
-  },
-];
+// New PetCard Component
+const PetCard: React.FC<{ pet: PetReport; type?: "wishlist"; onEdit: (id: number) => void; onMarkAsReunited?: (id: number) => void; onRemoveFromWishlist?: (id: number) => void }> = ({
+  pet,
+  type,
+  onEdit,
+  onMarkAsReunited,
+  onRemoveFromWishlist,
+}) => {
+  const [imageSrc, setImageSrc] = useState(pet.image);
 
-const wishlistData = [
-  {
-    id: 4,
-    name: "Buddy",
-    description:
-      "Buddy was found wandering around the street. Looking for his owner.",
-    image: "/assets/image3.jpg",
-    badgeType: "Found",
-    location: "Oak Street",
-    date: "Feb 22, 2025",
-    status: "Active",
-  },
-  {
-    id: 5,
-    name: "Whiskers",
-    description:
-      "Whiskers is a stray cat. She has been roaming around the neighborhood.",
-    image: "/assets/image5.jpg",
-    badgeType: "Stray",
-    location: "Maple Avenue",
-    date: "Feb 26, 2025",
-    status: "Active",
-  },
-];
-
-const reportedData = [
-  {
-    id: 6,
-    name: "Ching Chang",
-    description:
-      "Ching Chang is a stray cat. She has been roaming around the neighborhood.",
-    image: "/assets/image4.jpg",
-    badgeType: "Stray",
-    location: "Pine District",
-    date: "Feb 23, 2025",
-    status: "Reported",
-    reportReason: "This appears to be a duplicate listing.",
-  },
-];
-
-const ProfilePage = () => {
-  const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState("myPets");
-  const [editingProfile, setEditingProfile] = useState(false);
-  const [userData, setUserData] = useState({
-    name: "Jane Smith",
-    email: "jane.smith@example.com",
-    joinDate: "Jan 15, 2025",
-    avatar: "/assets/avatar.jpg",
-  });
-
-  const [editedUserData, setEditedUserData] = useState({ ...userData });
-  const [currentPassword, setCurrentPassword] = useState("");
-  const [newPassword, setNewPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
-  const [myPets, setMyPets] = useState(petData);
-  const [wishlist, setWishlist] = useState(wishlistData);
-  const [reportedPets, setReportedPets] = useState(reportedData);
-  const fileInputRef = useRef<HTMLInputElement>(null);
-  const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
-  const [currentPagePets, setCurrentPagePets] = useState(1);
-  const [currentPageWishlist, setCurrentPageWishlist] = useState(1);
-  const [currentPageReported, setCurrentPageReported] = useState(1);
-  const ITEMS_PER_PAGE = 3;
-  const totalPagesPets = Math.ceil(myPets.length / ITEMS_PER_PAGE);
-
-  useEffect(() => {
-    const timeout = setTimeout(() => setLoading(false), 1500);
-    return () => clearTimeout(timeout);
-  }, []);
-
-  // Function to mark the pet as reunited
-  const markAsReunited = (id: number) => {
-    setMyPets((prevPets) =>
-      prevPets.map((pet) =>
-        pet.id === id
-          ? {
-              ...pet,
-              status: pet.status === "Reunited" ? "Active" : "Reunited",
-            }
-          : pet
-      )
-    );
-  };
-
-  const handlePageChangePets = (newPage) => {
-    setCurrentPagePets;
-  };
-  // Function to handle editing (this could link to an edit page or modal)
-  const handleEdit = (id: number) => {
-    alert(`Editing pet with ID: ${id}`);
-  };
-
-  // Function to remove from wishlist
-  const removeFromWishlist = (id: number) => {
-    setWishlist((prevWishlist) => prevWishlist.filter((pet) => pet.id !== id));
-  };
-
-  // Function to change password
-
-  // Function to dismiss reported pet
-  const dismissReport = (id: number) => {
-    setReportedPets((prevReported) =>
-      prevReported.filter((pet) => pet.id !== id)
-    );
-  };
-  useEffect(() => {
-    const savedAvatar = localStorage.getItem("userAvatar");
-    if (savedAvatar) {
-      setAvatarPreview(savedAvatar);
-      setUserData((prevData) => ({
-        ...prevData,
-        avatar: savedAvatar,
-      }));
-      setEditedUserData((prevData) => ({
-        ...prevData,
-        avatar: savedAvatar,
-      }));
-    }
-  }, []);
-
-
-  const renderPetCard = (pet: any, type: string) => (
+  return (
     <Card
       key={pet.id}
       className={`relative bg-white shadow-md rounded-xl overflow-hidden w-full transition-all duration-300 ${
@@ -223,7 +70,6 @@ const ProfilePage = () => {
       }`}
     >
       <div className="absolute top-0 left-0 w-full h-1 bg-[#4eb7f0]"></div>
-
       <Badge
         variant="default"
         className={`absolute top-3 left-3 z-10 text-white text-xs font-medium px-3 py-1 rounded-full shadow-md ${
@@ -231,26 +77,23 @@ const ProfilePage = () => {
             ? "bg-red-500"
             : pet.badgeType === "Found"
             ? "bg-[#8DC63F]"
-            : pet.badgeType === "Reported"
-            ? "bg-orange-500"
-            : "bg-yellow-500"
+            : "bg-orange-500"
         }`}
       >
         {pet.status === "Reunited" ? "Reunited" : pet.badgeType}
       </Badge>
-
       <CardContent className="p-0">
         <div className="relative w-full h-40 sm:h-48 overflow-hidden">
           <Image
-            src={pet.image}
+            src={imageSrc}
             alt={pet.name}
             layout="fill"
             objectFit="cover"
             className="group-hover:scale-105 transition-transform duration-500"
+            onError={() => setImageSrc("/assets/default-pet.jpg")}
           />
           <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
           <div className="absolute inset-0 bg-gray-100/80 -z-10"></div>
-
           {pet.status === "Reunited" && (
             <div className="absolute inset-0 flex items-center justify-center bg-black/30 z-10">
               <span className="bg-green-500 text-white px-4 py-2 rounded-full font-semibold">
@@ -259,50 +102,47 @@ const ProfilePage = () => {
             </div>
           )}
         </div>
-
         <div className="p-4">
           <CardTitle className="text-lg font-bold mb-1 flex items-center justify-between">
             <span>{pet.name}</span>
             <button
-              onClick={() => (type === "myPets" ? handleEdit(pet.id) : null)}
+              onClick={() => onEdit(pet.id)}
               className="p-1 text-gray-400 hover:text-[#4eb7f0] transition-colors"
             >
               <MoreHorizontal size={16} />
             </button>
           </CardTitle>
-
           <div className="flex flex-wrap text-xs text-gray-500 mb-2">
             <div className="flex items-center mr-3">
               <MapPin size={12} className="mr-1 text-[#4eb7f0]" />
-              <span>{pet.location}</span>
+              <span>{pet.location || "Location not provided"}</span>
             </div>
             <div className="flex items-center">
               <Calendar size={12} className="mr-1 text-[#4eb7f0]" />
               <span>{pet.date}</span>
             </div>
           </div>
-
           <CardDescription className="text-sm line-clamp-2 mb-4 text-gray-600">
             {pet.description}
           </CardDescription>
-
-          {pet.reportReason && (
-            <div className="mb-4 p-2 bg-orange-50 border border-orange-200 rounded-md">
-              <div className="flex items-start">
-                <AlertTriangle
-                  size={14}
-                  className="mr-2 text-orange-500 mt-0.5"
-                />
-                <p className="text-xs text-orange-700">{pet.reportReason}</p>
-              </div>
+          {pet.reward && pet.badgeType === "Lost" && (
+            <div className="mb-4 p-2 bg-green-50 border border-green-200 rounded-md">
+              <p className="text-xs text-green-700">Reward: ${pet.reward}</p>
             </div>
           )}
-
           <div className="flex items-center gap-2">
-            {type === "myPets" && (
+            {type === "wishlist" ? (
+              <button
+                onClick={() => onRemoveFromWishlist?.(pet.id)}
+                className="flex-1 flex items-center justify-center gap-1 py-2 text-sm font-medium rounded-full bg-red-500 text-white hover:bg-red-600 transition-all duration-200"
+              >
+                <Heart size={14} />
+                Remove from Wishlist
+              </button>
+            ) : (
               <>
                 <button
-                  onClick={() => markAsReunited(pet.id)}
+                  onClick={() => onMarkAsReunited?.(pet.id)}
                   className={`flex-1 flex items-center justify-center gap-1 py-2 text-sm font-medium rounded-full transition-all duration-200 ${
                     pet.status === "Reunited"
                       ? "bg-gray-100 text-gray-500 hover:bg-gray-200"
@@ -310,51 +150,169 @@ const ProfilePage = () => {
                   }`}
                 >
                   <RefreshCw size={14} />
-                  {pet.status === "Reunited"
-                    ? "Mark as Active"
-                    : "Mark as Reunited"}
+                  {pet.status === "Reunited" ? "Mark as Active" : "Mark as Reunited"}
                 </button>
-
                 <button
-                  onClick={() => handleEdit(pet.id)}
+                  onClick={() => onEdit(pet.id)}
                   className="p-2 border border-gray-200 rounded-full text-[#4eb7f0] hover:bg-[#4eb7f0] hover:text-white hover:border-[#4eb7f0] transition-colors duration-200"
                 >
                   <Edit size={16} />
                 </button>
               </>
             )}
-
-            {type === "wishlist" && (
-              <button
-                onClick={() => removeFromWishlist(pet.id)}
-                className="flex-1 flex items-center justify-center gap-1 py-2 text-sm font-medium rounded-full bg-red-500 text-white hover:bg-red-600 transition-all duration-200"
-              >
-                <Heart size={14} />
-                Remove from Wishlist
-              </button>
-            )}
-
-            {type === "reported" && (
-              <button
-                onClick={() => dismissReport(pet.id)}
-                className="flex-1 flex items-center justify-center gap-1 py-2 text-sm font-medium rounded-full bg-blue-500 text-white hover:bg-blue-600 transition-all duration-200"
-              >
-                <X size={14} />
-                Dismiss Report
-              </button>
-            )}
           </div>
         </div>
       </CardContent>
     </Card>
   );
+};
+
+export default function DashboardProfile() {
+  const [loadingPets, setLoadingPets] = useState(true);
+  const [myPets, setMyPets] = useState<PetReport[]>([]);
+  const [currentPagePets, setCurrentPagePets] = useState(1);
+  const [totalPagesPets, setTotalPagesPets] = useState(1);
+  const petsPerPage = 6;
+
+  const [loadingWishlist, setLoadingWishlist] = useState(true);
+  const [wishlist, setWishlist] = useState<PetReport[]>([]);
+  const [currentPageWishlist, setCurrentPageWishlist] = useState(1);
+  const [totalPagesWishlist, setTotalPagesWishlist] = useState(1);
+
+
+  useEffect(() => {
+    const fetchPetReports = async () => {
+      try {
+        setLoadingPets(true);
+        const response = await fetchMyPet();
+        const pets = response.success
+          ? (response.result ?? []).map((pet, index) => {
+              const imagePath = pet.image.startsWith('/')
+                ? pet.image
+                : `/${pet.image}`;
+              const imageUrl = pet.image
+                ? `${process.env.NEXT_PUBLIC_API_BASE_URL}/storage${imagePath}`
+                : "/assets/default-pet.jpg";
+              console.log(`Pet ${pet.name_en} image URL:`, imageUrl);
+              return {
+                id: index + 1,
+                name: pet.name_en,
+                description: pet.desc || "No description provided",
+                image: imageUrl,
+                badgeType: (pet.report_type === 1 ? "Lost" : "Found") as "Lost" | "Found",
+                location: "",
+                date: new Date(pet.report_date).toLocaleDateString("en-US", {
+                  month: "short",
+                  day: "numeric",
+                  year: "numeric",
+                }),
+                status: (pet.animal_status === 1 ? "Active" : "Reunited") as "Active" | "Reunited",
+              };
+            })
+          : [];
+        setMyPets(pets);
+        setTotalPagesPets(Math.ceil(pets.length / petsPerPage));
+      } catch (error) {
+        console.error("Failed to fetch pet reports:", error);
+      } finally {
+        setLoadingPets(false);
+      }
+    };
+    fetchPetReports();
+  }, []);
+
+  useEffect(() => {
+    const fetchWishlist = async () => {
+      try {
+        setLoadingWishlist(true);
+        const mockWishlist: PetReport[] = [
+          { id: 1, name: "Buddy", description: "A friendly golden retriever found wandering.", image: "/assets/default-pet.jpg", badgeType: "Found", location: "Central Park", date: "Mar 15, 2025", status: "Active" },
+          { id: 2, name: "Luna", description: "Lost tabby cat, very shy.", image: "/assets/default-pet.jpg", badgeType: "Lost", location: "Downtown", date: "Mar 20, 2025", status: "Active", reward: "50" },
+          { id: 3, name: "Max", description: "Found husky", image: "/assets/default-pet.jpg", badgeType: "Found", location: "Suburbs", date: "Mar 22, 2025", status: "Active" },
+          { id: 4, name: "Bella", description: "Lost poodle", image: "/assets/default-pet.jpg", badgeType: "Lost", location: "City Center", date: "Mar 23, 2025", status: "Active" },
+          { id: 5, name: "Charlie", description: "Found beagle", image: "/assets/default-pet.jpg", badgeType: "Found", location: "Riverside", date: "Mar 24, 2025", status: "Active" },
+          { id: 6, name: "Daisy", description: "Lost siamese", image: "/assets/default-pet.jpg", badgeType: "Lost", location: "Uptown", date: "Mar 25, 2025", status: "Active" },
+          { id: 7, name: "Rocky", description: "Found boxer", image: "/assets/default-pet.jpg", badgeType: "Found", location: "East Side", date: "Mar 26, 2025", status: "Active" },
+          { id: 8, name: "Milo", description: "Lost shih tzu", image: "/assets/default-pet.jpg", badgeType: "Lost", location: "West Side", date: "Mar 27, 2025", status: "Active" },
+          { id: 9, name: "Zoe", description: "Found labrador", image: "/assets/default-pet.jpg", badgeType: "Found", location: "North End", date: "Mar 28, 2025", status: "Active" },
+          { id: 10, name: "Oliver", description: "Lost persian", image: "/assets/default-pet.jpg", badgeType: "Lost", location: "South End", date: "Mar 29, 2025", status: "Active" },
+        ];
+        setWishlist(mockWishlist);
+        setTotalPagesWishlist(Math.ceil(mockWishlist.length / petsPerPage));
+      } catch (error) {
+        console.error("Failed to fetch wishlist:", error);
+      } finally {
+        setLoadingWishlist(false);
+      }
+    };
+    fetchWishlist();
+  }, []);
+
+  const markAsReunited = (id: number) => {
+    setMyPets((prevPets) =>
+      prevPets.map((pet) =>
+        pet.id === id
+          ? { ...pet, status: pet.status === "Reunited" ? "Active" : "Reunited" }
+          : pet
+      )
+    );
+  };
+
+  const handlePageChangePets = (newPage: number) => {
+    setCurrentPagePets(newPage);
+  };
+
+  // Function to handle editing (this could link to an edit page or modal)
+  const handleEditReport = async (id: number) => {
+    const params: EditReportLostParams = {
+      report_id: "1",
+      report_type: "1",
+      animal_name: "new_name8",
+      breed_id: "1",
+      species: "2",
+      sex: "1",
+      size: "3",
+      distinguishing_features: "ad",
+      date_lost: "3/29/2025",
+      nearest_address_last_seen: "FA",
+      additional_details: "d",
+      owner_name: "unknown",
+      contact_email: "kim@gmail.com",
+      phone_number: "123",
+      reward: "500 $",
+    };
+  
+    const response = await editReportLostPet(params);
+    if (response.success) {
+      console.log("Report updated successfully:", response.message);
+    } else {
+      console.error("Failed to update report:", response.message, response.errors);
+    }
+  };
+  const removeFromWishlist = (id: number) => {
+    setWishlist((prevWishlist) => {
+      const updatedWishlist = prevWishlist.filter((pet) => pet.id !== id);
+      setTotalPagesWishlist(Math.ceil(updatedWishlist.length / petsPerPage));
+      return updatedWishlist;
+    });
+  };
+
+  const handlePageChangeWishlist = (newPage: number) => {
+    setCurrentPageWishlist(newPage);
+  };
+
+  const indexOfLastPet = currentPagePets * petsPerPage;
+  const indexOfFirstPet = indexOfLastPet - petsPerPage;
+  const currentPets = myPets.slice(indexOfFirstPet, indexOfLastPet);
+
+  const indexOfLastWishlist = currentPageWishlist * petsPerPage;
+  const indexOfFirstWishlist = indexOfLastWishlist - petsPerPage;
+  const currentWishlist = wishlist.slice(indexOfFirstWishlist, indexOfLastWishlist);
 
   return (
     <section className="w-full bg-[#EFEEF1] px-4 md:px-8 lg:px-12 py-10">
       <div className="max-w-6xl mx-auto">
-        {/*import profile section */}
-        <ProfileSection/>
-
+        <ProfileSection />
         <Tabs defaultValue="myPets" className="space-y-6">
           <TabsList className="grid grid-cols-3 max-w-2xl mx-auto bg-[#e4e3e7]">
             <TabsTrigger
@@ -378,19 +336,12 @@ const ProfilePage = () => {
               <AlertTriangle size={16} className="mr-2" />
               Reported
             </TabsTrigger>
-            {/* <TabsTrigger
-              value="security"
-              className="data-[state=active]:bg-[#4eb7f0] data-[state=active]:text-white"
-            >
-              <KeyRound size={16} className="mr-2" />
-              Security
-            </TabsTrigger> */}
           </TabsList>
 
           <TabsContent value="myPets">
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto">
-              {loading ? (
-                Array(3)
+              {loadingPets ? (
+                Array(6)
                   .fill(0)
                   .map((_, index) => (
                     <Card
@@ -416,16 +367,24 @@ const ProfilePage = () => {
                       </CardContent>
                     </Card>
                   ))
-              ) : myPets.length > 0 ? (
-                myPets.map((pet) => renderPetCard(pet, "myPets"))
+              ) : currentPets.length > 0 ? (
+                currentPets.map((pet) => (
+                  <PetCard
+                    key={pet.id}
+                    pet={pet}
+                    onEdit={handleEditReport}
+                    onMarkAsReunited={markAsReunited}
+                  />
+                ))
               ) : (
                 <div className="col-span-full flex flex-col items-center justify-center py-10 text-center">
-                  {/* No pets message */}
+                  <p className="text-gray-500 text-lg">No pet reports found</p>
+                  <p className="text-gray-400">
+                    Your lost and found pet reports will appear here
+                  </p>
                 </div>
               )}
             </div>
-
-            {/* Pagination Component Here */}
             {myPets.length > 0 && (
               <div className="flex justify-center mt-6">
                 <Pagination>
@@ -435,9 +394,7 @@ const ProfilePage = () => {
                         handlePageChangePets(currentPagePets - 1);
                     }}
                     className={`${
-                      currentPagePets === 1
-                        ? "opacity-50 cursor-not-allowed"
-                        : ""
+                      currentPagePets === 1 ? "opacity-50 cursor-not-allowed" : ""
                     }`}
                   />
                   <PaginationContent>
@@ -464,8 +421,8 @@ const ProfilePage = () => {
 
           <TabsContent value="wishlist">
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto">
-              {loading ? (
-                Array(2)
+              {loadingWishlist ? (
+                Array(6)
                   .fill(0)
                   .map((_, index) => (
                     <Card
@@ -490,8 +447,16 @@ const ProfilePage = () => {
                       </CardContent>
                     </Card>
                   ))
-              ) : wishlist.length > 0 ? (
-                wishlist.map((pet) => renderPetCard(pet, "wishlist"))
+              ) : currentWishlist.length > 0 ? (
+                currentWishlist.map((pet) => (
+                  <PetCard
+                    key={pet.id}
+                    pet={pet}
+                    type="wishlist"
+                    onEdit={handleEditReport}
+                    onRemoveFromWishlist={removeFromWishlist}
+                  />
+                ))
               ) : (
                 <div className="col-span-full flex flex-col items-center justify-center py-10 text-center">
                   <div className="text-gray-400 mb-3">
@@ -501,69 +466,60 @@ const ProfilePage = () => {
                     Your Wishlist is Empty
                   </h3>
                   <p className="text-gray-500 max-w-md">
-                    Save pet listings to your wishlist to keep track of pets
-                    you're interested in helping.
+                    Save pet listings to your wishlist to keep track of pets you're interested in helping.
                   </p>
-                  <Button className="mt-4 bg-[#4eb7f0] hover:bg-[#3aa0d9]">
-                    Browse Listings
-                  </Button>
                 </div>
               )}
             </div>
+            {wishlist.length > 0 && (
+              <div className="flex justify-center mt-6">
+                <Pagination>
+                  <PaginationPrevious
+                    onClick={() => {
+                      if (currentPageWishlist > 1)
+                        handlePageChangeWishlist(currentPageWishlist - 1);
+                    }}
+                    className={`${
+                      currentPageWishlist === 1 ? "opacity-50 cursor-not-allowed" : ""
+                    }`}
+                  />
+                  <PaginationContent>
+                    {Array.from({ length: totalPagesWishlist }, (_, index) => (
+                      <PaginationItem key={index}>
+                        <PaginationLink
+                          isActive={currentPageWishlist === index + 1}
+                          onClick={() => handlePageChangeWishlist(index + 1)}
+                        >
+                          {index + 1}
+                        </PaginationLink>
+                      </PaginationItem>
+                    ))}
+                  </PaginationContent>
+                  {currentPageWishlist < totalPagesWishlist && (
+                    <PaginationNext
+                      onClick={() => handlePageChangeWishlist(currentPageWishlist + 1)}
+                    />
+                  )}
+                </Pagination>
+              </div>
+            )}
           </TabsContent>
 
           <TabsContent value="reported">
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto">
-              {loading ? (
-                Array(1)
-                  .fill(0)
-                  .map((_, index) => (
-                    <Card
-                      key={index}
-                      className="relative bg-white shadow-md rounded-xl overflow-hidden w-full"
-                    >
-                      <Skeleton className="absolute top-3 right-3 w-[80px] h-[30px] rounded-full" />
-                      <CardContent className="p-0">
-                        <Skeleton className="w-full h-48" />
-                        <div className="p-5">
-                          <Skeleton className="h-6 w-[50%] rounded-md" />
-                          <div className="flex mt-3 mb-3">
-                            <Skeleton className="h-4 w-[40%] rounded-md mr-2" />
-                            <Skeleton className="h-4 w-[40%] rounded-md" />
-                          </div>
-                          <Skeleton className="mt-2 h-4 w-full rounded-md" />
-                          <Skeleton className="mt-2 h-4 w-[80%] rounded-md" />
-                          <Skeleton className="mt-3 p-2 h-16 w-full rounded-md" />
-                          <div className="mt-5 flex justify-between">
-                            <Skeleton className="h-10 w-full rounded-lg" />
-                          </div>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  ))
-              ) : reportedPets.length > 0 ? (
-                reportedPets.map((pet) => renderPetCard(pet, "reported"))
-              ) : (
-                <div className="col-span-full flex flex-col items-center justify-center py-10 text-center">
-                  <div className="text-gray-400 mb-3">
-                    <AlertTriangle size={48} />
-                  </div>
-                  <h3 className="text-xl font-medium text-gray-700 mb-2">
-                    No Reported Pets
-                  </h3>
-                  <p className="text-gray-500 max-w-md">
-                    There are currently no reports on any of your pet listings.
-                  </p>
-                </div>
-              )}
+            <div className="col-span-full flex flex-col items-center justify-center py-10 text-center">
+              <div className="text-gray-400 mb-3">
+                <AlertTriangle size={48} />
+              </div>
+              <h3 className="text-xl font-medium text-gray-700 mb-2">
+                No Reported Pets
+              </h3>
+              <p className="text-gray-500 max-w-md">
+                There are currently no reports on any of your pet listings.
+              </p>
             </div>
           </TabsContent>
-
-          
         </Tabs>
       </div>
     </section>
   );
-};
-
-export default ProfilePage;
+}

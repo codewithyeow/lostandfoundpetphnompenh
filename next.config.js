@@ -8,7 +8,7 @@ const nextConfig = {
     theme: 'DEFAULT',
   },
   images: {
-    domains: ['www.pawboost.com'],
+    domains: ['www.pawboost.com', 'www.kimchheng.online',],
   },
 };
 
