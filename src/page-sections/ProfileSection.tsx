@@ -10,6 +10,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Camera, Pencil, Save } from "lucide-react";
 import { useAuthContext } from "../context/auth-context/AuthContext";
 import { toast } from "react-toastify";
+import Image from "next/image";
 
 interface ProfileSectionProps {
   className?: string;
@@ -64,18 +65,22 @@ const ProfileSection: React.FC<ProfileSectionProps> = ({ className }) => {
   const getAvatarUrl = () => {
     if (avatarPreview) {
       console.log("Using avatar preview:", avatarPreview);
-      return avatarPreview;
+      return avatarPreview; // Base64 data URL works with next/image
     }
 
     if (userData.avatar && process.env.NEXT_PUBLIC_API_BASE_URL) {
-      const url = `${process.env.NEXT_PUBLIC_API_BASE_URL}/storage/${userData.avatar}`;
-      console.log("Using server avatar URL:", url);
-      console.log("Avatar path from user data:", userData.avatar);
+      // Ensure the path is correct and absolute
+      const avatarPath = userData.avatar.startsWith('/')
+        ? userData.avatar // If it already has a leading slash, use it as is
+        : `/${userData.avatar}`; // Add leading slash if missing
+      const url = `${process.env.NEXT_PUBLIC_API_BASE_URL}${avatarPath}`;
+      console.log("Constructed server avatar URL:", url);
+      console.log("Raw avatar path from user data:", userData.avatar);
       return url;
     }
 
     console.log("Using default avatar");
-    return "/default-avatar.jpg";
+    return "/default-avatar.jpg"; // Relative to public folder
   };
 
   const formatJoinDate = (dateString) => {

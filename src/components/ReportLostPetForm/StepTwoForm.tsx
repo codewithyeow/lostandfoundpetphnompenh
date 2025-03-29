@@ -36,68 +36,6 @@ const StepTwoForm = ({
         />
       </div>
 
-      <div className="mt-3">
-        <label className="flex items-center mb-1 text-sm font-medium text-gray-700">
-          <MapPin className="mr-2 text-green-500" size={16} />
-          Pin Exact Location on Map
-          <span className="text-red-500 ml-1">*</span>
-        </label>
-        <p className="text-xs text-gray-500 mb-2">
-          Click on the map to pin the exact location where the pet was
-          last seen
-        </p>
-        <div className="w-full h-64 rounded-md overflow-hidden border border-gray-300">
-          {isLoaded ? (
-            <GoogleMap
-              mapContainerStyle={mapContainerStyle}
-              center={formData.locationCoordinates}
-              zoom={15}
-              onLoad={onLoad}
-              onUnmount={onUnmount}
-              onClick={handleMapClick}
-            >
-              <Marker
-                position={formData.locationCoordinates}
-                onLoad={onMarkerLoad}
-                onUnmount={onMarkerUnmount}
-                draggable={true}
-                onDragEnd={(e) => {
-                  if (e.latLng) {
-                    const newPosition = {
-                      lat: e.latLng.lat(),
-                      lng: e.latLng.lng(),
-                    };
-                    setPosition(newPosition);
-                    setFormData((prev) => ({
-                      ...prev,
-                      locationCoordinates: newPosition,
-                    }));
-                  }
-                }}
-              />
-            </GoogleMap>
-          ) : (
-            <div className="w-full h-full flex items-center justify-center bg-gray-100">
-              <p>Loading map...</p>
-            </div>
-          )}
-        </div>
-        <div className="flex justify-between items-center mt-2">
-          <p className="text-xs text-green-500">
-            Location coordinates:{" "}
-            {formData.locationCoordinates.lat.toFixed(6)},{" "}
-            {formData.locationCoordinates.lng.toFixed(6)}
-          </p>
-          <button
-            type="button"
-            onClick={getCurrentLocation}
-            className="text-xs text-[#4eb7f0] hover:underline"
-          >
-            Use my current location
-          </button>
-        </div>
-      </div>
-
       <div>
         <label className="flex items-center mb-1 text-sm font-medium text-gray-700">
           <Info className="mr-2 text-green-500" size={16} />

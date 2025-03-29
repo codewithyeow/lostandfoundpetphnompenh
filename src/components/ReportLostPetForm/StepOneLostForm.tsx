@@ -1,27 +1,18 @@
 "use client";
-import React, { use, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { ArrowRight, Calendar, ImageIcon, X } from "lucide-react";
-import FormField from "./FormField";
+import { FormField } from "./FormField";
 import Image from "next/image";
 import { SpeciesSelector } from "./SpeciesSelector";
-import { getBreedsBySpecies, getCondition } from "@server/actions/animal-action";
+import {
+  getBreedsBySpecies,
+  getCondition,
+} from "@server/actions/animal-action";
 import { getSize } from "@server/actions/animal-action";
-
-interface PetFormData {
-  petName: string;
-  species: string;
-  breed: string;
-  color: string;
-  gender: string;
-  size: string;
-  dateFound: string;
-  images: File[];
-  petCondition: string;
-  [key: string]: any;
-}
+import { LostPetFormData } from "context/petFoundType";
 
 interface StepOneFormProps {
-  formData: PetFormData;
+  formData: LostPetFormData;
   onInputChange: (
     e: React.ChangeEvent<
       HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
@@ -32,6 +23,7 @@ interface StepOneFormProps {
   onImageRemove: (index: number) => void;
   onNextStep: () => void;
 }
+
 const StepOneLostForm = ({
   formData,
   onInputChange,
@@ -42,125 +34,123 @@ const StepOneLostForm = ({
   speciesOptions,
 }) => {
   const [breeds, setBreeds] = useState<any[]>([]);
-    const [sizes, setSizes] = useState<any[]>([]);
-    const [conditionOptions, setConditionOptions] = useState<any[]>([]);
-  
-    // Fetch conditions
-    useEffect(() => {
-      const fetchCondition = async () => {
-        try {
-          const response = await getCondition();
-          if (response.success && response.result) {
-            const options = Object.entries(response.result).map(([id, name]) => ({
-              id: parseInt(id), // Parse the ID to an integer
-              name,
-            }));
-            setConditionOptions(options);
-            console.log('Fetched conditions:', response.result);
-          }
-        } catch (error) {
-          console.error('Failed to fetch conditions:', error);
+  const [sizes, setSizes] = useState<any[]>([]);
+  const [conditionOptions, setConditionOptions] = useState<any[]>([]);
+
+  // Fetch conditions
+  useEffect(() => {
+    const fetchCondition = async () => {
+      try {
+        const response = await getCondition();
+        if (response.success && response.result) {
+          const options = Object.entries(response.result).map(([id, name]) => ({
+            id: parseInt(id),
+            name,
+          }));
+          setConditionOptions(options);
+          console.log("Fetched conditions:", response.result);
         }
-      };
-  
-      fetchCondition();
-    }, []);
-  
-    useEffect(() => {
-      const fetchSizes = async () => {
-        try {
-          const response = await getSize();
-          if (response.success && response.result) {
-            setSizes(
-              Object.entries(response.result).map(([key, value]) => ({
-                key: parseInt(key),
-                value,
-              }))
-            );
-            console.log("Fetched sizes:", response.result);
-          }
-        } catch (error) {
-          console.error("Failed to fetch sizes:", error);
+      } catch (error) {
+        console.error("Failed to fetch conditions:", error);
+      }
+    };
+
+    fetchCondition();
+  }, []);
+
+  useEffect(() => {
+    const fetchSizes = async () => {
+      try {
+        const response = await getSize();
+        if (response.success && response.result) {
+          setSizes(
+            Object.entries(response.result).map(([key, value]) => ({
+              key: parseInt(key),
+              value,
+            }))
+          );
+          console.log("Fetched sizes:", response.result);
         }
-      };
-  
-      fetchSizes();
-    }, []);
-  
-  
-    // Fetch breeds when species changes
-    useEffect(() => {
-      const fetchBreeds = async () => {
-        if (formData.species) {
-          try {
-            const response = await getBreedsBySpecies(formData.species);
-            if (response.success && response.result) {
-              setBreeds(response.result);
-              // Automatically select the first breed if none is selected
-              if (response.result.length > 0 && !formData.breed_id) {
-                setFormData((prev) => ({
-                  ...prev,
-                  breed_id: response.result[0].id,
-                }));
-              }
-            } else {
-              setBreeds([]);
+      } catch (error) {
+        console.error("Failed to fetch sizes:", error);
+      }
+    };
+
+    fetchSizes();
+  }, []);
+
+  useEffect(() => {
+    const fetchBreeds = async () => {
+      if (formData.species) {
+        try {
+          const response = await getBreedsBySpecies(formData.species);
+          if (response.success && response.result) {
+            setBreeds(response.result);
+            if (response.result.length > 0 && !formData.breed_id) {
+              setFormData((prev) => ({
+                ...prev,
+                breed_id: response.result[0].id,
+              }));
             }
-          } catch (error) {
-            console.error("Failed to fetch breeds:", error);
+          } else {
             setBreeds([]);
           }
-        } else {
+        } catch (error) {
+          console.error("Failed to fetch breeds:", error);
           setBreeds([]);
         }
-      };
-  
-      fetchBreeds();
-    }, [formData.species]);
-  
-    const handleInputChange = (e) => {
-      const { name, value } = e.target;
-      if (name === 'sex') {
-        // Convert sex to number here
-        setFormData(prev => ({
-          ...prev,
-          sex: value === 'Male' ? 1 : 2,
-        }));
       } else {
-        setFormData(prev => ({
-          ...prev,
-          [name]: value,
-        }));
+        setBreeds([]);
       }
     };
-  
-    const handleConditionChange = (e) => {
+
+    fetchBreeds();
+  }, [formData.species]);
+
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    if (name === "sex") {
       setFormData((prev) => ({
         ...prev,
-        condition: parseInt(e.target.value), 
+        sex: value === "Male" ? 1 : 2,
       }));
-    };
-    const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
-      const files = event.target.files;
-      if (files && files.length > 0) {
-        setFormData((prev) => ({
-          ...prev,
-          image_file: files[0], // Store the first selected file
-        }));
-      } else {
-        setFormData((prev) => ({
-          ...prev,
-          image_file: null, // If no files, set image_file to null
-        }));
-      }
-    };
-  
-    const handleRemoveImage = () => {
+    } else if (name === "reward") {
+      // Ensure reward is stored as a number and remove any non-numeric characters except decimal
+      const numericValue = value.replace(/[^0-9.]/g, '');
       setFormData((prev) => ({
         ...prev,
-        image_file: null, // Set image_file to null to remove the image
+        reward: numericValue === '' ? '' : Number(numericValue),
       }));
-    };
+    } else {
+      setFormData((prev) => ({
+        ...prev,
+        [name]: value,
+      }));
+    }
+  };
+
+  const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const files = event.target.files;
+    if (files && files.length > 0) {
+      setFormData((prev) => ({
+        ...prev,
+        image_file: files[0],
+      }));
+    } else {
+      setFormData((prev) => ({
+        ...prev,
+        image_file: null,
+      }));
+    }
+  };
+
+  const handleRemoveImage = () => {
+    setFormData((prev) => ({
+      ...prev,
+      image_file: null,
+    }));
+  };
+
   return (
     <div className="space-y-3">
       <div className="flex flex-col md:flex-row gap-4">
@@ -171,15 +161,13 @@ const StepOneLostForm = ({
           </label>
           <input
             type="text"
-            name="petName"
-            value={formData.petName}
+            name="animal_name"
+            value={formData.animal_name}
             onChange={handleInputChange}
             placeholder="Enter pet name"
             className="w-full p-2 border rounded-md focus:ring-green-500 focus:border-green-500"
           />
         </div>
-
-        {/* Replace species section with SpeciesSelector */}
         <div className="w-full md:w-1/2">
           <SpeciesSelector
             selectedSpecies={formData.species}
@@ -193,29 +181,37 @@ const StepOneLostForm = ({
 
       <div className="flex flex-col md:flex-row gap-4">
         <div className="w-full">
-          <FormField label="Breed (Optional)" name={""}>
+          <FormField label="Breed" required={!!formData.species}>
             {breeds.length > 0 ? (
               <select
-                name="breed"
-                value={formData.breed}
+                name="breed_id"
+                value={formData.breed_id}
                 onChange={onInputChange}
+                required={!!formData.species}
                 className="w-full p-2 border rounded-md focus:ring-green-500 focus:border-green-500"
               >
                 <option value="">Select breed</option>
                 {breeds.map((breed) => (
-                  <option key={breed.id} value={breed.name_en}>
+                  <option key={breed.id} value={breed.id}>
                     {breed.name_en}
                   </option>
                 ))}
               </select>
-            ) : (
+            ) : formData.species ? (
               <select
-                name="breed"
-                value={formData.breed}
+                name="breed_id"
                 className="w-full p-2 border rounded-md focus:ring-green-500 focus:border-green-500"
                 disabled
               >
-                <option value="">No breeds available</option>
+                <option value="">Loading breeds...</option>
+              </select>
+            ) : (
+              <select
+                name="breed_id"
+                className="w-full p-2 border rounded-md focus:ring-green-500 focus:border-green-500"
+                disabled
+              >
+                <option value="">Select species first</option>
               </select>
             )}
           </FormField>
@@ -245,9 +241,9 @@ const StepOneLostForm = ({
             <label className="flex items-center">
               <input
                 type="radio"
-                name="gender"
+                name="sex"
                 value="Male"
-                checked={formData.gender === "Male"}
+                checked={formData.sex === 1}
                 onChange={handleInputChange}
                 className="mr-2 text-green-500"
               />
@@ -256,9 +252,9 @@ const StepOneLostForm = ({
             <label className="flex items-center">
               <input
                 type="radio"
-                name="gender"
+                name="sex"
                 value="Female"
-                checked={formData.gender === "Female"}
+                checked={formData.sex === 2}
                 onChange={handleInputChange}
                 className="mr-2 text-green-500"
               />
@@ -272,18 +268,18 @@ const StepOneLostForm = ({
             Size (Optional)
           </label>
           <select
-          name="size"
-          value={formData.size}
-          onChange={handleInputChange}
-          className="w-full p-2 border rounded-md focus:ring-green-500 focus:border-green-500"
-        >
-          <option value="">Select size</option>
-          {sizes.map((sizeOption) => (
-            <option key={sizeOption.key} value={sizeOption.key}>
-              {sizeOption.value}
-            </option>
-          ))}
-        </select>
+            name="size"
+            value={formData.size}
+            onChange={handleInputChange}
+            className="w-full p-2 border rounded-md focus:ring-green-500 focus:border-green-500"
+          >
+            <option value="">Select size</option>
+            {sizes.map((sizeOption) => (
+              <option key={sizeOption.key} value={sizeOption.key}>
+                {sizeOption.value}
+              </option>
+            ))}
+          </select>
         </div>
       </div>
 
@@ -295,50 +291,65 @@ const StepOneLostForm = ({
         </label>
         <input
           type="date"
-          name="dateLost"
-          value={formData.dateLost}
+          name="date_lost"
+          value={formData.date_lost}
           onChange={handleInputChange}
           className="w-full p-2 border rounded-md focus:ring-green-500 focus:border-green-500"
         />
       </div>
 
       <div>
-             <label className="flex items-center mb-1 text-sm font-medium text-gray-700">
-               <ImageIcon className="mr-2 text-green-500" size={16} />
-               Upload Pet Image
-             </label>
-             <input
-               type="file"
-               accept="image/*"
-               onChange={handleImageUpload} // Removed 'multiple'
-               className="w-full p-2 border rounded-md file:mr-4 file:rounded-md file:border-0 file:bg-green-100 file:px-3 file:py-1 file:text-green-500"
-             />
-     
-             {formData.image_file && ( // Check if image_file exists
-               <div className="mt-2">
-                 <p className="text-sm text-gray-600 mb-2">
-                   1 image uploaded
-                 </p>
-                 <div className="relative group">
-                   <div className="h-32 relative rounded-md overflow-hidden">
-                     <Image
-                       src={URL.createObjectURL(formData.image_file)}
-                       alt="Pet image"
-                       layout="fill"
-                       objectFit="cover"
-                       className="rounded-md"
-                     />
-                   </div>
-                   <button
-                     type="button"
-                     onClick={handleRemoveImage}
-                     className="absolute top-1 right-1 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
-                   >
-                     <X size={16} />
-                   </button>
-                 </div>
-               </div>
-             )}
+        <label className="flex items-center mb-1 text-sm font-medium text-gray-700">
+          Reward (Optional)
+        </label>
+        <div className="relative">
+          <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500">$</span>
+          <input
+            type="text"
+            name="reward"
+            value={formData.reward || ''}
+            onChange={handleInputChange}
+            placeholder="Enter reward amount"
+            className="w-full p-2 pl-8 border rounded-md focus:ring-green-500 focus:border-green-500"
+          />
+        </div>
+      </div>
+
+      <div>
+        <label className="flex items-center mb-1 text-sm font-medium text-gray-700">
+          <ImageIcon className="mr-2 text-green-500" size={16} />
+          Upload Pet Image
+        </label>
+        <input
+          type="file"
+          accept="image/*"
+          onChange={handleImageUpload}
+          className="w-full p-2 border rounded-md file:mr-4 file:rounded-md file:border-0 file:bg-green-100 file:px-3 file:py-1 file:text-green-500"
+        />
+
+        {formData.image_file && (
+          <div className="mt-2">
+            <p className="text-sm text-gray-600 mb-2">1 image uploaded</p>
+            <div className="relative group">
+              <div className="h-32 relative rounded-md overflow-hidden">
+                <Image
+                  src={URL.createObjectURL(formData.image_file)}
+                  alt="Pet image"
+                  layout="fill"
+                  objectFit="cover"
+                  className="rounded-md"
+                />
+              </div>
+              <button
+                type="button"
+                onClick={handleRemoveImage}
+                className="absolute top-1 right-1 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
+              >
+                <X size={16} />
+              </button>
+            </div>
+          </div>
+        )}
       </div>
 
       <div className="flex justify-center mt-4">
