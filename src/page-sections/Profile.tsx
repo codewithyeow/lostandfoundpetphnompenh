@@ -8,13 +8,9 @@ import {
   CardTitle,
   CardDescription,
 } from "../components/ui/card";
-import {
-  Tabs,
-  TabsList,
-  TabsTrigger,
-  TabsContent,
-} from "@/components/ui/tabs";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Badge } from "../components/ui/badge";
+import { useRouter } from "next/navigation";
 import {
   Pagination,
   PaginationContent,
@@ -34,38 +30,67 @@ import {
   User,
   AlertTriangle,
   BookmarkPlus,
+  X,
 } from "lucide-react";
-import { fetchMyPet } from "@server/actions/animal-action";
+import {
+  fetchMyPet,
+  fetchMyFavorite,
+  removeFromFavorite,
+} from "@server/actions/animal-action";
 import ProfileSection from "../page-sections/ProfileSection";
-import {editReportLostPet } from "@server/actions/animal-action";
-import {EditReportLostParams} from "../context/petFoundType";
 
 interface PetReport {
-  id: number;
+  id: number; // report_id or unique identifier for UI
+  animal_id: number; // The ID used for favorites (e.g., pivot.model_id or id from API)
+  report_id: string;
   name: string;
   description: string;
   image: string;
   badgeType: "Lost" | "Found";
+  report_type: string; // "1" for Lost, "2" for Found
   location: string;
   date: string;
   status: "Active" | "Reunited";
   reward?: string;
+  breed_id: string;
+  species: string;
+  sex: string;
+  size: string;
+  distinguishing_features: string;
+  date_lost: string;
+  nearest_address_last_seen: string;
+  additional_details: string;
+  owner_name: string;
+  contact_email: string;
+  phone_number: string;
 }
 
-// New PetCard Component
-const PetCard: React.FC<{ pet: PetReport; type?: "wishlist"; onEdit: (id: number) => void; onMarkAsReunited?: (id: number) => void; onRemoveFromWishlist?: (id: number) => void }> = ({
+const PetCard: React.FC<{
+  pet: PetReport;
+  type?: "wishlist";
+  onEdit: (pet: PetReport) => void;
+  onDetail: (pet: PetReport) => void;
+  onMarkAsReunited?: (id: number) => void;
+  onRemoveFromWishlist?: (animal_id: number) => void;
+}> = ({
   pet,
   type,
   onEdit,
+  onDetail,
   onMarkAsReunited,
   onRemoveFromWishlist,
 }) => {
   const [imageSrc, setImageSrc] = useState(pet.image);
 
+  const handleImageClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    onDetail(pet);
+  };
+
   return (
     <Card
-      key={pet.id}
-      className={`relative bg-white shadow-md rounded-xl overflow-hidden w-full transition-all duration-300 ${
+      key={pet.report_id}
+      className={`relative bg-white shadow-md rounded-xl overflow-hidden w-full transition-all duration-300 hover:shadow-lg ${
         pet.status === "Reunited" ? "opacity-75" : ""
       }`}
     >
@@ -83,7 +108,10 @@ const PetCard: React.FC<{ pet: PetReport; type?: "wishlist"; onEdit: (id: number
         {pet.status === "Reunited" ? "Reunited" : pet.badgeType}
       </Badge>
       <CardContent className="p-0">
-        <div className="relative w-full h-40 sm:h-48 overflow-hidden">
+        <div
+          className="relative w-full h-40 sm:h-48 overflow-hidden cursor-pointer"
+          onClick={handleImageClick}
+        >
           <Image
             src={imageSrc}
             alt={pet.name}
@@ -106,7 +134,10 @@ const PetCard: React.FC<{ pet: PetReport; type?: "wishlist"; onEdit: (id: number
           <CardTitle className="text-lg font-bold mb-1 flex items-center justify-between">
             <span>{pet.name}</span>
             <button
-              onClick={() => onEdit(pet.id)}
+              onClick={(e) => {
+                e.stopPropagation();
+                onEdit(pet);
+              }}
               className="p-1 text-gray-400 hover:text-[#4eb7f0] transition-colors"
             >
               <MoreHorizontal size={16} />
@@ -133,7 +164,10 @@ const PetCard: React.FC<{ pet: PetReport; type?: "wishlist"; onEdit: (id: number
           <div className="flex items-center gap-2">
             {type === "wishlist" ? (
               <button
-                onClick={() => onRemoveFromWishlist?.(pet.id)}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onRemoveFromWishlist?.(pet.animal_id);
+                }}
                 className="flex-1 flex items-center justify-center gap-1 py-2 text-sm font-medium rounded-full bg-red-500 text-white hover:bg-red-600 transition-all duration-200"
               >
                 <Heart size={14} />
@@ -142,7 +176,10 @@ const PetCard: React.FC<{ pet: PetReport; type?: "wishlist"; onEdit: (id: number
             ) : (
               <>
                 <button
-                  onClick={() => onMarkAsReunited?.(pet.id)}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onMarkAsReunited?.(pet.id);
+                  }}
                   className={`flex-1 flex items-center justify-center gap-1 py-2 text-sm font-medium rounded-full transition-all duration-200 ${
                     pet.status === "Reunited"
                       ? "bg-gray-100 text-gray-500 hover:bg-gray-200"
@@ -150,10 +187,15 @@ const PetCard: React.FC<{ pet: PetReport; type?: "wishlist"; onEdit: (id: number
                   }`}
                 >
                   <RefreshCw size={14} />
-                  {pet.status === "Reunited" ? "Mark as Active" : "Mark as Reunited"}
+                  {pet.status === "Reunited"
+                    ? "Mark as Active"
+                    : "Mark as Reunited"}
                 </button>
                 <button
-                  onClick={() => onEdit(pet.id)}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onEdit(pet);
+                  }}
                   className="p-2 border border-gray-200 rounded-full text-[#4eb7f0] hover:bg-[#4eb7f0] hover:text-white hover:border-[#4eb7f0] transition-colors duration-200"
                 >
                   <Edit size={16} />
@@ -179,6 +221,7 @@ export default function DashboardProfile() {
   const [currentPageWishlist, setCurrentPageWishlist] = useState(1);
   const [totalPagesWishlist, setTotalPagesWishlist] = useState(1);
 
+  const router = useRouter();
 
   useEffect(() => {
     const fetchPetReports = async () => {
@@ -186,29 +229,45 @@ export default function DashboardProfile() {
         setLoadingPets(true);
         const response = await fetchMyPet();
         const pets = response.success
-          ? (response.result ?? []).map((pet, index) => {
-              const imagePath = pet.image.startsWith('/')
-                ? pet.image
-                : `/${pet.image}`;
-              const imageUrl = pet.image
-                ? `${process.env.NEXT_PUBLIC_API_BASE_URL}/storage${imagePath}`
-                : "/assets/default-pet.jpg";
-              console.log(`Pet ${pet.name_en} image URL:`, imageUrl);
-              return {
-                id: index + 1,
-                name: pet.name_en,
-                description: pet.desc || "No description provided",
-                image: imageUrl,
-                badgeType: (pet.report_type === 1 ? "Lost" : "Found") as "Lost" | "Found",
-                location: "",
-                date: new Date(pet.report_date).toLocaleDateString("en-US", {
-                  month: "short",
-                  day: "numeric",
-                  year: "numeric",
-                }),
-                status: (pet.animal_status === 1 ? "Active" : "Reunited") as "Active" | "Reunited",
-              };
-            })
+          ? (response.result ?? []).map((pet, index) => ({
+              id: pet.report_id ? Number(pet.report_id) : index + 1,
+              animal_id: pet.id ? Number(pet.id) : index + 1, // Use id from API as animal_id
+              report_id: pet.report_id || `temp-${index + 1}`,
+              name: pet.name_en || "Unnamed Pet",
+              description: pet.desc || "No description provided",
+              image: pet.image
+                ? `${process.env.NEXT_PUBLIC_API_BASE_URL}/storage${
+                    pet.image.startsWith("/") ? pet.image : `/${pet.image}`
+                  }`
+                : "/assets/default-pet.jpg",
+              badgeType: (pet.report_type === 1 ? "Lost" : "Found") as
+                | "Lost"
+                | "Found",
+              report_type: pet.report_type?.toString() || "1",
+              location: pet.location || "",
+              date: pet.report_date
+                ? new Date(pet.report_date).toLocaleDateString("en-US", {
+                    month: "short",
+                    day: "numeric",
+                    year: "numeric",
+                  })
+                : "N/A",
+              status: (pet.animal_status === 1 ? "Active" : "Reunited") as
+                | "Active"
+                | "Reunited",
+              reward: pet.reward || undefined,
+              breed_id: pet.breed_id?.toString() || "",
+              species: pet.species?.toString() || "",
+              sex: pet.sex?.toString() || "",
+              size: pet.size?.toString() || "",
+              distinguishing_features: pet.distinguishing_features || "",
+              date_lost: pet.date_lost || "",
+              nearest_address_last_seen: pet.nearest_address_last_seen || "",
+              additional_details: pet.additional_details || "",
+              owner_name: pet.owner_name || "",
+              contact_email: pet.contact_email || "",
+              phone_number: pet.phone_number || "",
+            }))
           : [];
         setMyPets(pets);
         setTotalPagesPets(Math.ceil(pets.length / petsPerPage));
@@ -218,33 +277,67 @@ export default function DashboardProfile() {
         setLoadingPets(false);
       }
     };
-    fetchPetReports();
-  }, []);
 
-  useEffect(() => {
     const fetchWishlist = async () => {
       try {
         setLoadingWishlist(true);
-        const mockWishlist: PetReport[] = [
-          { id: 1, name: "Buddy", description: "A friendly golden retriever found wandering.", image: "/assets/default-pet.jpg", badgeType: "Found", location: "Central Park", date: "Mar 15, 2025", status: "Active" },
-          { id: 2, name: "Luna", description: "Lost tabby cat, very shy.", image: "/assets/default-pet.jpg", badgeType: "Lost", location: "Downtown", date: "Mar 20, 2025", status: "Active", reward: "50" },
-          { id: 3, name: "Max", description: "Found husky", image: "/assets/default-pet.jpg", badgeType: "Found", location: "Suburbs", date: "Mar 22, 2025", status: "Active" },
-          { id: 4, name: "Bella", description: "Lost poodle", image: "/assets/default-pet.jpg", badgeType: "Lost", location: "City Center", date: "Mar 23, 2025", status: "Active" },
-          { id: 5, name: "Charlie", description: "Found beagle", image: "/assets/default-pet.jpg", badgeType: "Found", location: "Riverside", date: "Mar 24, 2025", status: "Active" },
-          { id: 6, name: "Daisy", description: "Lost siamese", image: "/assets/default-pet.jpg", badgeType: "Lost", location: "Uptown", date: "Mar 25, 2025", status: "Active" },
-          { id: 7, name: "Rocky", description: "Found boxer", image: "/assets/default-pet.jpg", badgeType: "Found", location: "East Side", date: "Mar 26, 2025", status: "Active" },
-          { id: 8, name: "Milo", description: "Lost shih tzu", image: "/assets/default-pet.jpg", badgeType: "Lost", location: "West Side", date: "Mar 27, 2025", status: "Active" },
-          { id: 9, name: "Zoe", description: "Found labrador", image: "/assets/default-pet.jpg", badgeType: "Found", location: "North End", date: "Mar 28, 2025", status: "Active" },
-          { id: 10, name: "Oliver", description: "Lost persian", image: "/assets/default-pet.jpg", badgeType: "Lost", location: "South End", date: "Mar 29, 2025", status: "Active" },
-        ];
-        setWishlist(mockWishlist);
-        setTotalPagesWishlist(Math.ceil(mockWishlist.length / petsPerPage));
+        const response = await fetchMyFavorite();
+        console.log("fetchMyFavorite response:", response);
+        const wishlistPets = response.success
+          ? (response.result ?? []).map((pet, index) => ({
+              id: pet.report_id ? Number(pet.report_id) : index + 1,
+              animal_id: pet.id
+                ? Number(pet.id)
+                : pet.pivot?.model_id
+                ? Number(pet.pivot.model_id)
+                : index + 1, // Use id or pivot.model_id
+              report_id: pet.report_id || `temp-${index + 1}`,
+              name: pet.name_en || "Unnamed Pet",
+              description: pet.desc || "No description provided",
+              image: pet.image
+                ? `${process.env.NEXT_PUBLIC_API_BASE_URL}/storage${
+                    pet.image.startsWith("/") ? pet.image : `/${pet.image}`
+                  }`
+                : "/assets/default-pet.jpg",
+              badgeType: (pet.report_type === 1 ? "Lost" : "Found") as
+                | "Lost"
+                | "Found",
+              report_type: pet.report_type?.toString() || "1",
+              location: pet.location || "",
+              date: pet.report_date
+                ? new Date(pet.report_date).toLocaleDateString("en-US", {
+                    month: "short",
+                    day: "numeric",
+                    year: "numeric",
+                  })
+                : "N/A",
+              status: (pet.status === 1 ? "Active" : "Reunited") as
+                | "Active"
+                | "Reunited", // Updated to use status
+              reward: pet.reward || undefined,
+              breed_id: pet.breed_id?.toString() || "",
+              species: pet.species?.toString() || "",
+              sex: pet.sex?.toString() || "",
+              size: pet.size?.toString() || "",
+              distinguishing_features: pet.distinguishing_features || "",
+              date_lost: pet.date_lost || "",
+              nearest_address_last_seen: pet.nearest_address_last_seen || "",
+              additional_details: pet.additional_details || "",
+              owner_name: pet.owner_name || "",
+              contact_email: pet.contact_email || "",
+              phone_number: pet.phone_number || "",
+            }))
+          : [];
+        setWishlist(wishlistPets);
+        setTotalPagesWishlist(Math.ceil(wishlistPets.length / petsPerPage));
       } catch (error) {
         console.error("Failed to fetch wishlist:", error);
       } finally {
         setLoadingWishlist(false);
       }
     };
+
+    fetchPetReports();
     fetchWishlist();
   }, []);
 
@@ -252,7 +345,10 @@ export default function DashboardProfile() {
     setMyPets((prevPets) =>
       prevPets.map((pet) =>
         pet.id === id
-          ? { ...pet, status: pet.status === "Reunited" ? "Active" : "Reunited" }
+          ? {
+              ...pet,
+              status: pet.status === "Reunited" ? "Active" : "Reunited",
+            }
           : pet
       )
     );
@@ -262,39 +358,88 @@ export default function DashboardProfile() {
     setCurrentPagePets(newPage);
   };
 
-  // Function to handle editing (this could link to an edit page or modal)
-  const handleEditReport = async (id: number) => {
-    const params: EditReportLostParams = {
-      report_id: "1",
-      report_type: "1",
-      animal_name: "new_name8",
-      breed_id: "1",
-      species: "2",
-      sex: "1",
-      size: "3",
-      distinguishing_features: "ad",
-      date_lost: "3/29/2025",
-      nearest_address_last_seen: "FA",
-      additional_details: "d",
-      owner_name: "unknown",
-      contact_email: "kim@gmail.com",
-      phone_number: "123",
-      reward: "500 $",
-    };
-  
-    const response = await editReportLostPet(params);
-    if (response.success) {
-      console.log("Report updated successfully:", response.message);
-    } else {
-      console.error("Failed to update report:", response.message, response.errors);
-    }
+  const handleEditReport = (pet: PetReport) => {
+    const editPath =
+      pet.report_type === "1"
+        ? `/pet-edit-lost/${pet.report_id}`
+        : `/pet-edit-found/${pet.report_id}`;
+    router.push(editPath);
   };
-  const removeFromWishlist = (id: number) => {
-    setWishlist((prevWishlist) => {
-      const updatedWishlist = prevWishlist.filter((pet) => pet.id !== id);
-      setTotalPagesWishlist(Math.ceil(updatedWishlist.length / petsPerPage));
-      return updatedWishlist;
-    });
+
+  const handleDetailReport = (pet: PetReport) => {
+    const detailPath =
+      pet.report_type === "1"
+        ? `/pet-detail-lost/${pet.report_id}?from=dashboard`
+        : `/pet-detail-found/${pet.report_id}?from=dashboard`;
+    router.push(detailPath);
+  };
+
+  const removeFromWishlist = async (animal_id: number) => {
+    try {
+      setLoadingWishlist(true);
+      console.log(`Attempting to remove animal_id ${animal_id} from wishlist`);
+      const response = await removeFromFavorite(animal_id);
+      if (response.success) {
+        const updatedWishlistResponse = await fetchMyFavorite();
+        console.log(
+          "Updated fetchMyFavorite response:",
+          updatedWishlistResponse
+        );
+        const updatedWishlist = updatedWishlistResponse.success
+          ? (updatedWishlistResponse.result ?? []).map((pet, index) => ({
+              id: pet.report_id ? Number(pet.report_id) : index + 1,
+              animal_id: pet.id
+                ? Number(pet.id)
+                : pet.pivot?.model_id
+                ? Number(pet.pivot.model_id)
+                : index + 1,
+              report_id: pet.report_id || `temp-${index + 1}`,
+              name: pet.name_en || "Unnamed Pet",
+              description: pet.desc || "No description provided",
+              image: pet.image
+                ? `${process.env.NEXT_PUBLIC_API_BASE_URL}/storage${
+                    pet.image.startsWith("/") ? pet.image : `/${pet.image}`
+                  }`
+                : "/assets/default-pet.jpg",
+              badgeType: (pet.report_type === 1 ? "Lost" : "Found") as
+                | "Lost"
+                | "Found",
+              report_type: pet.report_type?.toString() || "1",
+              location: pet.location || "",
+              date: pet.report_date
+                ? new Date(pet.report_date).toLocaleDateString("en-US", {
+                    month: "short",
+                    day: "numeric",
+                    year: "numeric",
+                  })
+                : "N/A",
+              status: (pet.status === 1 ? "Active" : "Reunited") as
+                | "Active"
+                | "Reunited",
+              reward: pet.reward || undefined,
+              breed_id: pet.breed_id?.toString() || "",
+              species: pet.species?.toString() || "",
+              sex: pet.sex?.toString() || "",
+              size: pet.size?.toString() || "",
+              distinguishing_features: pet.distinguishing_features || "",
+              date_lost: pet.date_lost || "",
+              nearest_address_last_seen: pet.nearest_address_last_seen || "",
+              additional_details: pet.additional_details || "",
+              owner_name: pet.owner_name || "",
+              contact_email: pet.contact_email || "",
+              phone_number: pet.phone_number || "",
+            }))
+          : [];
+        setWishlist(updatedWishlist);
+        setTotalPagesWishlist(Math.ceil(updatedWishlist.length / petsPerPage));
+      } else {
+        console.error("Failed to remove from wishlist:", response.message);
+      }
+    } catch (error) {
+      console.error("Error removing from wishlist:", error);
+    } finally {
+      setLoadingWishlist(false);
+    }
   };
 
   const handlePageChangeWishlist = (newPage: number) => {
@@ -307,7 +452,10 @@ export default function DashboardProfile() {
 
   const indexOfLastWishlist = currentPageWishlist * petsPerPage;
   const indexOfFirstWishlist = indexOfLastWishlist - petsPerPage;
-  const currentWishlist = wishlist.slice(indexOfFirstWishlist, indexOfLastWishlist);
+  const currentWishlist = wishlist.slice(
+    indexOfFirstWishlist,
+    indexOfLastWishlist
+  );
 
   return (
     <section className="w-full bg-[#EFEEF1] px-4 md:px-8 lg:px-12 py-10">
@@ -373,6 +521,7 @@ export default function DashboardProfile() {
                     key={pet.id}
                     pet={pet}
                     onEdit={handleEditReport}
+                    onDetail={handleDetailReport}
                     onMarkAsReunited={markAsReunited}
                   />
                 ))
@@ -394,7 +543,9 @@ export default function DashboardProfile() {
                         handlePageChangePets(currentPagePets - 1);
                     }}
                     className={`${
-                      currentPagePets === 1 ? "opacity-50 cursor-not-allowed" : ""
+                      currentPagePets === 1
+                        ? "opacity-50 cursor-not-allowed"
+                        : ""
                     }`}
                   />
                   <PaginationContent>
@@ -454,6 +605,7 @@ export default function DashboardProfile() {
                     pet={pet}
                     type="wishlist"
                     onEdit={handleEditReport}
+                    onDetail={handleDetailReport}
                     onRemoveFromWishlist={removeFromWishlist}
                   />
                 ))
@@ -465,9 +617,16 @@ export default function DashboardProfile() {
                   <h3 className="text-xl font-medium text-gray-700 mb-2">
                     Your Wishlist is Empty
                   </h3>
-                  <p className="text-gray-500 max-w-md">
-                    Save pet listings to your wishlist to keep track of pets you're interested in helping.
+                  <p className="text-gray-500 max-w-md mb-6">
+                    Save pet listings to your wishlist to keep track of pets
+                    you're interested in helping.
                   </p>
+                  <button
+                    onClick={() => router.push("/")}
+                    className="px-6 py-3 bg-[#4eb7f0] text-white font-medium rounded-full hover:bg-[#3ea0d8] transition-colors duration-200"
+                  >
+                    Browse Pet Listings
+                  </button>
                 </div>
               )}
             </div>
@@ -480,7 +639,9 @@ export default function DashboardProfile() {
                         handlePageChangeWishlist(currentPageWishlist - 1);
                     }}
                     className={`${
-                      currentPageWishlist === 1 ? "opacity-50 cursor-not-allowed" : ""
+                      currentPageWishlist === 1
+                        ? "opacity-50 cursor-not-allowed"
+                        : ""
                     }`}
                   />
                   <PaginationContent>
@@ -497,7 +658,9 @@ export default function DashboardProfile() {
                   </PaginationContent>
                   {currentPageWishlist < totalPagesWishlist && (
                     <PaginationNext
-                      onClick={() => handlePageChangeWishlist(currentPageWishlist + 1)}
+                      onClick={() =>
+                        handlePageChangeWishlist(currentPageWishlist + 1)
+                      }
                     />
                   )}
                 </Pagination>

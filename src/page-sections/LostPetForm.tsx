@@ -24,7 +24,7 @@ import {
 import { GoogleMap, Marker, useJsApiLoader } from "@react-google-maps/api";
 import useGoogleMap from "../hook/useGoogleMap";
 import {
-  CreaterReportLostPetAction, // Changed from CreaterReportFoundPetAction
+  CreaterReportLostPetAction,
   getBreedsBySpecies,
   getSpecies,
   getCondition,
@@ -32,7 +32,7 @@ import {
 import { FormField } from "@component/found-pet-form/FormField";
 import { SpeciesSelector } from "@component/ReportLostPetForm/SpeciesSelector";
 import { toast } from "react-toastify";
-import StepOneLostForm from "@component/ReportLostPetForm/StepOneLostForm"; // Changed to Lost version
+import StepOneLostForm from "@component/ReportLostPetForm/StepOneLostForm";
 
 export interface LostPetFormData {
   animal_name: string;
@@ -96,7 +96,7 @@ export default function ReportLostPetForm() {
     contact_email: "",
     phone_number: "",
     reward: "",
-    desc: "",
+    desc: "", // Already present, no change needed here
   });
 
   const handleInputChange = (
@@ -203,7 +203,7 @@ export default function ReportLostPetForm() {
 
       setIsSubmitting(true);
 
-      const response = await CreaterReportLostPetAction(submissionData); 
+      const response = await CreaterReportLostPetAction(submissionData);
       console.log("response from api", response);
 
       if (response.success) {
@@ -233,13 +233,13 @@ export default function ReportLostPetForm() {
       case 1:
         return (
           <StepOneLostForm
-          formData={formData}
-          setFormData={setFormData}
-          onInputChange={handleInputChange}
-          nextStep={nextStep}
-          speciesOptions={speciesOptions}
-          onSpeciesChange={undefined}
-          onImageUpload={undefined}
+            formData={formData}
+            setFormData={setFormData}
+            onInputChange={handleInputChange}
+            nextStep={nextStep}
+            speciesOptions={speciesOptions}
+            onSpeciesChange={undefined}
+            onImageUpload={undefined}
           />
         );
 
@@ -288,6 +288,21 @@ export default function ReportLostPetForm() {
                   value={formData.distinguishing_features}
                   onChange={handleInputChange}
                   placeholder="Enter any distinguishing features, collar, tags, or microchip info"
+                  className="w-full p-2 border rounded-md focus:ring-green-500 focus:border-green-500"
+                  rows={3}
+                />
+              </div>
+
+              <div>
+                <label className="flex items-center mb-1 text-sm font-medium text-gray-700">
+                  <Info className="mr-2 text-green-500" size={16} />
+                  Description (Optional)
+                </label>
+                <textarea
+                  name="desc"
+                  value={formData.desc}
+                  onChange={handleInputChange}
+                  placeholder="Provide a general description of the pet (e.g., behavior, appearance, any notable traits)"
                   className="w-full p-2 border rounded-md focus:ring-green-500 focus:border-green-500"
                   rows={3}
                 />
@@ -399,6 +414,12 @@ export default function ReportLostPetForm() {
                   {formData.nearest_address_last_seen || "Not provided"}
                 </span>
               </div>
+              {formData.desc && (
+                <div className="flex justify-between">
+                  <span className="font-medium text-sm">Description:</span>
+                  <span className="text-sm">{formData.desc}</span>
+                </div>
+              )}
               {formData.reward && (
                 <div className="flex justify-between">
                   <span className="font-medium text-sm">Reward:</span>
@@ -419,7 +440,9 @@ export default function ReportLostPetForm() {
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className="flex items-center justify-center text-white bg-[#4eb7f0] font-medium text-sm py-2 px-4 rounded-full hover:bg-blue-600 transition-colors duration-200 disabled:bg-gray-400"
+                className={`flex items-center justify-center text-white bg-[#4eb7f0] font-medium text-sm py-2 px-4 rounded-full hover:bg-blue-600 transition-colors duration-200 ${
+                  isSubmitting ? "opacity-50 cursor-not-allowed" : ""
+                }`}
               >
                 {isSubmitting ? "Submitting..." : "Report Lost Pet"}
               </button>

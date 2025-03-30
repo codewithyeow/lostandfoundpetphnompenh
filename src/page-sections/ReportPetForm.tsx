@@ -77,9 +77,10 @@ export default function ReportFoundPetForm() {
     your_name: "",
     contact_email: "",
     phone_number: "",
-    desc: "",
+    desc: "", // Already present, no change needed here
     location_coordinates: { lat: 0, lng: 0 },
   });
+
   const handleInputChange = (
     e: React.ChangeEvent<
       HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
@@ -91,7 +92,7 @@ export default function ReportFoundPetForm() {
       [name]: value,
     }));
   };
-  // In your ReportFoundPetForm component
+
   const [speciesData, setSpeciesData] = useState<Record<string, string>>({});
   const [breedOptions, setBreedOptions] = useState<Record<string, string>>({});
 
@@ -114,6 +115,7 @@ export default function ReportFoundPetForm() {
     };
     fetchBreeds();
   }, [formData.species]);
+
   const nextStep = () => {
     setCurrentStep((prev) => Math.min(prev + 1, 3));
   };
@@ -285,6 +287,21 @@ export default function ReportFoundPetForm() {
                   rows={3}
                 />
               </div>
+
+              <div>
+                <label className="flex items-center mb-1 text-sm font-medium text-gray-700">
+                  <Info className="mr-2 text-green-500" size={16} />
+                  Description (Optional)
+                </label>
+                <textarea
+                  name="desc"
+                  value={formData.desc}
+                  onChange={handleInputChange}
+                  placeholder="Provide a general description of the pet (e.g., behavior, appearance, any notable traits)"
+                  className="w-full p-2 border rounded-md focus:ring-green-500 focus:border-green-500"
+                  rows={3}
+                />
+              </div>
             </div>
 
             <div className="flex justify-between mt-4 gap-3">
@@ -389,9 +406,15 @@ export default function ReportFoundPetForm() {
               <div className="flex justify-between">
                 <span className="font-medium text-sm">Location:</span>
                 <span className="text-sm">
-                  {formData.additional_location_details || "Not provided"}
+                  {formData.where_pet_was_found || "Not provided"}
                 </span>
               </div>
+              {formData.desc && (
+                <div className="flex justify-between">
+                  <span className="font-medium text-sm">Description:</span>
+                  <span className="text-sm">{formData.desc}</span>
+                </div>
+              )}
               {formData.condition && (
                 <div className="flex justify-between">
                   <span className="font-medium text-sm">Pet Condition:</span>
@@ -411,9 +434,12 @@ export default function ReportFoundPetForm() {
               </button>
               <button
                 type="submit"
-                className="flex items-center justify-center text-white bg-[#4eb7f0] font-medium text-sm py-2 px-4 rounded-full hover:bg-blue-600 transition-colors duration-200"
+                disabled={isSubmitting}
+                className={`flex items-center justify-center text-white bg-[#4eb7f0] font-medium text-sm py-2 px-4 rounded-full hover:bg-blue-600 transition-colors duration-200 ${
+                  isSubmitting ? "opacity-50 cursor-not-allowed" : ""
+                }`}
               >
-                Report Found Pet
+                {isSubmitting ? "Submitting..." : "Report Found Pet"}
               </button>
             </div>
           </div>
@@ -431,7 +457,7 @@ export default function ReportFoundPetForm() {
           Report a Found Pet
         </h2>
         <p className="text-center text-gray-600">
-          Let's help bring your pet home
+          Let's help bring this pet home
         </p>
       </div>
 

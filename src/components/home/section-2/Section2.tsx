@@ -1,4 +1,5 @@
 "use client";
+
 import React, { useState, useEffect, useRef } from "react";
 import {
   Card,
@@ -11,34 +12,64 @@ import { Badge } from "../../../components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Heart, MapPin, Calendar, Info } from "lucide-react";
 import Link from "next/link";
-import { fetchMyPet, fetchAllReport } from "@server/actions/animal-action";
+import { fetchMyPet, fetchAllReport, addToFavorite, fetchMyFavorite, removeFromFavorite } from "@server/actions/animal-action";
 
 interface PetReport {
   id: number;
+  animal_id: number;
+  report_id: string;
   name: string;
   description: string;
   image: string;
   badgeType: "Lost" | "Found";
+  report_type: string; // "1" for Lost, "2" for Found
   location: string;
   date: string;
   status: "Active" | "Reunited";
   reward?: string;
+  breed_id: string;
+  species: string;
+  sex: string;
+  size: string;
+  distinguishing_features: string;
+  date_lost?: string;
+  nearest_address_last_seen?: string;
+  date_found?: string;
+  where_pet_was_found?: string;
+  condition?: string;
+  additional_details?: string;
+  owner_name: string;
+  contact_email: string;
+  phone_number: string;
 }
 
 export default function Section2() {
   const [loading, setLoading] = useState(true);
   const [favorites, setFavorites] = useState<number[]>([]);
   const [petData, setPetData] = useState<PetReport[]>([]);
-  const [imageSources, setImageSources] = useState<{ [key: number]: string }>({}); // Track image sources
-  const hasFetched = useRef(false); // Prevent multiple fetches
-  const mountCount = useRef(0); // Debug mounts
+  const [imageSources, setImageSources] = useState<{ [key: number]: string }>({});
+  const hasFetched = useRef(false);
 
-  // Fetch combined pet data
-  const fetchPetData = async () => {
-    if (hasFetched.current) {
-      console.log("fetchPetData skipped - already fetched");
-      return;
+  // Fetch initial favorites from the server
+  const fetchFavorites = async () => {
+    try {
+      const response = await fetchMyFavorite();
+      if (response.success) {
+        const favoriteIds = (response.result ?? []).map((pet) =>
+          pet.animal_id ? Number(pet.animal_id) : pet.id ? Number(pet.id) : 0
+        ).filter(id => id > 0);
+        setFavorites(favoriteIds);
+        console.log("Initial favorites loaded:", favoriteIds);
+      } else {
+        console.error("Failed to fetch favorites:", response.message);
+      }
+    } catch (error) {
+      console.error("Error fetching favorites:", error);
     }
+  };
+
+  const fetchPetData = async () => {
+    if (hasFetched.current) return;
     hasFetched.current = true;
 
     console.log("Fetching pet data...");
@@ -46,68 +77,85 @@ export default function Section2() {
     try {
       const myPetsResponse = await fetchMyPet();
       const myPets = myPetsResponse.success
-        ? (myPetsResponse.result ?? []).map((pet, index) => {
-            const imagePath = pet.image?.startsWith("/") ? pet.image : `/${pet.image}`;
-            const imageUrl = pet.image
-              ? `${process.env.NEXT_PUBLIC_API_BASE_URL}/storage${imagePath}`
-              : "/assets/default-pet.jpg";
-            console.log(`My Pet ${pet.name_en} image URL:`, imageUrl);
-            return {
-              id: pet.id || index + 1,
-              name: pet.name_en || "Unnamed Pet",
-              description: pet.desc || "No description provided",
-              image: imageUrl,
-              badgeType: (pet.report_type === 1 ? "Lost" : "Found") as "Lost" | "Found",
-              location: pet.location || "",
-              date: pet.report_date
-                ? new Date(pet.report_date).toLocaleDateString("en-US", {
-                    month: "short",
-                    day: "numeric",
-                    year: "numeric",
-                  })
-                : "N/A",
-              status: (pet.animal_status === 1 ? "Active" : "Reunited") as "Active" | "Reunited",
-            };
-          })
+        ? (myPetsResponse.result ?? []).map((pet, index) => ({
+            id: pet.report_id ? Number(pet.report_id) : index + 1,
+            animal_id: pet.animal_id ? Number(pet.animal_id) : index + 1,
+            report_id: pet.report_id || `temp-${index + 1}`,
+            name: pet.name_en || "Unnamed Pet",
+            description: pet.desc || "No description provided",
+            image: pet.image
+              ? `${process.env.NEXT_PUBLIC_API_BASE_URL}/storage${pet.image.startsWith("/") ? pet.image : `/${pet.image}`}`
+              : "/assets/default-pet.jpg",
+            badgeType: (pet.report_type === 1 ? "Lost" : "Found") as "Lost" | "Found",
+            report_type: pet.report_type?.toString() || "1",
+            location: pet.location || "",
+            date: pet.report_date
+              ? new Date(pet.report_date).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })
+              : "N/A",
+            status: (pet.animal_status === 1 ? "Active" : "Reunited") as "Active" | "Reunited",
+            reward: pet.reward || undefined,
+            breed_id: pet.breed_id?.toString() || "",
+            species: pet.species?.toString() || "",
+            sex: pet.sex?.toString() || "",
+            size: pet.size?.toString() || "",
+            distinguishing_features: pet.distinguishing_features || "",
+            date_lost: pet.date_lost || "",
+            nearest_address_last_seen: pet.nearest_address_last_seen || "",
+            date_found: pet.date_found || "",
+            where_pet_was_found: pet.where_pet_was_found || "",
+            condition: pet.condition?.toString() || "",
+            additional_details: pet.additional_details || "",
+            owner_name: pet.owner_name || "",
+            contact_email: pet.contact_email || "",
+            phone_number: pet.phone_number || "",
+          }))
         : [];
 
       const allReportsResponse = await fetchAllReport();
       const allReports = allReportsResponse.success
-        ? (allReportsResponse.result ?? []).map((pet, index) => {
-            const imagePath = pet.image?.startsWith("/") ? pet.image : `/${pet.image}`;
-            const imageUrl = pet.image
-              ? `${process.env.NEXT_PUBLIC_API_BASE_URL}/storage${imagePath}`
-              : "/assets/default-pet.jpg";
-            console.log(`Report ${pet.name_en} image URL:`, imageUrl);
-            return {
-              id: pet.id || index + myPets.length + 1,
-              name: pet.name_en || "Unnamed Pet",
-              description: pet.desc || "No description provided",
-              image: imageUrl,
-              badgeType: (pet.report_type === 1 ? "Lost" : "Found") as "Lost" | "Found",
-              location: pet.location || "",
-              date: pet.report_date
-                ? new Date(pet.report_date).toLocaleDateString("en-US", {
-                    month: "short",
-                    day: "numeric",
-                    year: "numeric",
-                  })
-                : "N/A",
-              status: (pet.animal_status === 1 ? "Active" : "Reunited") as "Active" | "Reunited",
-            };
-          })
+        ? (allReportsResponse.result ?? []).map((pet, index) => ({
+            id: pet.report_id ? Number(pet.report_id) : index + myPets.length + 1,
+            animal_id: pet.animal_id ? Number(pet.animal_id) : index + myPets.length + 1,
+            report_id: pet.report_id || `temp-${index + myPets.length + 1}`,
+            name: pet.name_en || "Unnamed Pet",
+            description: pet.desc || "No description provided",
+            image: pet.image
+              ? `${process.env.NEXT_PUBLIC_API_BASE_URL}/storage${pet.image.startsWith("/") ? pet.image : `/${pet.image}`}`
+              : "/assets/default-pet.jpg",
+            badgeType: (pet.report_type === 1 ? "Lost" : "Found") as "Lost" | "Found",
+            report_type: pet.report_type?.toString() || "1",
+            location: pet.location || "",
+            date: pet.report_date
+              ? new Date(pet.report_date).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })
+              : "N/A",
+            status: (pet.animal_status === 1 ? "Active" : "Reunited") as "Active" | "Reunited",
+            reward: pet.reward || undefined,
+            breed_id: pet.breed_id?.toString() || "",
+            species: pet.species?.toString() || "",
+            sex: pet.sex?.toString() || "",
+            size: pet.size?.toString() || "",
+            distinguishing_features: pet.distinguishing_features || "",
+            date_lost: pet.date_lost || "",
+            nearest_address_last_seen: pet.nearest_address_last_seen || "",
+            date_found: pet.date_found || "",
+            where_pet_was_found: pet.where_pet_was_found || "",
+            condition: pet.condition?.toString() || "",
+            additional_details: pet.additional_details || "",
+            owner_name: pet.owner_name || "",
+            contact_email: pet.contact_email || "",
+            phone_number: pet.phone_number || "",
+          }))
         : [];
 
       const combinedPets = [...myPets, ...allReports].reduce(
         (unique: PetReport[], pet: PetReport) =>
-          unique.some((p) => p.id === pet.id) ? unique : [...unique, pet],
+          unique.some((p) => p.report_id === pet.report_id) ? unique : [...unique, pet],
         []
       );
 
       console.log("Combined Pets:", combinedPets);
       setPetData(combinedPets);
 
-      // Initialize image sources
       const initialSources = combinedPets.reduce((acc, pet) => {
         acc[pet.id] = pet.image;
         return acc;
@@ -118,42 +166,62 @@ export default function Section2() {
       setPetData([]);
     } finally {
       setLoading(false);
-      console.log("Fetch complete, loading set to false");
     }
   };
 
   useEffect(() => {
-    mountCount.current += 1;
-    console.log(`Section2 mounted ${mountCount.current} times`);
-    console.log("useEffect triggered");
-
-    fetchPetData();
-
-    const storedFavorites = localStorage.getItem("petFavorites");
-    if (storedFavorites) {
-      console.log("Setting favorites from localStorage:", storedFavorites);
-      setFavorites(JSON.parse(storedFavorites));
-    }
-
-    return () => {
-      console.log("Section2 unmounted");
+    // Fetch favorites and pet data on mount
+    const initializeData = async () => {
+      await fetchFavorites(); // Load favorites first
+      await fetchPetData();   // Then load pet data
     };
-  }, []); // Empty dependency array
+    initializeData();
+  }, []);
 
-  const toggleFavorite = (e: React.MouseEvent, id: number) => {
+  const toggleFavorite = async (e: React.MouseEvent, id: number) => {
     e.preventDefault();
     e.stopPropagation();
 
-    const newFavorites = favorites.includes(id)
-      ? favorites.filter((itemId) => itemId !== id)
-      : [...favorites, id];
+    const pet = petData.find((p) => p.id === id);
+    console.log("Toggling favorite for pet:", {
+      id: pet?.id,
+      animal_id: pet?.animal_id,
+      report_id: pet?.report_id,
+    });
 
-    console.log("Toggling favorite for ID:", id, "New favorites:", newFavorites);
-    setFavorites(newFavorites);
-    localStorage.setItem("petFavorites", JSON.stringify(newFavorites));
+    const animalId = pet?.animal_id;
+    if (!animalId) {
+      console.error("No animal_id found for pet:", pet);
+      return;
+    }
+
+    const isFavorited = favorites.includes(animalId);
+
+    try {
+      if (isFavorited) {
+        // Remove from favorites
+        const response = await removeFromFavorite(animalId);
+        if (response.success) {
+          setFavorites((prev) => prev.filter((favId) => favId !== animalId));
+          console.log(`Pet with animal_id ${animalId} removed from favorites successfully`);
+        } else {
+          console.error("Failed to remove from favorites:", response.message);
+        }
+      } else {
+        // Add to favorites
+        const response = await addToFavorite(animalId);
+        if (response.success) {
+          setFavorites((prev) => [...prev, animalId]);
+          console.log(`Pet with animal_id ${animalId} added to favorites successfully`);
+        } else {
+          console.error("Failed to add to favorites:", response.message);
+        }
+      }
+    } catch (error) {
+      console.error(`Error ${isFavorited ? "removing from" : "adding to"} favorites:`, error);
+    }
   };
 
-  // Handle image load errors
   const handleImageError = (id: number, petName: string) => {
     console.log(`Image failed for ${petName} (ID: ${id}), switching to fallback`);
     setImageSources((prev) => ({
@@ -161,8 +229,6 @@ export default function Section2() {
       [id]: "/assets/default-pet.jpg",
     }));
   };
-
-  console.log("Section2 rendering, petData length:", petData.length);
 
   return (
     <section className="w-full bg-gradient-to-b from-[#f8f8fa] to-[#EFEEF1] px-4 md:px-8 lg:px-12 py-12">
@@ -207,7 +273,15 @@ export default function Section2() {
           </p>
         ) : (
           petData.map((pet) => (
-            <Link href={`/pet-detail/${pet.id}`} key={pet.id} passHref>
+            <Link
+              href={
+                pet.report_type === "1"
+                  ? `/pet-detail-lost/${pet.report_id}`
+                  : `/pet-detail-found/${pet.report_id}`
+              }
+              key={pet.id}
+              passHref
+            >
               <Card className="relative bg-white shadow-lg rounded-2xl overflow-hidden hover:shadow-xl transition-all duration-300 w-full group cursor-pointer">
                 <button
                   onClick={(e) => toggleFavorite(e, pet.id)}
@@ -215,18 +289,14 @@ export default function Section2() {
                 >
                   <Heart
                     size={20}
-                    className={favorites.includes(pet.id) ? "fill-red-500 text-red-500" : "text-gray-400"}
+                    className={favorites.includes(pet.animal_id) ? "fill-red-500 text-red-500" : "text-gray-400"}
                   />
                 </button>
 
                 <Badge
                   variant="default"
                   className={`absolute top-3 left-3 z-10 text-white text-xs font-medium px-3 py-1 rounded-full shadow-md ${
-                    pet.badgeType === "Lost"
-                      ? "bg-red-500"
-                      : pet.badgeType === "Found"
-                      ? "bg-[#8DC63F]"
-                      : "bg-yellow-500"
+                    pet.badgeType === "Lost" ? "bg-red-500" : "bg-[#8DC63F]"
                   }`}
                 >
                   {pet.badgeType}
@@ -235,13 +305,13 @@ export default function Section2() {
                 <CardContent className="p-0">
                   <div className="relative w-full h-56 sm:h-64 overflow-hidden">
                     <Image
-                      src={imageSources[pet.id] || pet.image} // Use state-managed source
+                      src={imageSources[pet.id] || pet.image}
                       alt={`${pet.name} - ${pet.badgeType} pet`}
                       layout="fill"
                       objectFit="cover"
                       sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
                       className="group-hover:scale-105 transition-transform duration-500"
-                      onError={() => handleImageError(pet.id, pet.name)} // Update state on error
+                      onError={() => handleImageError(pet.id, pet.name)}
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                   </div>
@@ -263,14 +333,22 @@ export default function Section2() {
                     </CardDescription>
                     <div className="flex justify-between items-center gap-2">
                       <Link
-                        href={`/pets/${pet.id}#contact`}
+                        href={
+                          pet.report_type === "1"
+                            ? `/pet-detail-lost/${pet.report_id}#contact`
+                            : `/pet-detail-found/${pet.report_id}#contact`
+                        }
                         onClick={(e) => e.stopPropagation()}
                         className="text-[#4eb7f0] border-2 border-[#4eb7f0] font-medium text-sm flex-grow py-3 rounded-full hover:bg-[#4eb7f0] hover:text-white transition-colors duration-200 text-center"
                       >
                         CONTACT OWNER
                       </Link>
                       <Link
-                        href={`/pets/${pet.id}`}
+                        href={
+                          pet.report_type === "1"
+                            ? `/pet-detail-lost/${pet.report_id}`
+                            : `/pet-detail-found/${pet.report_id}`
+                        }
                         onClick={(e) => e.stopPropagation()}
                         className="p-3 border-2 border-gray-200 rounded-full hover:bg-gray-100 transition-colors duration-200 flex items-center justify-center"
                       >
