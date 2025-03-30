@@ -78,12 +78,40 @@ export interface MyPet {
   owner_name: string;
   contact_email: string;
   phone_number: string;
-  animal_id:string;
+  animal_id: string;
 }
 
 interface MyPetsApiResponse extends ApiResponse<MyPet[]> {}
 
-// export async function updateMarkReunitedStatus()
+//New function to mark a pet as reunited
+export async function updateMarkReunitedStatus(
+  animal_id: number
+): Promise<ApiResponse<null>> {
+  try {
+    const response = await axios.put(
+      `/api/frontend/animal/mark-reunited?animal_id=${animal_id}`,
+      {},
+      {
+        headers: getAuthHeaders(),
+      }
+    );
+    return {
+      success: true,
+      title: "Success",
+      code: 200,
+      message: "Pet marked as reunited successfully",
+      result: null,
+    };
+  } catch (error) {
+    console.error("Error marking pet as reunited:", error);
+    return {
+      success: false,
+      title: "Error",
+      code: 500,
+      message: "Failed to mark pet as reunited",
+    };
+  }
+}
 
 export async function CreaterReportFoundPetAction(formData: FormData) {
   console.log("CreaterReportFoundPetAction started");
@@ -323,10 +351,9 @@ export async function fetchMyFavorite(): Promise<MyPetsApiResponse> {
       },
       timeout: 10000,
     });
-    console.log("reponse api" , response);
+    console.log("reponse api", response);
 
     return response.data as MyPetsApiResponse;
-
   } catch (error: any) {
     console.error("Error fetching my favorite:", error);
     if (error.response) {
@@ -348,7 +375,7 @@ export async function fetchMyFavorite(): Promise<MyPetsApiResponse> {
         title: "No Response",
         code: 500,
         message: "No response from server",
-        errors:error.response.data?.errors || [],
+        errors: error.response.data?.errors || [],
         result: [],
       };
     } else {
@@ -358,7 +385,7 @@ export async function fetchMyFavorite(): Promise<MyPetsApiResponse> {
         title: "Error",
         code: 500,
         message: error.message || "Unexpected error occurred",
-        errors:error.response.data?.errors || [],
+        errors: error.response.data?.errors || [],
         result: [],
       };
     }
@@ -366,7 +393,9 @@ export async function fetchMyFavorite(): Promise<MyPetsApiResponse> {
 }
 
 // Add to Favorite
-export async function addToFavorite(animalInfoId: number): Promise<MyPetsApiResponse> {
+export async function addToFavorite(
+  animalInfoId: number
+): Promise<MyPetsApiResponse> {
   try {
     const response = await axios.post(
       `/api/frontend/animal/add-to-favorite?animal_info_id=${animalInfoId}`,
@@ -391,7 +420,8 @@ export async function addToFavorite(animalInfoId: number): Promise<MyPetsApiResp
         success: false,
         title: "Error Adding to Favorite",
         code: error.response.status || 500,
-        message: error.response.data?.message || "Failed to add pet to favorites",
+        message:
+          error.response.data?.message || "Failed to add pet to favorites",
         errors: error.response.data?.errors || [],
         result: [],
       };
@@ -402,7 +432,7 @@ export async function addToFavorite(animalInfoId: number): Promise<MyPetsApiResp
         title: "No Response",
         code: 500,
         message: "No response from server",
-        errors:error.response.data?.errors || [],
+        errors: error.response.data?.errors || [],
         result: [],
       };
     } else {
@@ -412,14 +442,16 @@ export async function addToFavorite(animalInfoId: number): Promise<MyPetsApiResp
         title: "Error",
         code: 500,
         message: error.message || "Unexpected error occurred",
-        errors: error.response.data?.errors ||[],
+        errors: error.response.data?.errors || [],
         result: [],
       };
     }
   }
 }
 
-export async function removeFromFavorite(animalInfoId: number): Promise<MyPetsApiResponse> {
+export async function removeFromFavorite(
+  animalInfoId: number
+): Promise<MyPetsApiResponse> {
   try {
     const response = await axios.delete(
       `/api/frontend/animal/remove-from-favorite?animal_info_id=${animalInfoId}`,
@@ -443,7 +475,8 @@ export async function removeFromFavorite(animalInfoId: number): Promise<MyPetsAp
         success: false,
         title: "Error Removing from Favorite",
         code: error.response.status || 500,
-        message: error.response.data?.message || "Failed to remove pet from favorites",
+        message:
+          error.response.data?.message || "Failed to remove pet from favorites",
         errors: error.response.data?.errors || [],
         result: [],
       };
@@ -454,7 +487,7 @@ export async function removeFromFavorite(animalInfoId: number): Promise<MyPetsAp
         title: "No Response",
         code: 500,
         message: "No response from server",
-        errors: error.response.data?.errors ||[],
+        errors: error.response.data?.errors || [],
         result: [],
       };
     } else {
@@ -464,7 +497,7 @@ export async function removeFromFavorite(animalInfoId: number): Promise<MyPetsAp
         title: "Error",
         code: 500,
         message: error.message || "Unexpected error occurred",
-        errors:error.response.data?.errors || [],
+        errors: error.response.data?.errors || [],
         result: [],
       };
     }

@@ -20,17 +20,18 @@ import {
   Tag,
   Info,
 } from "lucide-react";
-import { fetchAllReport } from "@server/actions/animal-action";
+import { fetchAllReport, fetchMyFavorite, fetchMyPet } from "@server/actions/animal-action";
 
 export const dynamic = "force-dynamic";
 
 interface PetReport {
+  id:number;
   report_id: string;
   name: string;
   description: string;
   image: string;
   badgeType: "Lost" | "Found";
-  finder_name:string;
+  finder_name: string;
   report_type: string;
   location: string;
   date: string;
@@ -51,7 +52,9 @@ interface PetReport {
 
 interface PageProps {
   params: { id: string };
+  searchParams: { [key: string]: string | string[] | undefined }; // App Router provides searchParams
 }
+
 
 const speciesMap: { [key: string]: string } = {
   "1": "Dog",
@@ -79,66 +82,92 @@ const conditionMap: { [key: string]: string } = {
 
 async function getPetData(reportId: string): Promise<PetReport | null> {
   try {
-    const response = await fetchAllReport();
-    if (!response.success || !response.result) return null;
+    const [myPetsResponse, allReportsResponse, favoritesResponse] = await Promise.all([
+      fetchMyPet(),
+      fetchAllReport(),
+      fetchMyFavorite(),
+    ]);
 
-    const pet = response.result.find(
-      (p) => p.report_id.toString() === reportId
-    );
-    if (!pet || pet.report_type !== 2) return null;
+    const normalizePet = (pet: any, index: number): PetReport => {
+      const petId = pet.id?.toString() || pet.report_id || pet.pivot?.model_id?.toString();
+      const reportType =
+        pet.report_type?.toString() ||
+        (pet.image?.includes("lost") ? "1" : pet.image?.includes("found") ? "2" : "1");
+      const badgeType = reportType === "1" ? "Lost" : "Found";
 
-    const imagePath = pet.image?.startsWith("/") ? pet.image : `/${pet.image}`;
-    const imageUrl = pet.image
-      ? `${process.env.NEXT_PUBLIC_API_BASE_URL}/storage${imagePath}`
-      : "/assets/default-pet.jpg";
-
-    return {
-      report_id: pet.report_id,
-      name: pet.name_en || "Unnamed Pet",
-      description: pet.desc || "No description provided",
-      image: imageUrl,
-      badgeType: "Found",
-      report_type: pet.report_type?.toString() || "2",
-      location: pet.location || "",
-      date: pet.report_date
-        ? new Date(pet.report_date).toLocaleDateString("en-US", {
-            month: "short",
-            day: "numeric",
-            year: "numeric",
-          })
-        : "N/A",
-      status: (pet.animal_status === 1 ? "Active" : "Reunited") as
-        | "Active"
-        | "Reunited",
-      reward: pet.reward || undefined,
-      breed_id: pet.breed_id?.toString() || "",
-      species: pet.species?.toString() || "",
-      sex: pet.sex?.toString() || "",
-      size: pet.size?.toString() || "",
-      distinguishing_features: pet.distinguishing_features || "",
-      date_found: pet.date_found || "",
-      where_pet_was_found: pet.where_pet_was_found || "",
-      condition: pet.condition?.toString() || "",
-      additional_details: pet.additional_details || "",
-      finder_name: pet.finder_name || "Unknown",
-      contact_email: pet.contact_email || "",
-      phone_number: pet.phone_number || "",
+      return {
+        id: pet.id ? Number(pet.id) : pet.report_id ? Number(pet.report_id) : index + 1,
+        report_id: petId || `temp-${index}`,
+        name: pet.name_en || "Unnamed Pet",
+        description: pet.desc || "No description provided",
+        image: pet.image
+          ? `${process.env.NEXT_PUBLIC_API_BASE_URL}/storage${pet.image.startsWith("/") ? pet.image : `/${pet.image}`}`
+          : "/assets/default-pet.jpg",
+        badgeType: badgeType,
+        finder_name: pet.finder_name || pet.owner_name || "Unknown", // Adjust based on API response
+        report_type: reportType,
+        location: pet.location || "",
+        date: pet.report_date
+          ? new Date(pet.report_date).toLocaleDateString("en-US", {
+              month: "short",
+              day: "numeric",
+              year: "numeric",
+            })
+          : "N/A",
+        status: (pet.animal_status === 1 || pet.status === 1) ? "Active" : "Reunited",
+        reward: pet.reward || undefined,
+        breed_id: pet.breed_id?.toString() || "",
+        species: pet.species?.toString() || "",
+        sex: pet.sex?.toString() || "",
+        size: pet.size?.toString() || "",
+        distinguishing_features: pet.distinguishing_features || "",
+        date_found: pet.date_found || "",
+        where_pet_was_found: pet.where_pet_was_found || pet.nearest_address_last_seen || "",
+        condition: pet.condition?.toString() || "",
+        additional_details: pet.additional_details || "",
+        contact_email: pet.contact_email || "",
+        phone_number: pet.phone_number || "",
+      };
     };
+
+    const myPets = myPetsResponse.success
+      ? (myPetsResponse.result ?? []).map(normalizePet)
+      : [];
+    const allReports = allReportsResponse.success
+      ? (allReportsResponse.result ?? []).map(normalizePet)
+      : [];
+    const favorites = favoritesResponse.success
+      ? (favoritesResponse.result ?? []).map(normalizePet)
+      : [];
+    const combinedPets = [...myPets, ...allReports, ...favorites].reduce(
+      (unique: PetReport[], pet: PetReport) =>
+        unique.some((p) => p.report_id === pet.report_id) ? unique : [...unique, pet],
+      [] as PetReport[]
+    );
+
+    console.log("Combined Pets:", combinedPets.map(p => ({ report_id: p.report_id, report_type: p.report_type })));
+    const pet = combinedPets.find((p) => p.report_id === reportId && p.report_type === "2");
+    console.log("Found Pet:", pet);
+
+    if (!pet) return null;
+    return pet;
   } catch (error) {
     console.error("Error fetching found pet data:", error);
     return null;
   }
 }
 
-export default async function PetDetailFoundPage({ params }: PageProps) {
+
+export default async function PetDetailFoundPage({ params,searchParams }: PageProps) {
   const pet = await getPetData(params.id);
   if (!pet) return notFound();
-
+  const from = searchParams.from as string | undefined;
+  const backUrl = from === "dashboard" ? "/dashboard/profile" : "/";
   return (
     <div className="w-full bg-gradient-to-b from-[#f8f8fa] to-[#EFEEF1] min-h-screen px-4 md:px-8 lg:px-12 py-12">
       <div className="max-w-5xl mx-auto">
         <Link
-          href="/"
+          href={backUrl}
           className="flex items-center text-[#4eb7f0] mb-8 hover:underline"
         >
           <ArrowLeft size={18} className="mr-2" />
