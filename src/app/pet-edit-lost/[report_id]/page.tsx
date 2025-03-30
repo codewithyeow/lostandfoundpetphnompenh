@@ -209,7 +209,7 @@ const EditLostReportPage = ({ params }: EditLostReportPageProps) => {
           pauseOnHover: true,
           draggable: true,
         });
-        setTimeout(() => router.push("/dashboard/profile"), 1000);
+        setTimeout(() => router.push("/profile"), 1000);
       } else {
         toast.error(`Failed to update report: ${response.message || "Unknown error"}`, {
           position: "top-right",
@@ -262,7 +262,7 @@ const EditLostReportPage = ({ params }: EditLostReportPageProps) => {
           <h2 className="text-2xl font-bold text-gray-800 mb-2">Lost Pet Not Found</h2>
           <p className="text-gray-600 mb-6">We couldn’t find any lost pet with the provided ID.</p>
           <button
-            onClick={() => router.push("/profile")}
+            onClick={() => router.push("/dashboard/profile")}
             className="flex items-center justify-center gap-2 px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition"
           >
             <ArrowLeft className="w-4 h-4" />
@@ -280,7 +280,7 @@ const EditLostReportPage = ({ params }: EditLostReportPageProps) => {
         <div className="mb-8 flex items-center justify-between">
           <h1 className="text-3xl font-bold text-gray-900">Edit Lost Pet Report</h1>
           <button
-            onClick={() => router.push("/profile")}
+            onClick={() => router.push("/dashboard/profile")}
             className="flex items-center text-[#4eb7f0] hover:text-[#3a9cd3] transition-colors duration-200 font-medium"
           >
             <ArrowLeft className="w-5 h-5 mr-1" />

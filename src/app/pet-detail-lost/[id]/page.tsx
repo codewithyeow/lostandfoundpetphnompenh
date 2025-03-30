@@ -1,13 +1,13 @@
 import React from "react";
 import Image from "next/image";
 import {
-    Card,
-    CardTitle,
-    CardDescription,
-    CardContent,
-  } from "../../../components/ui/card";
-  import { Button } from "@component/ui/button";
-  import { Badge } from "../../../components/ui/badge";
+  Card,
+  CardTitle,
+  CardDescription,
+  CardContent,
+} from "../../../components/ui/card";
+import { Button } from "@component/ui/button";
+import { Badge } from "../../../components/ui/badge";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import {
@@ -22,11 +22,12 @@ import {
   AlertCircle,
   DollarSign,
 } from "lucide-react";
-import { fetchAllReport } from "@server/actions/animal-action";
+import { fetchAllReport, fetchMyFavorite, fetchMyPet } from "@server/actions/animal-action";
 
 export const dynamic = "force-dynamic";
 
 interface PetReport {
+  id:number;
   report_id: string;
   name: string;
   description: string;
@@ -51,6 +52,7 @@ interface PetReport {
 
 interface PageProps {
   params: { id: string };
+  searchParams: { [key: string]: string | string[] | undefined }; // App Router provides searchParams
 }
 
 const speciesMap: { [key: string]: string } = {
@@ -70,62 +72,92 @@ const sizeMap: { [key: string]: string } = {
   "2": "Medium",
   "3": "Large",
 };
-
 async function getPetData(reportId: string): Promise<PetReport | null> {
   try {
-    const response = await fetchAllReport();
-    if (!response.success || !response.result) return null;
+    const [myPetsResponse, allReportsResponse, favoritesResponse] = await Promise.all([
+      fetchMyPet(),
+      fetchAllReport(),
+      fetchMyFavorite(),
+    ]);
 
-    const pet = response.result.find((p) => p.report_id.toString() === reportId);
-    if (!pet || pet.report_type !== 1) return null;
+    const normalizePet = (pet: any, index: number): PetReport => {
+      const petId = pet.id?.toString() || pet.report_id || pet.pivot?.model_id?.toString();
+      const reportType =
+        pet.report_type?.toString() ||
+        (pet.image?.includes("lost") ? "1" : pet.image?.includes("found") ? "2" : "1");
+      const badgeType = reportType === "1" ? "Lost" : "Found"; // Explicitly "Lost" or "Found"
 
-    const imagePath = pet.image?.startsWith("/") ? pet.image : `/${pet.image}`;
-    const imageUrl = pet.image
-      ? `${process.env.NEXT_PUBLIC_API_BASE_URL}/storage${imagePath}`
-      : "/assets/default-pet.jpg";
-
-    return {
-      report_id: pet.report_id.toString(),
-      name: pet.name_en || "Unnamed Pet",
-      description: pet.desc || "No description provided",
-      image: imageUrl,
-      badgeType: "Lost",
-      report_type: pet.report_type?.toString() || "1",
-      location: pet.location || "",
-      date: pet.report_date
-        ? new Date(pet.report_date).toLocaleDateString("en-US", {
-            month: "short",
-            day: "numeric",
-            year: "numeric",
-          })
-        : "N/A",
-      status: (pet.animal_status === 1 ? "Active" : "Reunited") as "Active" | "Reunited",
-      reward: pet.reward || undefined,
-      breed_id: pet.breed_id?.toString() || "",
-      species: pet.species?.toString() || "",
-      sex: pet.sex?.toString() || "",
-      size: pet.size?.toString() || "",
-      distinguishing_features: pet.distinguishing_features || "",
-      date_lost: pet.date_lost || "",
-      nearest_address_last_seen: pet.nearest_address_last_seen || "",
-      owner_name: pet.owner_name || "Unknown",
-      contact_email: pet.contact_email || "",
-      phone_number: pet.phone_number || "",
+      return {
+        id: pet.id ? Number(pet.id) : pet.report_id ? Number(pet.report_id) : index + 1,
+        report_id: petId || `temp-${index}`,
+        name: pet.name_en || "Unnamed Pet",
+        description: pet.desc || "No description provided",
+        image: pet.image
+          ? `${process.env.NEXT_PUBLIC_API_BASE_URL}/storage${pet.image.startsWith("/") ? pet.image : `/${pet.image}`}`
+          : "/assets/default-pet.jpg",
+        report_type: reportType,
+        badgeType: badgeType, // Now type-safe
+        location: pet.location || "",
+        date: pet.report_date
+          ? new Date(pet.report_date).toLocaleDateString("en-US", {
+              month: "short",
+              day: "numeric",
+              year: "numeric",
+            })
+          : "N/A",
+        status: (pet.animal_status === 1 || pet.status === 1) ? "Active" : "Reunited",
+        reward: pet.reward || undefined,
+        breed_id: pet.breed_id?.toString() || "",
+        species: pet.species?.toString() || "",
+        sex: pet.sex?.toString() || "",
+        size: pet.size?.toString() || "",
+        distinguishing_features: pet.distinguishing_features || "",
+        date_lost: pet.date_lost || "",
+        nearest_address_last_seen: pet.nearest_address_last_seen || "",
+        owner_name: pet.owner_name || "Unknown",
+        contact_email: pet.contact_email || "",
+        phone_number: pet.phone_number || "",
+      };
     };
+
+    const myPets = myPetsResponse.success
+      ? (myPetsResponse.result ?? []).map(normalizePet)
+      : [];
+    const allReports = allReportsResponse.success
+      ? (allReportsResponse.result ?? []).map(normalizePet)
+      : [];
+    const favorites = favoritesResponse.success
+      ? (favoritesResponse.result ?? []).map(normalizePet)
+      : [];
+    const combinedPets = [...myPets, ...allReports, ...favorites].reduce(
+      (unique: PetReport[], pet: PetReport) =>
+        unique.some((p) => p.report_id === pet.report_id) ? unique : [...unique, pet],
+      [] as PetReport[] // Explicitly type the initial value
+    );
+
+    console.log("Combined Pets:", combinedPets.map(p => ({ report_id: p.report_id, report_type: p.report_type })));
+    const pet = combinedPets.find((p) => p.report_id === reportId && p.report_type === "1");
+    console.log("Found Pet:", pet);
+
+    if (!pet) return null;
+    return pet;
   } catch (error) {
     console.error("Error fetching lost pet data:", error);
     return null;
   }
 }
-
-export default async function PetDetailLostPage({ params }: PageProps) {
+export default async function PetDetailLostPage({ params, searchParams }: PageProps) {
   const pet = await getPetData(params.id);
   if (!pet) return notFound();
+
+  // Access the 'from' query parameter from searchParams
+  const from = searchParams.from as string | undefined;
+  const backUrl = from === "dashboard" ? "/dashboard/profile" : "/";
 
   return (
     <div className="w-full bg-gradient-to-b from-[#f8f8fa] to-[#EFEEF1] min-h-screen px-4 md:px-8 lg:px-12 py-12">
       <div className="max-w-5xl mx-auto">
-        <Link href="/" className="flex items-center text-[#4eb7f0] mb-8 hover:underline">
+      <Link href={backUrl} className="flex items-center text-[#4eb7f0] mb-8 hover:underline">
           <ArrowLeft size={18} className="mr-2" />
           Back to Listings
         </Link>
@@ -291,10 +323,10 @@ export default async function PetDetailLostPage({ params }: PageProps) {
                     </div>
                   </CardContent>
                 </Card>
-                <Button className="w-full bg-[#4eb7f0] hover:bg-[#3a9fd8] text-white py-2 h-auto rounded-full mb-4">
+                {/* <Button className="w-full bg-[#4eb7f0] hover:bg-[#3a9fd8] text-white py-2 h-auto rounded-full mb-4">
                   <Phone size={16} className="mr-2" />
                   Call Owner
-                </Button>
+                </Button> */}
               </div>
             </div>
           </div>

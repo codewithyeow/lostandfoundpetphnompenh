@@ -12,7 +12,13 @@ import { Badge } from "../../../components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Heart, MapPin, Calendar, Info } from "lucide-react";
 import Link from "next/link";
-import { fetchMyPet, fetchAllReport, addToFavorite, fetchMyFavorite, removeFromFavorite } from "@server/actions/animal-action";
+import {
+  fetchMyPet,
+  fetchAllReport,
+  addToFavorite,
+  fetchMyFavorite,
+  removeFromFavorite,
+} from "@server/actions/animal-action";
 
 interface PetReport {
   id: number;
@@ -48,22 +54,18 @@ export default function Section2() {
   const [favorites, setFavorites] = useState<number[]>([]);
   const [petData, setPetData] = useState<PetReport[]>([]);
   const [imageSources, setImageSources] = useState<{ [key: number]: string }>({});
-  const [visibleCount, setVisibleCount] = useState(9); // Initial 9 cards
-  const petsPerLoad = 9; // Load 9 more each time
+  const [visibleCount, setVisibleCount] = useState(9);
+  const petsPerLoad = 9;
   const hasFetched = useRef(false);
 
-  // Fetch initial favorites from the server
   const fetchFavorites = async () => {
     try {
       const response = await fetchMyFavorite();
       if (response.success) {
-        const favoriteIds = (response.result ?? []).map((pet) =>
-          pet.animal_id ? Number(pet.animal_id) : pet.id ? Number(pet.id) : 0
-        ).filter(id => id > 0);
+        const favoriteIds = (response.result ?? [])
+          .map((pet) => pet.animal_id ? Number(pet.animal_id) : pet.id ? Number(pet.id) : 0)
+          .filter((id) => id > 0);
         setFavorites(favoriteIds);
-        console.log("Initial favorites loaded:", favoriteIds);
-      } else {
-        console.error("Failed to fetch favorites:", response.message);
       }
     } catch (error) {
       console.error("Error fetching favorites:", error);
@@ -74,10 +76,14 @@ export default function Section2() {
     if (hasFetched.current) return;
     hasFetched.current = true;
 
-    console.log("Fetching pet data...");
     setLoading(true);
     try {
-      const myPetsResponse = await fetchMyPet();
+      const [myPetsResponse, allReportsResponse, favoritesResponse] = await Promise.all([
+        fetchMyPet(),
+        fetchAllReport(),
+        fetchMyFavorite(),
+      ]);
+
       const myPets = myPetsResponse.success
         ? (myPetsResponse.result ?? []).map((pet, index) => ({
             id: pet.report_id ? Number(pet.report_id) : index + 1,
@@ -113,7 +119,6 @@ export default function Section2() {
           }))
         : [];
 
-      const allReportsResponse = await fetchAllReport();
       const allReports = allReportsResponse.success
         ? (allReportsResponse.result ?? []).map((pet, index) => ({
             id: pet.report_id ? Number(pet.report_id) : index + myPets.length + 1,
@@ -149,15 +154,48 @@ export default function Section2() {
           }))
         : [];
 
-      const combinedPets = [...myPets, ...allReports].reduce(
+      const favoritePets = favoritesResponse.success
+        ? (favoritesResponse.result ?? []).map((pet, index) => ({
+            id: pet.report_id ? Number(pet.report_id) : index + myPets.length + allReports.length + 1,
+            animal_id: pet.id ? Number(pet.id) : pet.pivot?.model_id ? Number(pet.pivot.model_id) : index + 1,
+            report_id: pet.report_id || `temp-${index + myPets.length + allReports.length + 1}`,
+            name: pet.name_en || "Unnamed Pet",
+            description: pet.desc || "No description provided",
+            image: pet.image
+              ? `${process.env.NEXT_PUBLIC_API_BASE_URL}/storage${pet.image.startsWith("/") ? pet.image : `/${pet.image}`}`
+              : "/assets/default-pet.jpg",
+            badgeType: (pet.report_type === 1 ? "Lost" : "Found") as "Lost" | "Found",
+            report_type: pet.report_type?.toString() || "1",
+            location: pet.location || "",
+            date: pet.report_date
+              ? new Date(pet.report_date).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })
+              : "N/A",
+            status: (pet.status === 2 ? "Reunited" : "Active") as "Active" | "Reunited",
+            reward: pet.reward || undefined,
+            breed_id: pet.breed_id?.toString() || "",
+            species: pet.species?.toString() || "",
+            sex: pet.sex?.toString() || "",
+            size: pet.size?.toString() || "",
+            distinguishing_features: pet.distinguishing_features || "",
+            date_lost: pet.date_lost || "",
+            nearest_address_last_seen: pet.nearest_address_last_seen || "",
+            date_found: pet.date_found || "",
+            where_pet_was_found: pet.where_pet_was_found || "",
+            condition: pet.condition?.toString() || "",
+            additional_details: pet.additional_details || "",
+            owner_name: pet.owner_name || "",
+            contact_email: pet.contact_email || "",
+            phone_number: pet.phone_number || "",
+          }))
+        : [];
+
+      const combinedPets = [...myPets, ...allReports, ...favoritePets].reduce(
         (unique: PetReport[], pet: PetReport) =>
           unique.some((p) => p.report_id === pet.report_id) ? unique : [...unique, pet],
         []
       );
 
-      console.log("Combined Pets:", combinedPets);
       setPetData(combinedPets);
-
       const initialSources = combinedPets.reduce((acc, pet) => {
         acc[pet.id] = pet.image;
         return acc;
@@ -172,11 +210,8 @@ export default function Section2() {
   };
 
   useEffect(() => {
-    const initializeData = async () => {
-      await fetchFavorites();
-      await fetchPetData();
-    };
-    initializeData();
+    fetchFavorites();
+    fetchPetData();
   }, []);
 
   const toggleFavorite = async (e: React.MouseEvent, id: number) => {
@@ -185,10 +220,7 @@ export default function Section2() {
 
     const pet = petData.find((p) => p.id === id);
     const animalId = pet?.animal_id;
-    if (!animalId) {
-      console.error("No animal_id found for pet:", pet);
-      return;
-    }
+    if (!animalId) return;
 
     const isFavorited = favorites.includes(animalId);
 
@@ -197,17 +229,11 @@ export default function Section2() {
         const response = await removeFromFavorite(animalId);
         if (response.success) {
           setFavorites((prev) => prev.filter((favId) => favId !== animalId));
-          console.log(`Pet with animal_id ${animalId} removed from favorites successfully`);
-        } else {
-          console.error("Failed to remove from favorites:", response.message);
         }
       } else {
         const response = await addToFavorite(animalId);
         if (response.success) {
           setFavorites((prev) => [...prev, animalId]);
-          console.log(`Pet with animal_id ${animalId} added to favorites successfully`);
-        } else {
-          console.error("Failed to add to favorites:", response.message);
         }
       }
     } catch (error) {
@@ -215,8 +241,7 @@ export default function Section2() {
     }
   };
 
-  const handleImageError = (id: number, petName: string) => {
-    console.log(`Image failed for ${petName} (ID: ${id}), switching to fallback`);
+  const handleImageError = (id: number) => {
     setImageSources((prev) => ({
       ...prev,
       [id]: "/assets/default-pet.jpg",
@@ -224,10 +249,10 @@ export default function Section2() {
   };
 
   const handleSeeMore = () => {
-    setVisibleCount((prev) => prev + petsPerLoad); // Load 9 more
+    setVisibleCount((prev) => prev + petsPerLoad);
   };
 
-  const visiblePets = petData.slice(0, visibleCount); // Only show up to visibleCount
+  const visiblePets = petData.slice(0, visibleCount);
 
   return (
     <section className="w-full bg-gradient-to-b from-[#f8f8fa] to-[#EFEEF1] px-4 md:px-8 lg:px-12 py-12">
@@ -244,40 +269,32 @@ export default function Section2() {
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto">
         {loading ? (
-          Array(9) // Show 9 skeletons initially
-            .fill(0)
-            .map((_, index) => (
-              <Card key={index} className="relative bg-white shadow-lg rounded-2xl overflow-hidden">
-                <Skeleton className="absolute top-3 right-3 w-[80px] h-[30px] rounded-full" />
-                <CardContent className="p-0">
-                  <Skeleton className="w-full h-56 sm:h-64" />
-                  <div className="p-5">
-                    <Skeleton className="h-6 w-[50%] rounded-md" />
-                    <div className="flex mt-3 mb-3">
-                      <Skeleton className="h-4 w-[40%] rounded-md mr-2" />
-                      <Skeleton className="h-4 w-[40%] rounded-md" />
-                    </div>
-                    <Skeleton className="mt-2 h-4 w-full rounded-md" />
-                    <Skeleton className="mt-2 h-4 w-[80%] rounded-md" />
-                    <div className="mt-5">
-                      <Skeleton className="h-12 w-full rounded-lg" />
-                    </div>
+          Array(9).fill(0).map((_, index) => (
+            <Card key={index} className="relative bg-white shadow-lg rounded-2xl overflow-hidden">
+              <Skeleton className="absolute top-3 right-3 w-[80px] h-[30px] rounded-full" />
+              <CardContent className="p-0">
+                <Skeleton className="w-full h-56 sm:h-64" />
+                <div className="p-5">
+                  <Skeleton className="h-6 w-[50%] rounded-md" />
+                  <div className="flex mt-3 mb-3">
+                    <Skeleton className="h-4 w-[40%] rounded-md mr-2" />
+                    <Skeleton className="h-4 w-[40%] rounded-md" />
                   </div>
-                </CardContent>
-              </Card>
-            ))
+                  <Skeleton className="mt-2 h-4 w-full rounded-md" />
+                  <Skeleton className="mt-2 h-4 w-[80%] rounded-md" />
+                  <div className="mt-5">
+                    <Skeleton className="h-12 w-full rounded-lg" />
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          ))
         ) : petData.length === 0 ? (
-          <p className="text-center col-span-full text-gray-500">
-            No pet reports available yet.
-          </p>
+          <p className="text-center col-span-full text-gray-500">No pet reports available yet.</p>
         ) : (
           visiblePets.map((pet) => (
             <Link
-              href={
-                pet.report_type === "1"
-                  ? `/pet-detail-lost/${pet.report_id}`
-                  : `/pet-detail-found/${pet.report_id}`
-              }
+              href={pet.report_type === "1" ? `/pet-detail-lost/${pet.report_id}` : `/pet-detail-found/${pet.report_id}`}
               key={pet.id}
               passHref
             >
@@ -291,7 +308,6 @@ export default function Section2() {
                     className={favorites.includes(pet.animal_id) ? "fill-red-500 text-red-500" : "text-gray-400"}
                   />
                 </button>
-
                 <Badge
                   variant="default"
                   className={`absolute top-3 left-3 z-10 text-white text-xs font-medium px-3 py-1 rounded-full shadow-md ${
@@ -300,7 +316,6 @@ export default function Section2() {
                 >
                   {pet.badgeType}
                 </Badge>
-
                 <CardContent className="p-0">
                   <div className="relative w-full h-56 sm:h-64 overflow-hidden">
                     <Image
@@ -308,13 +323,11 @@ export default function Section2() {
                       alt={`${pet.name} - ${pet.badgeType} pet`}
                       layout="fill"
                       objectFit="cover"
-                      sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
                       className="group-hover:scale-105 transition-transform duration-500"
-                      onError={() => handleImageError(pet.id, pet.name)}
+                      onError={() => handleImageError(pet.id)}
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                   </div>
-
                   <div className="p-5">
                     <CardTitle className="text-lg sm:text-xl font-bold">{pet.name}</CardTitle>
                     <div className="flex flex-wrap text-sm text-gray-500 mt-2 mb-3">
@@ -361,8 +374,6 @@ export default function Section2() {
           ))
         )}
       </div>
-
-      {/* See More Button */}
       {!loading && petData.length > visibleCount && (
         <div className="flex justify-center mt-8">
           <button
