@@ -6,11 +6,11 @@ import { getLocale, getMessages } from "next-intl/server";
 import localFont from "next/font/local";
 import { AuthProvider } from "context/auth-context/AuthContext";
 import dynamic from "next/dynamic";
+import LoadingProvider from "../components/LoadingProvider"; // Import the new provider
 
 const ToastContainer = dynamic(() => import('react-toastify').then((mod) => mod.ToastContainer), {
   ssr: true,
 });
-
 
 // Define font styles
 const geistSans = localFont({
@@ -48,15 +48,15 @@ export default async function RootLayout({
         className={`${geistMono.variable} ${geistSans.variable} ${montserrat.variable}`}
       >
         <NextIntlClientProvider messages={messages} locale={locale}>
-        <ToastContainer
-                  position="bottom-right"
-                  newestOnTop={true}
-                  draggable={true}
-                  limit={6}
-               />
+          <ToastContainer
+            position="bottom-right"
+            newestOnTop={true}
+            draggable={true}
+            limit={6}
+          />
           <AuthProvider>
             <Header locale={locale} />
-            {children}
+            <LoadingProvider>{children}</LoadingProvider>
             <Footer />
           </AuthProvider>
         </NextIntlClientProvider>

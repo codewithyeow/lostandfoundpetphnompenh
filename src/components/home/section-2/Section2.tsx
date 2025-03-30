@@ -22,7 +22,7 @@ interface PetReport {
   description: string;
   image: string;
   badgeType: "Lost" | "Found";
-  report_type: string; // "1" for Lost, "2" for Found
+  report_type: string;
   location: string;
   date: string;
   status: "Active" | "Reunited";
@@ -48,6 +48,8 @@ export default function Section2() {
   const [favorites, setFavorites] = useState<number[]>([]);
   const [petData, setPetData] = useState<PetReport[]>([]);
   const [imageSources, setImageSources] = useState<{ [key: number]: string }>({});
+  const [visibleCount, setVisibleCount] = useState(9); // Initial 9 cards
+  const petsPerLoad = 9; // Load 9 more each time
   const hasFetched = useRef(false);
 
   // Fetch initial favorites from the server
@@ -170,10 +172,9 @@ export default function Section2() {
   };
 
   useEffect(() => {
-    // Fetch favorites and pet data on mount
     const initializeData = async () => {
-      await fetchFavorites(); // Load favorites first
-      await fetchPetData();   // Then load pet data
+      await fetchFavorites();
+      await fetchPetData();
     };
     initializeData();
   }, []);
@@ -183,12 +184,6 @@ export default function Section2() {
     e.stopPropagation();
 
     const pet = petData.find((p) => p.id === id);
-    console.log("Toggling favorite for pet:", {
-      id: pet?.id,
-      animal_id: pet?.animal_id,
-      report_id: pet?.report_id,
-    });
-
     const animalId = pet?.animal_id;
     if (!animalId) {
       console.error("No animal_id found for pet:", pet);
@@ -199,7 +194,6 @@ export default function Section2() {
 
     try {
       if (isFavorited) {
-        // Remove from favorites
         const response = await removeFromFavorite(animalId);
         if (response.success) {
           setFavorites((prev) => prev.filter((favId) => favId !== animalId));
@@ -208,7 +202,6 @@ export default function Section2() {
           console.error("Failed to remove from favorites:", response.message);
         }
       } else {
-        // Add to favorites
         const response = await addToFavorite(animalId);
         if (response.success) {
           setFavorites((prev) => [...prev, animalId]);
@@ -230,6 +223,12 @@ export default function Section2() {
     }));
   };
 
+  const handleSeeMore = () => {
+    setVisibleCount((prev) => prev + petsPerLoad); // Load 9 more
+  };
+
+  const visiblePets = petData.slice(0, visibleCount); // Only show up to visibleCount
+
   return (
     <section className="w-full bg-gradient-to-b from-[#f8f8fa] to-[#EFEEF1] px-4 md:px-8 lg:px-12 py-12">
       <div className="max-w-6xl mx-auto mb-10">
@@ -245,7 +244,7 @@ export default function Section2() {
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto">
         {loading ? (
-          Array(6)
+          Array(9) // Show 9 skeletons initially
             .fill(0)
             .map((_, index) => (
               <Card key={index} className="relative bg-white shadow-lg rounded-2xl overflow-hidden">
@@ -272,7 +271,7 @@ export default function Section2() {
             No pet reports available yet.
           </p>
         ) : (
-          petData.map((pet) => (
+          visiblePets.map((pet) => (
             <Link
               href={
                 pet.report_type === "1"
@@ -362,6 +361,18 @@ export default function Section2() {
           ))
         )}
       </div>
+
+      {/* See More Button */}
+      {!loading && petData.length > visibleCount && (
+        <div className="flex justify-center mt-8">
+          <button
+            onClick={handleSeeMore}
+            className="px-6 py-3 bg-[#4eb7f0] text-white font-medium rounded-full hover:bg-[#3ea0d8] transition-colors duration-200"
+          >
+            See More
+          </button>
+        </div>
+      )}
     </section>
   );
 }

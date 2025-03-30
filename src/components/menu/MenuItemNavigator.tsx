@@ -21,11 +21,7 @@ const MenuItemNavigator: React.FC<MenuItemNavigatorProps> = ({
   const pathname = usePathname();
   const { status, setStatus } = useAuthContext();
 
-  // Get auth context with error handling
-  const authContext = useAuthContext();
-
   const menuItems = [
-
     {
       name: "FOUND PETS",
       key: "found-pets",
@@ -34,6 +30,7 @@ const MenuItemNavigator: React.FC<MenuItemNavigatorProps> = ({
         { name: "FOUND CATS", href: "/report-found-pet-form" },
         { name: "FOUND PETS [ALL]", href: "/report-found-pet-form" },
       ],
+      restricted: true,
     },
     {
       name: "LOST PETS",
@@ -43,6 +40,7 @@ const MenuItemNavigator: React.FC<MenuItemNavigatorProps> = ({
         { name: "LOST CATS", href: "/report-lost-pet-form" },
         { name: "LOST PETS [ALL]", href: "/report-lost-pet-form" },
       ],
+      restricted: true,
     },
     {
       name: "HAPPY TALES",
@@ -82,6 +80,15 @@ const MenuItemNavigator: React.FC<MenuItemNavigatorProps> = ({
     }
   };
 
+  const handleNavigation = (href: string, restricted: boolean = false) => {
+    if (restricted && status !== "loggedIn") {
+      toast.error("Please log in to access this feature.");
+      router.push("/login");
+    } else {
+      router.push(href);
+    }
+  };
+
   useEffect(() => {
     document.addEventListener("mousedown", handleClickOutside);
     return () => {
@@ -96,7 +103,6 @@ const MenuItemNavigator: React.FC<MenuItemNavigatorProps> = ({
   useEffect(() => {
     const storedStatus = localStorage.getItem("authStatus");
     console.log("Stored auth status on navigation mount:", storedStatus);
-
     if (storedStatus === "loggedIn") {
       setStatus("loggedIn");
     }
@@ -118,7 +124,9 @@ const MenuItemNavigator: React.FC<MenuItemNavigatorProps> = ({
               onClick={() =>
                 item.subItem
                   ? toggleDropdown(item.key)
-                  : item.href && router.push(item.href)
+                  : item.href
+                  ? handleNavigation(item.href, item.restricted)
+                  : null
               }
             >
               <span className="md:text-[14px] xl:text-[14px]">{item.name}</span>
@@ -146,13 +154,13 @@ const MenuItemNavigator: React.FC<MenuItemNavigatorProps> = ({
             {item.subItem && (
               <div
                 className={`
-                 z-[calc(var(--index)+1)]
-                ${
-                  isMobile
-                    ? "relative w-full bg-white border border-gray-200 rounded"
-                    : "absolute left-0 bg-white shadow-md rounded-md"
-                }
-                 ${activeDropdown === item.key ? "block" : "hidden"}
+                  z-[calc(var(--index)+1)]
+                  ${
+                    isMobile
+                      ? "relative w-full bg-white border border-gray-200 rounded"
+                      : "absolute left-0 bg-white shadow-md rounded-md"
+                  }
+                  ${activeDropdown === item.key ? "block" : "hidden"}
                   mt-1 overflow-hidden transition-all duration-200 min-w-[200px]
                 `}
               >
@@ -160,8 +168,8 @@ const MenuItemNavigator: React.FC<MenuItemNavigatorProps> = ({
                   {item.subItem.map((subItem) => (
                     <li
                       key={subItem.name}
-                      className=" cursor-pointer"
-                      onClick={() => subItem.href && router.push(subItem.href)}
+                      className="cursor-pointer"
+                      onClick={() => handleNavigation(subItem.href, item.restricted)}
                     >
                       <span
                         className={`block px-4 py-1 text-black font-semibold ${
@@ -182,15 +190,12 @@ const MenuItemNavigator: React.FC<MenuItemNavigatorProps> = ({
 
         {status === "loggedIn" ? (
           <li className="mt-4 md:mt-0 flex items-center gap-4">
-            {/* Profile Icon */}
             <button
-              onClick={() => router.push("/dashboard/profile")}
+              onClick={() => handleNavigation("/dashboard/profile", true)}
               className="text-gray-600 hover:text-gray-800 transition"
             >
               <User className="w-6 h-6" />
             </button>
-
-            {/* Logout Button */}
             <button
               onClick={handleLogout}
               className="w-full md:w-auto text-white bg-[#4eb7f0] px-4 py-2 rounded-full font-bold hover:bg-[#3a9cd3]"
@@ -199,7 +204,6 @@ const MenuItemNavigator: React.FC<MenuItemNavigatorProps> = ({
             </button>
           </li>
         ) : (
-          /* Login Button (shown when user is not logged in) */
           <li className="mt-4 md:mt-0">
             <button
               onClick={() => router.push("/login")}

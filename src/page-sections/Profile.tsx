@@ -40,14 +40,14 @@ import {
 import ProfileSection from "../page-sections/ProfileSection";
 
 interface PetReport {
-  id: number; // report_id or unique identifier for UI
-  animal_id: number; // The ID used for favorites (e.g., pivot.model_id or id from API)
+  id: number;
+  animal_id: number;
   report_id: string;
   name: string;
   description: string;
   image: string;
   badgeType: "Lost" | "Found";
-  report_type: string; // "1" for Lost, "2" for Found
+  report_type: string;
   location: string;
   date: string;
   status: "Active" | "Reunited";
@@ -65,6 +65,7 @@ interface PetReport {
   phone_number: string;
 }
 
+// PetCard component remains unchanged
 const PetCard: React.FC<{
   pet: PetReport;
   type?: "wishlist";
@@ -228,21 +229,18 @@ export default function DashboardProfile() {
       try {
         setLoadingPets(true);
         const response = await fetchMyPet();
+        console.log("fetchMyPet response:", response);
         const pets = response.success
           ? (response.result ?? []).map((pet, index) => ({
               id: pet.report_id ? Number(pet.report_id) : index + 1,
-              animal_id: pet.id ? Number(pet.id) : index + 1, // Use id from API as animal_id
+              animal_id: pet.id ? Number(pet.id) : index + 1,
               report_id: pet.report_id || `temp-${index + 1}`,
               name: pet.name_en || "Unnamed Pet",
               description: pet.desc || "No description provided",
               image: pet.image
-                ? `${process.env.NEXT_PUBLIC_API_BASE_URL}/storage${
-                    pet.image.startsWith("/") ? pet.image : `/${pet.image}`
-                  }`
+                ? `${process.env.NEXT_PUBLIC_API_BASE_URL}/storage${pet.image.startsWith("/") ? pet.image : `/${pet.image}`}`
                 : "/assets/default-pet.jpg",
-              badgeType: (pet.report_type === 1 ? "Lost" : "Found") as
-                | "Lost"
-                | "Found",
+              badgeType: (pet.report_type === 1 ? "Lost" : "Found") as "Lost" | "Found",
               report_type: pet.report_type?.toString() || "1",
               location: pet.location || "",
               date: pet.report_date
@@ -252,9 +250,7 @@ export default function DashboardProfile() {
                     year: "numeric",
                   })
                 : "N/A",
-              status: (pet.animal_status === 1 ? "Active" : "Reunited") as
-                | "Active"
-                | "Reunited",
+              status: (pet.animal_status === 2 ? "Reunited" : "Active") as "Active" | "Reunited",
               reward: pet.reward || undefined,
               breed_id: pet.breed_id?.toString() || "",
               species: pet.species?.toString() || "",
@@ -290,18 +286,14 @@ export default function DashboardProfile() {
                 ? Number(pet.id)
                 : pet.pivot?.model_id
                 ? Number(pet.pivot.model_id)
-                : index + 1, // Use id or pivot.model_id
+                : index + 1,
               report_id: pet.report_id || `temp-${index + 1}`,
               name: pet.name_en || "Unnamed Pet",
               description: pet.desc || "No description provided",
               image: pet.image
-                ? `${process.env.NEXT_PUBLIC_API_BASE_URL}/storage${
-                    pet.image.startsWith("/") ? pet.image : `/${pet.image}`
-                  }`
+                ? `${process.env.NEXT_PUBLIC_API_BASE_URL}/storage${pet.image.startsWith("/") ? pet.image : `/${pet.image}`}`
                 : "/assets/default-pet.jpg",
-              badgeType: (pet.report_type === 1 ? "Lost" : "Found") as
-                | "Lost"
-                | "Found",
+              badgeType: (pet.report_type === 1 ? "Lost" : "Found") as "Lost" | "Found",
               report_type: pet.report_type?.toString() || "1",
               location: pet.location || "",
               date: pet.report_date
@@ -311,9 +303,7 @@ export default function DashboardProfile() {
                     year: "numeric",
                   })
                 : "N/A",
-              status: (pet.status === 1 ? "Active" : "Reunited") as
-                | "Active"
-                | "Reunited", // Updated to use status
+              status: (pet.status === 2 ? "Reunited" : "Active") as "Active" | "Reunited",
               reward: pet.reward || undefined,
               breed_id: pet.breed_id?.toString() || "",
               species: pet.species?.toString() || "",
@@ -340,19 +330,6 @@ export default function DashboardProfile() {
     fetchPetReports();
     fetchWishlist();
   }, []);
-
-  const markAsReunited = (id: number) => {
-    setMyPets((prevPets) =>
-      prevPets.map((pet) =>
-        pet.id === id
-          ? {
-              ...pet,
-              status: pet.status === "Reunited" ? "Active" : "Reunited",
-            }
-          : pet
-      )
-    );
-  };
 
   const handlePageChangePets = (newPage: number) => {
     setCurrentPagePets(newPage);
@@ -381,10 +358,7 @@ export default function DashboardProfile() {
       const response = await removeFromFavorite(animal_id);
       if (response.success) {
         const updatedWishlistResponse = await fetchMyFavorite();
-        console.log(
-          "Updated fetchMyFavorite response:",
-          updatedWishlistResponse
-        );
+        console.log("Updated fetchMyFavorite response:", updatedWishlistResponse);
         const updatedWishlist = updatedWishlistResponse.success
           ? (updatedWishlistResponse.result ?? []).map((pet, index) => ({
               id: pet.report_id ? Number(pet.report_id) : index + 1,
@@ -397,13 +371,9 @@ export default function DashboardProfile() {
               name: pet.name_en || "Unnamed Pet",
               description: pet.desc || "No description provided",
               image: pet.image
-                ? `${process.env.NEXT_PUBLIC_API_BASE_URL}/storage${
-                    pet.image.startsWith("/") ? pet.image : `/${pet.image}`
-                  }`
+                ? `${process.env.NEXT_PUBLIC_API_BASE_URL}/storage${pet.image.startsWith("/") ? pet.image : `/${pet.image}`}`
                 : "/assets/default-pet.jpg",
-              badgeType: (pet.report_type === 1 ? "Lost" : "Found") as
-                | "Lost"
-                | "Found",
+              badgeType: (pet.report_type === 1 ? "Lost" : "Found") as "Lost" | "Found",
               report_type: pet.report_type?.toString() || "1",
               location: pet.location || "",
               date: pet.report_date
@@ -413,9 +383,7 @@ export default function DashboardProfile() {
                     year: "numeric",
                   })
                 : "N/A",
-              status: (pet.status === 1 ? "Active" : "Reunited") as
-                | "Active"
-                | "Reunited",
+              status: (pet.status === 2 ? "Reunited" : "Active") as "Active" | "Reunited",
               reward: pet.reward || undefined,
               breed_id: pet.breed_id?.toString() || "",
               species: pet.species?.toString() || "",
@@ -452,17 +420,29 @@ export default function DashboardProfile() {
 
   const indexOfLastWishlist = currentPageWishlist * petsPerPage;
   const indexOfFirstWishlist = indexOfLastWishlist - petsPerPage;
-  const currentWishlist = wishlist.slice(
-    indexOfFirstWishlist,
-    indexOfLastWishlist
-  );
+  const currentWishlist = wishlist.slice(indexOfFirstWishlist, indexOfLastWishlist);
+
+  // Function to calculate visible page numbers (max 4)
+  const getVisiblePages = (currentPage: number, totalPages: number) => {
+    const maxVisible = 3;
+    let startPage = Math.max(1, currentPage - Math.floor(maxVisible / 2));
+    let endPage = startPage + maxVisible - 1;
+
+    // Adjust if endPage exceeds totalPages
+    if (endPage > totalPages) {
+      endPage = totalPages;
+      startPage = Math.max(1, endPage - maxVisible + 1);
+    }
+
+    return Array.from({ length: endPage - startPage + 1 }, (_, i) => startPage + i);
+  };
 
   return (
     <section className="w-full bg-[#EFEEF1] px-4 md:px-8 lg:px-12 py-10">
       <div className="max-w-6xl mx-auto">
         <ProfileSection />
-        <Tabs defaultValue="myPets" className="space-y-6">
-          <TabsList className="grid grid-cols-3 max-w-2xl mx-auto bg-[#e4e3e7]">
+        <Tabs defaultValue="myPets" className="space-y-4">
+          <TabsList className="grid grid-cols-2 max-w-2xl mx-auto bg-[#e4e3e7]">
             <TabsTrigger
               value="myPets"
               className="data-[state=active]:bg-[#4eb7f0] data-[state=active]:text-white"
@@ -476,13 +456,6 @@ export default function DashboardProfile() {
             >
               <Heart size={16} className="mr-2" />
               Wishlist
-            </TabsTrigger>
-            <TabsTrigger
-              value="reported"
-              className="data-[state=active]:bg-[#4eb7f0] data-[state=active]:text-white"
-            >
-              <AlertTriangle size={16} className="mr-2" />
-              Reported
             </TabsTrigger>
           </TabsList>
 
@@ -522,7 +495,6 @@ export default function DashboardProfile() {
                     pet={pet}
                     onEdit={handleEditReport}
                     onDetail={handleDetailReport}
-                    onMarkAsReunited={markAsReunited}
                   />
                 ))
               ) : (
@@ -542,29 +514,27 @@ export default function DashboardProfile() {
                       if (currentPagePets > 1)
                         handlePageChangePets(currentPagePets - 1);
                     }}
-                    className={`${
-                      currentPagePets === 1
-                        ? "opacity-50 cursor-not-allowed"
-                        : ""
-                    }`}
+                    className={`${currentPagePets === 1 ? "opacity-50 cursor-not-allowed" : ""}`}
                   />
                   <PaginationContent>
-                    {Array.from({ length: totalPagesPets }, (_, index) => (
-                      <PaginationItem key={index}>
+                    {getVisiblePages(currentPagePets, totalPagesPets).map((page) => (
+                      <PaginationItem key={page}>
                         <PaginationLink
-                          isActive={currentPagePets === index + 1}
-                          onClick={() => handlePageChangePets(index + 1)}
+                          isActive={currentPagePets === page}
+                          onClick={() => handlePageChangePets(page)}
                         >
-                          {index + 1}
+                          {page}
                         </PaginationLink>
                       </PaginationItem>
                     ))}
                   </PaginationContent>
-                  {currentPagePets < totalPagesPets && (
-                    <PaginationNext
-                      onClick={() => handlePageChangePets(currentPagePets + 1)}
-                    />
-                  )}
+                  <PaginationNext
+                    onClick={() => {
+                      if (currentPagePets < totalPagesPets)
+                        handlePageChangePets(currentPagePets + 1);
+                    }}
+                    className={`${currentPagePets === totalPagesPets ? "opacity-50 cursor-not-allowed" : ""}`}
+                  />
                 </Pagination>
               </div>
             )}
@@ -618,8 +588,7 @@ export default function DashboardProfile() {
                     Your Wishlist is Empty
                   </h3>
                   <p className="text-gray-500 max-w-md mb-6">
-                    Save pet listings to your wishlist to keep track of pets
-                    you're interested in helping.
+                    Save pet listings to your wishlist to keep track of pets you're interested in helping.
                   </p>
                   <button
                     onClick={() => router.push("/")}
@@ -638,11 +607,7 @@ export default function DashboardProfile() {
                       if (currentPageWishlist > 1)
                         handlePageChangeWishlist(currentPageWishlist - 1);
                     }}
-                    className={`${
-                      currentPageWishlist === 1
-                        ? "opacity-50 cursor-not-allowed"
-                        : ""
-                    }`}
+                    className={`${currentPageWishlist === 1 ? "opacity-50 cursor-not-allowed" : ""}`}
                   />
                   <PaginationContent>
                     {Array.from({ length: totalPagesWishlist }, (_, index) => (
@@ -658,28 +623,12 @@ export default function DashboardProfile() {
                   </PaginationContent>
                   {currentPageWishlist < totalPagesWishlist && (
                     <PaginationNext
-                      onClick={() =>
-                        handlePageChangeWishlist(currentPageWishlist + 1)
-                      }
+                      onClick={() => handlePageChangeWishlist(currentPageWishlist + 1)}
                     />
                   )}
                 </Pagination>
               </div>
             )}
-          </TabsContent>
-
-          <TabsContent value="reported">
-            <div className="col-span-full flex flex-col items-center justify-center py-10 text-center">
-              <div className="text-gray-400 mb-3">
-                <AlertTriangle size={48} />
-              </div>
-              <h3 className="text-xl font-medium text-gray-700 mb-2">
-                No Reported Pets
-              </h3>
-              <p className="text-gray-500 max-w-md">
-                There are currently no reports on any of your pet listings.
-              </p>
-            </div>
           </TabsContent>
         </Tabs>
       </div>

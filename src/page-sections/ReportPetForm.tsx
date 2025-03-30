@@ -1,7 +1,7 @@
+"use client";
+
 import React, { useState, useCallback, useEffect } from "react";
 import Image from "next/image";
-import { useFormik } from "formik";
-import * as yup from "yup";
 import { useRouter } from "next/navigation";
 import {
   MapPin,
@@ -33,6 +33,7 @@ import { SpeciesSelector } from "@component/ReportLostPetForm/SpeciesSelector";
 import { FoundPetFormData } from "context/petFoundType";
 import { toast } from "react-toastify";
 import StepOneFoundForm from "@component/found-pet-form/StepOneFoundForm";
+import { useAuthContext } from "context/auth-context/AuthContext";
 
 interface SpeciesOption {
   value: string;
@@ -47,20 +48,22 @@ const mapContainerStyle = {
 
 export default function ReportFoundPetForm() {
   const router = useRouter();
+  const { status } = useAuthContext();
+
+  // Move all hooks to the top
   const [currentStep, setCurrentStep] = useState<number>(1);
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
+  const [loading, setLoading] = useState<boolean>(false);
   const {
     position,
     isLoaded,
     loadError,
     onLoad,
-    onUnmount,
     onMarkerLoad,
     onMarkerUnmount,
     setPosition,
     getCurrentLocation,
   } = useGoogleMap(process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || "");
-
   const [formData, setFormData] = useState<FoundPetFormData>({
     animal_name: "",
     image_file: undefined,
@@ -77,24 +80,21 @@ export default function ReportFoundPetForm() {
     your_name: "",
     contact_email: "",
     phone_number: "",
-    desc: "", // Already present, no change needed here
+    desc: "",
     location_coordinates: { lat: 0, lng: 0 },
   });
-
-  const handleInputChange = (
-    e: React.ChangeEvent<
-      HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
-    >
-  ) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
-  };
-
   const [speciesData, setSpeciesData] = useState<Record<string, string>>({});
   const [breedOptions, setBreedOptions] = useState<Record<string, string>>({});
+  const [breeds, setBreeds] = useState<any[]>([]);
+  const [speciesOptions, setSpeciesOptions] = useState<SpeciesOption[]>([]);
+
+  // Auth check with redirect logic
+  useEffect(() => {
+    if (status !== "loggedIn") {
+      toast.error("Please log in to report a found pet.");
+      router.push("/login");
+    }
+  }, [status, router]);
 
   // Fetch species on mount
   useEffect(() => {
@@ -116,17 +116,7 @@ export default function ReportFoundPetForm() {
     fetchBreeds();
   }, [formData.species]);
 
-  const nextStep = () => {
-    setCurrentStep((prev) => Math.min(prev + 1, 3));
-  };
-
-  const prevStep = () => {
-    setCurrentStep((prev) => Math.max(prev - 1, 1));
-  };
-
-  const [breeds, setBreeds] = useState<any[]>([]);
-
-  // Fetch breeds when species changes
+  // Fetch breeds for dropdown
   useEffect(() => {
     const fetchBreeds = async () => {
       if (formData.species) {
@@ -140,20 +130,47 @@ export default function ReportFoundPetForm() {
           }
         } catch (error) {
           console.error("Failed to fetch breeds:", error);
-          setBreeds([]); // Reset breeds on error
+          setBreeds([]);
         }
       } else {
         setBreeds([]);
       }
     };
-
     fetchBreeds();
   }, [formData.species]);
+
+  // Input change handler
+  const handleInputChange = (
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
+    >
+  ) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
+
+  const nextStep = () => {
+    setLoading(true);
+    setTimeout(() => {
+      setCurrentStep((prev) => Math.min(prev + 1, 3));
+      setLoading(false);
+    }, 500);
+  };
+
+  const prevStep = () => {
+    setLoading(true);
+    setTimeout(() => {
+      setCurrentStep((prev) => Math.max(prev - 1, 1));
+      setLoading(false);
+    }, 500);
+  };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    // Comprehensive validation
     const validationErrors: string[] = [];
 
     if (!formData.animal_name) validationErrors.push("Pet Name");
@@ -175,10 +192,8 @@ export default function ReportFoundPetForm() {
     const submissionData = new FormData();
 
     try {
-      // Careful, systematic data append
       Object.keys(formData).forEach((key) => {
         const value = formData[key as keyof FoundPetFormData];
-
         if (value !== null && value !== "") {
           if (key === "image_file" && value instanceof File) {
             submissionData.append(key, value, value.name);
@@ -188,7 +203,6 @@ export default function ReportFoundPetForm() {
         }
       });
 
-      // Log all form data before submission
       for (const [key, value] of Array.from(submissionData.entries())) {
         console.log(`Submitting - Key: ${key}, Value:`, value);
       }
@@ -206,7 +220,6 @@ export default function ReportFoundPetForm() {
           message: response.message,
           errors: response.errors,
         });
-
         alert(response.message || "Submission failed");
       }
     } catch (error) {
@@ -219,9 +232,10 @@ export default function ReportFoundPetForm() {
     }
   };
 
-  const [speciesOptions, setSpeciesOptions] = useState<SpeciesOption[]>([]);
-  const [speciesLoading, setSpeciesLoading] = useState(true);
-  const [speciesError, setSpeciesError] = useState<string | null>(null);
+  // Render content only if logged in
+  if (status !== "loggedIn") {
+    return null; // Early return after hooks
+  }
 
   const renderStepContent = () => {
     switch (currentStep) {
