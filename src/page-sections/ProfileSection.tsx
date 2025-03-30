@@ -10,7 +10,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Camera, Pencil, Save } from "lucide-react";
 import { useAuthContext } from "../context/auth-context/AuthContext";
 import { toast } from "react-toastify";
-import Image from "next/image";
+import imageCompression from "browser-image-compression";
 
 interface ProfileSectionProps {
   className?: string;
@@ -60,38 +60,29 @@ const ProfileSection: React.FC<ProfileSectionProps> = ({ className }) => {
     }
   }, [user]);
 
-  // Get avatar URL with proper error handling
-  // Add this in your getAvatarUrl function
   const getAvatarUrl = () => {
     if (avatarPreview) {
       console.log("Using avatar preview:", avatarPreview);
-      return avatarPreview; // Base64 data URL works with next/image
+      return avatarPreview;
     }
 
     if (userData.avatar && process.env.NEXT_PUBLIC_API_BASE_URL) {
-      // Ensure the path is correct and absolute
-      const avatarPath = userData.avatar.startsWith('/')
-        ? userData.avatar // If it already has a leading slash, use it as is
-        : `/${userData.avatar}`; // Add leading slash if missing
-      const url = `${process.env.NEXT_PUBLIC_API_BASE_URL}${avatarPath}`;
+      const avatarPath = userData.avatar.startsWith("/")
+        ? userData.avatar
+        : `/${userData.avatar}`;
+      const url = `${process.env.NEXT_PUBLIC_API_BASE_URL}/storage${avatarPath}`;
       console.log("Constructed server avatar URL:", url);
-      console.log("Raw avatar path from user data:", userData.avatar);
       return url;
     }
 
     console.log("Using default avatar");
-    return "/default-avatar.jpg"; // Relative to public folder
+    return "/default-avatar.jpg";
   };
 
-  const formatJoinDate = (dateString) => {
+  const formatJoinDate = (dateString: string) => {
     if (!dateString) return "Unknown";
-
     const date = new Date(dateString);
-
-    // Check if date is valid
     if (isNaN(date.getTime())) return "Unknown";
-
-    // Format: "Month DD, YYYY"
     const options: Intl.DateTimeFormatOptions = {
       year: "numeric",
       month: "long",
@@ -100,25 +91,55 @@ const ProfileSection: React.FC<ProfileSectionProps> = ({ className }) => {
     return date.toLocaleDateString("en-US", options);
   };
 
-  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (file) {
-      setSelectedFile(file);
-      setAvatarError(false);
+    if (!file) return;
 
-      // Create preview URL
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        const result = e.target?.result as string;
-        setAvatarPreview(result);
-      };
-      reader.readAsDataURL(file);
+    // Define max file size (e.g., 2MB)
+    const MAX_FILE_SIZE_MB = 2;
+    const MAX_FILE_SIZE_BYTES = MAX_FILE_SIZE_MB * 1024 * 1024;
+
+    // Validate file size
+    if (file.size > MAX_FILE_SIZE_BYTES) {
+      toast.error(`Image size exceeds ${MAX_FILE_SIZE_MB}MB. Please select a smaller file or compress it.`);
+      // Optional: Attempt compression if within a reasonable range (e.g., 5MB)
+      const COMPRESSION_THRESHOLD_MB = 5;
+      if (file.size <= COMPRESSION_THRESHOLD_MB * 1024 * 1024) {
+        try {
+          const options = {
+            maxSizeMB: MAX_FILE_SIZE_MB, // Target size
+            maxWidthOrHeight: 1024, // Resize dimensions
+            useWebWorker: true,
+          };
+          const compressedFile = await imageCompression(file, options);
+          toast.info("Image compressed successfully.");
+          setSelectedFile(compressedFile);
+
+          const reader = new FileReader();
+          reader.onload = (e) => {
+            setAvatarPreview(e.target?.result as string);
+          };
+          reader.readAsDataURL(compressedFile);
+        } catch (error) {
+          toast.error("Failed to compress image. Please select a smaller file.");
+          return;
+        }
+      }
+      return;
     }
+
+    // File is within size limit
+    setSelectedFile(file);
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      setAvatarPreview(e.target?.result as string);
+    };
+    reader.readAsDataURL(file);
+    setAvatarError(false);
   };
 
   const saveProfileChanges = async () => {
     try {
-      // Validate input
       if (!editedUserData.name.trim()) {
         toast.error("Name cannot be empty");
         return;
@@ -128,18 +149,22 @@ const ProfileSection: React.FC<ProfileSectionProps> = ({ className }) => {
         toast.error("Email cannot be empty");
         return;
       }
-      // Basic email validation
+
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
       if (!emailRegex.test(editedUserData.email)) {
         toast.error("Please enter a valid email address");
         return;
       }
 
-      const success = await updateProfile({
+      const profileData: UpdateProfileData = {
         name: editedUserData.name,
         email: editedUserData.email,
-        avatar: selectedFile || undefined,
-      });
+      };
+      if (selectedFile) {
+        profileData.avatar = selectedFile;
+      }
+
+      const success = await updateProfile(profileData);
 
       if (success) {
         setEditingProfile(false);
@@ -149,13 +174,17 @@ const ProfileSection: React.FC<ProfileSectionProps> = ({ className }) => {
       } else {
         toast.error("Failed to update profile");
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error saving profile:", error);
-      toast.error(
-        `Failed to update profile: ${
-          error.response?.data?.message || error.message
-        }`
-      );
+      if (error.response?.status === 413) {
+        toast.error("File too large. Please upload an image under 2MB.");
+      } else if (error.code === "ERR_NETWORK") {
+        toast.error("Network error. Please check your connection or server status.");
+      } else {
+        toast.error(
+          `Failed to update profile: ${error.response?.data?.message || error.message}`
+        );
+      }
     }
   };
 
