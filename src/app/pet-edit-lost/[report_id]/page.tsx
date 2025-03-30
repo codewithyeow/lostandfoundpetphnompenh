@@ -247,7 +247,7 @@ const EditLostReportPage = ({ params }: EditLostReportPageProps) => {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
         <div className="flex flex-col items-center gap-4">
-          <div className="w-16 h-16 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin"></div>
+        <div className="w-16 h-16 border-4 border-[#4eb7f0] border-t-transparent rounded-full animate-spin"></div>
           <p className="text-xl font-medium text-gray-700">Loading pet information...</p>
         </div>
       </div>
@@ -281,7 +281,7 @@ const EditLostReportPage = ({ params }: EditLostReportPageProps) => {
           <h1 className="text-3xl font-bold text-gray-900">Edit Lost Pet Report</h1>
           <button
             onClick={() => router.push("/profile")}
-            className="flex items-center text-indigo-600 hover:text-indigo-800 transition"
+            className="flex items-center text-[#4eb7f0] hover:text-[#3a9cd3] transition-colors duration-200 font-medium"
           >
             <ArrowLeft className="w-5 h-5 mr-1" />
             Back
@@ -290,7 +290,7 @@ const EditLostReportPage = ({ params }: EditLostReportPageProps) => {
 
         <div className="bg-white rounded-lg shadow-md p-6 mb-6">
           <div className="flex items-center gap-4">
-            <div className="p-3 bg-indigo-100 rounded-full">
+          <div className="p-3 bg-[#e6f4ff] rounded-full">
               {getSpeciesIcon(petData.species)}
             </div>
             <div>
@@ -308,7 +308,7 @@ const EditLostReportPage = ({ params }: EditLostReportPageProps) => {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="space-y-2">
                 <label className="flex items-center gap-2 text-sm font-medium text-gray-700">
-                  <PenSquare className="w-4 h-4 text-indigo-500" />
+                  <PenSquare className="w-4 h-4 text-[#4eb7f0]" />
                   Pet Name
                 </label>
                 <input
@@ -317,13 +317,13 @@ const EditLostReportPage = ({ params }: EditLostReportPageProps) => {
                   value={petData.animal_name}
                   onChange={handleChange}
                   placeholder="Enter pet’s name"
-                  className="w-full p-3 border border-gray-300 rounded-md shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                  className="w-full p-3 border border-gray-300 rounded-md shadow-sm focus:ring-2 focus:ring-[#4eb7f0] focus:border-[#4eb7f0]"
                 />
               </div>
 
               <div className="space-y-2">
                 <label className="flex items-center gap-2 text-sm font-medium text-gray-700">
-                  <FileText className="w-4 h-4 text-indigo-500" />
+                  <FileText className="w-4 h-4 text-[#4eb7f0]" />
                   Breed
                 </label>
                 <select
@@ -346,14 +346,14 @@ const EditLostReportPage = ({ params }: EditLostReportPageProps) => {
 
               <div className="space-y-2">
                 <label className="flex items-center gap-2 text-sm font-medium text-gray-700">
-                  <Dog className="w-4 h-4 text-indigo-500" />
+                  <Dog className="w-4 h-4 text-[#4eb7f0]" />
                   Species
                 </label>
                 <select
                   name="species"
                   value={petData.species}
                   onChange={handleChange}
-                  className="w-full p-3 border border-gray-300 rounded-md shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                  className="w-full p-3 border border-gray-300 rounded-md shadow-sm focus:ring-2 focus:ring-[#4eb7f0] focus:border-[#4eb7f0]"
                 >
                   <option value="1">Dog</option>
                   <option value="2">Cat</option>
@@ -366,7 +366,7 @@ const EditLostReportPage = ({ params }: EditLostReportPageProps) => {
 
               <div className="space-y-2">
                 <label className="flex items-center gap-2 text-sm font-medium text-gray-700">
-                  <User className="w-4 h-4 text-indigo-500" />
+                  <User className="w-4 h-4 text-[#4eb7f0]" />
                   Sex
                 </label>
                 <select
@@ -386,7 +386,7 @@ const EditLostReportPage = ({ params }: EditLostReportPageProps) => {
 
               <div className="space-y-2">
                 <label className="flex items-center gap-2 text-sm font-medium text-gray-700">
-                  <Ruler className="w-4 h-4 text-indigo-500" />
+                  <Ruler className="w-4 h-4 text-[#4eb7f0]" />
                   Size
                 </label>
                 <select
@@ -406,7 +406,7 @@ const EditLostReportPage = ({ params }: EditLostReportPageProps) => {
 
               <div className="space-y-2">
                 <label className="flex items-center gap-2 text-sm font-medium text-gray-700">
-                  <VenetianMask className="w-4 h-4 text-indigo-500" />
+                  <VenetianMask className="w-4 h-4 text-[#4eb7f0]" />
                   Distinguishing Features
                 </label>
                 <input
@@ -426,7 +426,7 @@ const EditLostReportPage = ({ params }: EditLostReportPageProps) => {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="space-y-2">
                 <label className="flex items-center gap-2 text-sm font-medium text-gray-700">
-                  <Calendar className="w-4 h-4 text-indigo-500" />
+                  <Calendar className="w-4 h-4 text-[#4eb7f0]" />
                   Date Lost
                 </label>
                 <DatePicker
@@ -440,7 +440,7 @@ const EditLostReportPage = ({ params }: EditLostReportPageProps) => {
 
               <div className="space-y-2">
                 <label className="flex items-center gap-2 text-sm font-medium text-gray-700">
-                  <MapPin className="w-4 h-4 text-indigo-500" />
+                  <MapPin className="w-4 h-4 text-[#4eb7f0]" />
                   Last Seen Location
                 </label>
                 <input
@@ -453,20 +453,20 @@ const EditLostReportPage = ({ params }: EditLostReportPageProps) => {
                 />
               </div>
 
-              <div className="md:col-span-2 space-y-2">
-                <label className="flex items-center gap-2 text-sm font-medium text-gray-700">
-                  <FileText className="w-4 h-4 text-indigo-500" />
-                  Additional Details
-                </label>
-                <textarea
-                  name="additional_location_details"
-                  value={petData.additional_location_details}
-                  onChange={handleChange}
-                  placeholder="Any extra information that might help identify your pet"
-                  rows={4}
-                  className="w-full p-3 border border-gray-300 rounded-md shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-                />
-              </div>
+             <div className="space-y-2">
+                             <label className="flex items-center gap-2 text-sm font-medium text-gray-700">
+                               <FileText className="w-4 h-4 text-[#4eb7f0]" />
+                               Additional Details
+                             </label>
+                             <textarea
+                               name="additional_location_details"
+                               value={petData.additional_location_details}
+                               onChange={handleChange}
+                               placeholder="Any extra information that might help identify your pet"
+                               rows={4}
+                               className="w-full p-3 border border-gray-300 rounded-md shadow-sm focus:ring-2 focus:ring-[#4eb7f0] focus:border-[#4eb7f0]"
+                             />
+                           </div>
             </div>
           </div>
 
@@ -475,7 +475,7 @@ const EditLostReportPage = ({ params }: EditLostReportPageProps) => {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="space-y-2">
                 <label className="flex items-center gap-2 text-sm font-medium text-gray-700">
-                  <User className="w-4 h-4 text-indigo-500" />
+                  <User className="w-4 h-4 text-[#4eb7f0]" />
                   Owner Name
                 </label>
                 <input
@@ -490,7 +490,7 @@ const EditLostReportPage = ({ params }: EditLostReportPageProps) => {
 
               <div className="space-y-2">
                 <label className="flex items-center gap-2 text-sm font-medium text-gray-700">
-                  <Mail className="w-4 h-4 text-indigo-500" />
+                  <Mail className="w-4 h-4 text-[#4eb7f0]" />
                   Contact Email
                 </label>
                 <input
@@ -505,7 +505,7 @@ const EditLostReportPage = ({ params }: EditLostReportPageProps) => {
 
               <div className="space-y-2">
                 <label className="flex items-center gap-2 text-sm font-medium text-gray-700">
-                  <Phone className="w-4 h-4 text-indigo-500" />
+                  <Phone className="w-4 h-4 text-[#4eb7f0]" />
                   Phone Number
                 </label>
                 <input
@@ -520,7 +520,7 @@ const EditLostReportPage = ({ params }: EditLostReportPageProps) => {
 
               <div className="space-y-2">
                 <label className="flex items-center gap-2 text-sm font-medium text-gray-700">
-                  <DollarSign className="w-4 h-4 text-indigo-500" />
+                  <DollarSign className="w-4 h-4 text-[#4eb7f0]" />
                   Reward
                 </label>
                 <div className="relative">
@@ -541,12 +541,14 @@ const EditLostReportPage = ({ params }: EditLostReportPageProps) => {
           </div>
 
           <div className="p-6 bg-gray-50">
-            <button
+          <button
               type="submit"
               disabled={isSubmitting}
-              className={`w-full flex items-center justify-center gap-2 py-3 px-4 ${
-                isSubmitting ? "bg-indigo-400" : "bg-indigo-600 hover:bg-indigo-700"
-              } text-white font-medium rounded-md shadow-sm transition duration-300`}
+              className={`w-full flex items-center justify-center gap-2 py-3 px-4 text-white font-medium rounded-full transition-colors duration-200 ${
+                isSubmitting
+                  ? "bg-[#4eb7f0] opacity-50 cursor-not-allowed"
+                  : "bg-[#4eb7f0] hover:bg-[#3a9cd3]"
+              }`}
             >
               {isSubmitting ? (
                 <>

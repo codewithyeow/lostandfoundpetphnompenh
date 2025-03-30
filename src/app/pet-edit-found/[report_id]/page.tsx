@@ -77,13 +77,13 @@ const conditionMap: { [key: string]: string } = {
 const getSpeciesIcon = (species: string) => {
   switch (species) {
     case "1":
-      return <Dog className="w-5 h-5" />;
+      return <Dog className="w-5 h-5 text-[#4eb7f0]" />;
     case "2":
-      return <Cat className="w-5 h-5" />;
+      return <Cat className="w-5 h-5 text-[#4eb7f0]" />;
     case "3":
-      return <Bird className="w-5 h-5" />;
+      return <Bird className="w-5 h-5 text-[#4eb7f0]" />;
     default:
-      return <Dog className="w-5 h-5" />;
+      return <Dog className="w-5 h-5 text-[#4eb7f0]" />;
   }
 };
 
@@ -119,10 +119,12 @@ const EditFoundReportPage = ({ params }: EditFoundReportPageProps) => {
 
           if (pet && pet.report_type?.toString() === "2") {
             const breedData = await fetchBreedsBySpecies(pet.species?.toString() || "1");
-            const breed = breedData.find((b) => b.name === pet.breed_id?.toString() || b.id === pet.breed_id?.toString());
+            const breed = breedData.find(
+              (b) => b.name === pet.breed_id?.toString() || b.id === pet.breed_id?.toString()
+            );
             const initialDate = pet.report_date || pet.date_found;
             const mappedData: EditReportPetParams = {
-                report_id: pet.report_id,
+              report_id: pet.report_id,
               report_type: "2", // Hardcoded for Found
               animal_name: pet.name_en || "",
               breed_id: breed ? breed.id : pet.breed_id?.toString() || "",
@@ -275,7 +277,7 @@ const EditFoundReportPage = ({ params }: EditFoundReportPageProps) => {
           <p className="text-gray-600 mb-6">We couldn’t find any found pet with the provided ID.</p>
           <button
             onClick={() => router.push("/dashboard/profile")}
-            className="flex items-center justify-center gap-2 px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition"
+            className="flex items-center justify-center gap-2 px-4 py-2 text-white bg-[#4eb7f0] font-medium rounded-full hover:bg-[#3a9cd3] transition-colors duration-200"
           >
             <ArrowLeft className="w-4 h-4" />
             Back to Profile
@@ -293,7 +295,7 @@ const EditFoundReportPage = ({ params }: EditFoundReportPageProps) => {
           <h1 className="text-3xl font-bold text-gray-900">Edit Found Pet Report</h1>
           <button
             onClick={() => router.push("/dashboard/profile")}
-            className="flex items-center text-indigo-600 hover:text-indigo-800 transition"
+            className="flex items-center text-[#4eb7f0] hover:text-[#3a9cd3] transition-colors duration-200 font-medium"
           >
             <ArrowLeft className="w-5 h-5 mr-1" />
             Back
@@ -302,7 +304,7 @@ const EditFoundReportPage = ({ params }: EditFoundReportPageProps) => {
 
         <div className="bg-white rounded-lg shadow-md p-6 mb-6">
           <div className="flex items-center gap-4">
-            <div className="p-3 bg-indigo-100 rounded-full">
+            <div className="p-3 bg-[#e6f4ff] rounded-full">
               {getSpeciesIcon(petData.species)}
             </div>
             <div>
@@ -320,7 +322,7 @@ const EditFoundReportPage = ({ params }: EditFoundReportPageProps) => {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="space-y-2">
                 <label className="flex items-center gap-2 text-sm font-medium text-gray-700">
-                  <PenSquare className="w-4 h-4 text-indigo-500" />
+                  <PenSquare className="w-4 h-4 text-[#4eb7f0]" />
                   Pet Name
                 </label>
                 <input
@@ -329,20 +331,20 @@ const EditFoundReportPage = ({ params }: EditFoundReportPageProps) => {
                   value={petData.animal_name}
                   onChange={handleChange}
                   placeholder="Enter pet’s name"
-                  className="w-full p-3 border border-gray-300 rounded-md shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                  className="w-full p-3 border border-gray-300 rounded-md shadow-sm focus:ring-2 focus:ring-[#4eb7f0] focus:border-[#4eb7f0]"
                 />
               </div>
 
               <div className="space-y-2">
                 <label className="flex items-center gap-2 text-sm font-medium text-gray-700">
-                  <FileText className="w-4 h-4 text-indigo-500" />
+                  <FileText className="w-4 h-4 text-[#4eb7f0]" />
                   Breed
                 </label>
                 <select
                   name="breed_id"
                   value={petData.breed_id}
                   onChange={handleChange}
-                  className="w-full p-3 border border-gray-300 rounded-md shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                  className="w-full p-3 border border-gray-300 rounded-md shadow-sm focus:ring-2 focus:ring-[#4eb7f0] focus:border-[#4eb7f0]"
                 >
                   <option value="">Select a breed</option>
                   {breeds.map((breed) => (
@@ -358,14 +360,14 @@ const EditFoundReportPage = ({ params }: EditFoundReportPageProps) => {
 
               <div className="space-y-2">
                 <label className="flex items-center gap-2 text-sm font-medium text-gray-700">
-                  <Dog className="w-4 h-4 text-indigo-500" />
+                  <Dog className="w-4 h-4 text-[#4eb7f0]" />
                   Species
                 </label>
                 <select
                   name="species"
                   value={petData.species}
                   onChange={handleChange}
-                  className="w-full p-3 border border-gray-300 rounded-md shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                  className="w-full p-3 border border-gray-300 rounded-md shadow-sm focus:ring-2 focus:ring-[#4eb7f0] focus:border-[#4eb7f0]"
                 >
                   <option value="1">Dog</option>
                   <option value="2">Cat</option>
@@ -378,14 +380,14 @@ const EditFoundReportPage = ({ params }: EditFoundReportPageProps) => {
 
               <div className="space-y-2">
                 <label className="flex items-center gap-2 text-sm font-medium text-gray-700">
-                  <User className="w-4 h-4 text-indigo-500" />
+                  <User className="w-4 h-4 text-[#4eb7f0]" />
                   Sex
                 </label>
                 <select
                   name="sex"
                   value={petData.sex}
                   onChange={handleChange}
-                  className="w-full p-3 border border-gray-300 rounded-md shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                  className="w-full p-3 border border-gray-300 rounded-md shadow-sm focus:ring-2 focus:ring-[#4eb7f0] focus:border-[#4eb7f0]"
                 >
                   <option value="1">Male</option>
                   <option value="2">Female</option>
@@ -398,14 +400,14 @@ const EditFoundReportPage = ({ params }: EditFoundReportPageProps) => {
 
               <div className="space-y-2">
                 <label className="flex items-center gap-2 text-sm font-medium text-gray-700">
-                  <Ruler className="w-4 h-4 text-indigo-500" />
+                  <Ruler className="w-4 h-4 text-[#4eb7f0]" />
                   Size
                 </label>
                 <select
                   name="size"
                   value={petData.size}
                   onChange={handleChange}
-                  className="w-full p-3 border border-gray-300 rounded-md shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                  className="w-full p-3 border border-gray-300 rounded-md shadow-sm focus:ring-2 focus:ring-[#4eb7f0] focus:border-[#4eb7f0]"
                 >
                   <option value="1">Small</option>
                   <option value="2">Medium</option>
@@ -418,7 +420,7 @@ const EditFoundReportPage = ({ params }: EditFoundReportPageProps) => {
 
               <div className="space-y-2">
                 <label className="flex items-center gap-2 text-sm font-medium text-gray-700">
-                  <VenetianMask className="w-4 h-4 text-indigo-500" />
+                  <VenetianMask className="w-4 h-4 text-[#4eb7f0]" />
                   Distinguishing Features
                 </label>
                 <input
@@ -427,7 +429,7 @@ const EditFoundReportPage = ({ params }: EditFoundReportPageProps) => {
                   value={petData.distinguishing_features}
                   onChange={handleChange}
                   placeholder="e.g., Black spot on left ear"
-                  className="w-full p-3 border border-gray-300 rounded-md shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                  className="w-full p-3 border border-gray-300 rounded-md shadow-sm focus:ring-2 focus:ring-[#4eb7f0] focus:border-[#4eb7f0]"
                 />
               </div>
             </div>
@@ -438,7 +440,7 @@ const EditFoundReportPage = ({ params }: EditFoundReportPageProps) => {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="space-y-2">
                 <label className="flex items-center gap-2 text-sm font-medium text-gray-700">
-                  <Calendar className="w-4 h-4 text-indigo-500" />
+                  <Calendar className="w-4 h-4 text-[#4eb7f0]" />
                   Date Found
                 </label>
                 <DatePicker
@@ -446,13 +448,13 @@ const EditFoundReportPage = ({ params }: EditFoundReportPageProps) => {
                   onChange={(date: Date) => setSelectedDate(date)}
                   dateFormat="MM/dd/yyyy"
                   placeholderText="Select date"
-                  className="w-full p-3 border border-gray-300 rounded-md shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                  className="w-full p-3 border border-gray-300 rounded-md shadow-sm focus:ring-2 focus:ring-[#4eb7f0] focus:border-[#4eb7f0]"
                 />
               </div>
 
               <div className="space-y-2">
                 <label className="flex items-center gap-2 text-sm font-medium text-gray-700">
-                  <MapPin className="w-4 h-4 text-indigo-500" />
+                  <MapPin className="w-4 h-4 text-[#4eb7f0]" />
                   Where Pet Was Found
                 </label>
                 <input
@@ -461,20 +463,20 @@ const EditFoundReportPage = ({ params }: EditFoundReportPageProps) => {
                   value={petData.where_pet_was_found}
                   onChange={handleChange}
                   placeholder="e.g., Central Park"
-                  className="w-full p-3 border border-gray-300 rounded-md shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                  className="w-full p-3 border border-gray-300 rounded-md shadow-sm focus:ring-2 focus:ring-[#4eb7f0] focus:border-[#4eb7f0]"
                 />
               </div>
 
               <div className="space-y-2">
                 <label className="flex items-center gap-2 text-sm font-medium text-gray-700">
-                  <Heart className="w-4 h-4 text-indigo-500" />
+                  <Heart className="w-4 h-4 text-[#4eb7f0]" />
                   Condition
                 </label>
                 <select
                   name="condition"
                   value={petData.condition}
                   onChange={handleChange}
-                  className="w-full p-3 border border-gray-300 rounded-md shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                  className="w-full p-3 border border-gray-300 rounded-md shadow-sm focus:ring-2 focus:ring-[#4eb7f0] focus:border-[#4eb7f0]"
                 >
                   <option value="">Select condition</option>
                   <option value="1">Healthy</option>
@@ -488,7 +490,7 @@ const EditFoundReportPage = ({ params }: EditFoundReportPageProps) => {
 
               <div className="space-y-2">
                 <label className="flex items-center gap-2 text-sm font-medium text-gray-700">
-                  <FileText className="w-4 h-4 text-indigo-500" />
+                  <FileText className="w-4 h-4 text-[#4eb7f0]" />
                   Additional Details
                 </label>
                 <textarea
@@ -497,7 +499,7 @@ const EditFoundReportPage = ({ params }: EditFoundReportPageProps) => {
                   onChange={handleChange}
                   placeholder="Any extra information that might help identify your pet"
                   rows={4}
-                  className="w-full p-3 border border-gray-300 rounded-md shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                  className="w-full p-3 border border-gray-300 rounded-md shadow-sm focus:ring-2 focus:ring-[#4eb7f0] focus:border-[#4eb7f0]"
                 />
               </div>
             </div>
@@ -508,7 +510,7 @@ const EditFoundReportPage = ({ params }: EditFoundReportPageProps) => {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="space-y-2">
                 <label className="flex items-center gap-2 text-sm font-medium text-gray-700">
-                  <User className="w-4 h-4 text-indigo-500" />
+                  <User className="w-4 h-4 text-[#4eb7f0]" />
                   Owner Name
                 </label>
                 <input
@@ -517,13 +519,13 @@ const EditFoundReportPage = ({ params }: EditFoundReportPageProps) => {
                   value={petData.owner_name}
                   onChange={handleChange}
                   placeholder="Enter owner’s name"
-                  className="w-full p-3 border border-gray-300 rounded-md shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                  className="w-full p-3 border border-gray-300 rounded-md shadow-sm focus:ring-2 focus:ring-[#4eb7f0] focus:border-[#4eb7f0]"
                 />
               </div>
 
               <div className="space-y-2">
                 <label className="flex items-center gap-2 text-sm font-medium text-gray-700">
-                  <Mail className="w-4 h-4 text-indigo-500" />
+                  <Mail className="w-4 h-4 text-[#4eb7f0]" />
                   Contact Email
                 </label>
                 <input
@@ -532,13 +534,13 @@ const EditFoundReportPage = ({ params }: EditFoundReportPageProps) => {
                   value={petData.contact_email}
                   onChange={handleChange}
                   placeholder="e.g., owner@example.com"
-                  className="w-full p-3 border border-gray-300 rounded-md shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                  className="w-full p-3 border border-gray-300 rounded-md shadow-sm focus:ring-2 focus:ring-[#4eb7f0] focus:border-[#4eb7f0]"
                 />
               </div>
 
               <div className="space-y-2">
                 <label className="flex items-center gap-2 text-sm font-medium text-gray-700">
-                  <Phone className="w-4 h-4 text-indigo-500" />
+                  <Phone className="w-4 h-4 text-[#4eb7f0]" />
                   Phone Number
                 </label>
                 <input
@@ -547,13 +549,13 @@ const EditFoundReportPage = ({ params }: EditFoundReportPageProps) => {
                   value={petData.phone_number}
                   onChange={handleChange}
                   placeholder="e.g., 123-456-7890"
-                  className="w-full p-3 border border-gray-300 rounded-md shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                  className="w-full p-3 border border-gray-300 rounded-md shadow-sm focus:ring-2 focus:ring-[#4eb7f0] focus:border-[#4eb7f0]"
                 />
               </div>
 
-              <div className="space-y-2">
+              {/* <div className="space-y-2">
                 <label className="flex items-center gap-2 text-sm font-medium text-gray-700">
-                  <DollarSign className="w-4 h-4 text-indigo-500" />
+                  <DollarSign className="w-4 h-4 text-[#4eb7f0]" />
                   Reward
                 </label>
                 <div className="relative">
@@ -566,10 +568,10 @@ const EditFoundReportPage = ({ params }: EditFoundReportPageProps) => {
                     value={petData.reward}
                     onChange={handleChange}
                     placeholder="e.g., 100"
-                    className="w-full p-3 pl-8 border border-gray-300 rounded-md shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                    className="w-full p-3 pl-8 border border-gray-300 rounded-md shadow-sm focus:ring-2 focus:ring-[#4eb7f0] focus:border-[#4eb7f0]"
                   />
                 </div>
-              </div>
+              </div> */}
             </div>
           </div>
 
@@ -577,9 +579,11 @@ const EditFoundReportPage = ({ params }: EditFoundReportPageProps) => {
             <button
               type="submit"
               disabled={isSubmitting}
-              className={`w-full flex items-center justify-center gap-2 py-3 px-4 ${
-                isSubmitting ? "bg-indigo-400" : "bg-indigo-600 hover:bg-indigo-700"
-              } text-white font-medium rounded-md shadow-sm transition duration-300`}
+              className={`w-full flex items-center justify-center gap-2 py-3 px-4 text-white font-medium rounded-full transition-colors duration-200 ${
+                isSubmitting
+                  ? "bg-[#4eb7f0] opacity-50 cursor-not-allowed"
+                  : "bg-[#4eb7f0] hover:bg-[#3a9cd3]"
+              }`}
             >
               {isSubmitting ? (
                 <>
