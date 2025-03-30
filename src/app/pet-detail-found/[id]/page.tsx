@@ -359,10 +359,10 @@ export default async function PetDetailFoundPage({ params }: PageProps) {
                     </div>
                   </CardContent>
                 </Card>
-                <Button className="w-full bg-[#4eb7f0] hover:bg-[#3a9fd8] text-white py-2 h-auto rounded-full mb-4">
+                {/* <Button className="w-full bg-[#4eb7f0] hover:bg-[#3a9fd8] text-white py-2 h-auto rounded-full mb-4">
                   <Phone size={16} className="mr-2" />
                   Call Finder
-                </Button>
+                </Button> */}
               </div>
             </div>
           </div>

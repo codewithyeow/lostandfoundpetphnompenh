@@ -291,10 +291,10 @@ export default async function PetDetailLostPage({ params }: PageProps) {
                     </div>
                   </CardContent>
                 </Card>
-                <Button className="w-full bg-[#4eb7f0] hover:bg-[#3a9fd8] text-white py-2 h-auto rounded-full mb-4">
+                {/* <Button className="w-full bg-[#4eb7f0] hover:bg-[#3a9fd8] text-white py-2 h-auto rounded-full mb-4">
                   <Phone size={16} className="mr-2" />
                   Call Owner
-                </Button>
+                </Button> */}
               </div>
             </div>
           </div>
