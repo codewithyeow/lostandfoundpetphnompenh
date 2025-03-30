@@ -262,7 +262,7 @@ const EditLostReportPage = ({ params }: EditLostReportPageProps) => {
           <h2 className="text-2xl font-bold text-gray-800 mb-2">Lost Pet Not Found</h2>
           <p className="text-gray-600 mb-6">We couldn’t find any lost pet with the provided ID.</p>
           <button
-            onClick={() => router.push("/profile")}
+            onClick={() => router.push("/dashboard/profile")}
             className="flex items-center justify-center gap-2 px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition"
           >
             <ArrowLeft className="w-4 h-4" />
