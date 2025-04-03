@@ -5,6 +5,7 @@ import { FormField } from "./FormField";
 import Image from "next/image";
 import { SpeciesSelector } from "./SpeciesSelector";
 import { getBreedsBySpecies, getCondition, getSize } from "@server/actions/animal-action";
+import { toast } from "react-toastify";
 
 export interface FoundPetFormData {
   animal_name: string;
@@ -36,7 +37,35 @@ interface StepOneFormProps {
   onImageUpload: (event: React.ChangeEvent<HTMLInputElement>) => void;
   onImageRemove: (index: number) => void;
   onNextStep: () => void;
+  setFormData: (data: any) => void;
+  nextStep: () => void;
+  speciesOptions: any[];
 }
+
+// Image validation function
+const validateImageUpload = (file: File | null, maxSizeMB: number = 5): boolean => {
+  if (!file) {
+    toast.error("Please select an image to upload");
+    return false;
+  }
+
+  const maxSizeBytes = maxSizeMB * 1024 * 1024;
+  
+  if (file.size > maxSizeBytes) {
+    toast.error(`Image size too large. Maximum allowed size is ${maxSizeMB}MB. Your file is ${(file.size / (1024 * 1024)).toFixed(2)}MB`);
+    return false;
+  }
+
+  const allowedTypes = ['image/jpeg', 'image/png', 'image/gif'];
+  if (!allowedTypes.includes(file.type)) {
+    toast.error("Invalid file type. Please upload JPG, PNG, or GIF images only");
+    return false;
+  }
+
+  toast.success("Image uploaded successfully");
+  return true;
+};
+
 const StepOneFoundForm = ({
   formData,
   onInputChange,
@@ -50,24 +79,47 @@ const StepOneFoundForm = ({
   const [sizes, setSizes] = useState<any[]>([]);
   const [conditionOptions, setConditionOptions] = useState<any[]>([]);
 
-  // Fetch conditions
+  // Modified handleImageUpload with validation
+  const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const files = event.target.files;
+    if (files && files.length > 0) {
+      const file = files[0];
+      if (validateImageUpload(file)) {
+        setFormData((prev) => ({
+          ...prev,
+          image_file: file,
+        }));
+      } else {
+        event.target.value = ''; // Clear the input if validation fails
+      }
+    }
+  };
+
+  const handleRemoveImage = () => {
+    setFormData((prev) => ({
+      ...prev,
+      image_file: null,
+    }));
+    toast.info("Image removed");
+  };
+
+  // ... rest of your existing useEffect hooks remain the same
+
   useEffect(() => {
     const fetchCondition = async () => {
       try {
         const response = await getCondition();
         if (response.success && response.result) {
           const options = Object.entries(response.result).map(([id, name]) => ({
-            id: parseInt(id), // Parse the ID to an integer
+            id: parseInt(id),
             name,
           }));
           setConditionOptions(options);
-          console.log('Fetched conditions:', response.result);
         }
       } catch (error) {
         console.error('Failed to fetch conditions:', error);
       }
     };
-
     fetchCondition();
   }, []);
 
@@ -82,18 +134,14 @@ const StepOneFoundForm = ({
               value,
             }))
           );
-          console.log("Fetched sizes:", response.result);
         }
       } catch (error) {
         console.error("Failed to fetch sizes:", error);
       }
     };
-
     fetchSizes();
   }, []);
 
-
-  // Fetch breeds when species changes
   useEffect(() => {
     const fetchBreeds = async () => {
       if (formData.species) {
@@ -101,7 +149,6 @@ const StepOneFoundForm = ({
           const response = await getBreedsBySpecies(formData.species);
           if (response.success && response.result) {
             setBreeds(response.result);
-            // Automatically select the first breed if none is selected
             if (response.result.length > 0 && !formData.breed_id) {
               setFormData((prev) => ({
                 ...prev,
@@ -119,14 +166,12 @@ const StepOneFoundForm = ({
         setBreeds([]);
       }
     };
-
     fetchBreeds();
-  }, [formData.species]);
+  }, [formData.species, setFormData]);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     if (name === 'sex') {
-      // Convert sex to number here
       setFormData(prev => ({
         ...prev,
         sex: value === 'Male' ? 1 : 2,
@@ -142,30 +187,10 @@ const StepOneFoundForm = ({
   const handleConditionChange = (e) => {
     setFormData((prev) => ({
       ...prev,
-      condition: parseInt(e.target.value), 
+      condition: parseInt(e.target.value),
     }));
-  };
-  const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const files = event.target.files;
-    if (files && files.length > 0) {
-      setFormData((prev) => ({
-        ...prev,
-        image_file: files[0], // Store the first selected file
-      }));
-    } else {
-      setFormData((prev) => ({
-        ...prev,
-        image_file: null, // If no files, set image_file to null
-      }));
-    }
   };
 
-  const handleRemoveImage = () => {
-    setFormData((prev) => ({
-      ...prev,
-      image_file: null, // Set image_file to null to remove the image
-    }));
-  };
   return (
     <div className="space-y-3">
       <div className="flex flex-col md:flex-row gap-4">
@@ -323,11 +348,14 @@ const StepOneFoundForm = ({
         <input
           type="file"
           accept="image/*"
-          onChange={handleImageUpload} // Removed 'multiple'
+          onChange={handleImageUpload}
           className="w-full p-2 border rounded-md file:mr-4 file:rounded-md file:border-0 file:bg-green-100 file:px-3 file:py-1 file:text-green-500"
         />
+        <p className="text-xs text-gray-500 mt-1">
+          Max file size: 5MB. Accepted formats: JPG, PNG, GIF
+        </p>
 
-        {formData.image_file && ( // Check if image_file exists
+        {formData.image_file && (
           <div className="mt-2">
             <p className="text-sm text-gray-600 mb-2">
               1 image uploaded
@@ -352,12 +380,14 @@ const StepOneFoundForm = ({
             </div>
           </div>
         )}
+      </div>
 
       <FormField label="Pet's Condition" icon={<Info size={16} />}>
-      <select
+        <select
           name="condition"
           value={formData.condition}
           onChange={handleConditionChange}
+          className="w-full p-2 border rounded-md focus:ring-green-500 focus:border-green-500"
         >
           <option value="">Select Condition</option>
           {conditionOptions.map((option) => (
@@ -367,7 +397,6 @@ const StepOneFoundForm = ({
           ))}
         </select>
       </FormField>
-      </div>
 
       <div className="flex justify-center mt-4">
         <button

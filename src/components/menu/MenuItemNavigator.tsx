@@ -42,17 +42,8 @@ const MenuItemNavigator: React.FC<MenuItemNavigatorProps> = ({
       ],
       restricted: true,
     },
-    {
-      name: "HAPPY TALES",
-      key: "happy-tales",
-      href: "/success-stories",
-    },
-    {
-      name: "ABOUT US",
-      key: "about-us",
-      href: "/about",
-    },
   ];
+  
 
   const toggleDropdown = (key: string) => {
     setActiveDropdown(activeDropdown === key ? null : key);
@@ -124,8 +115,8 @@ const MenuItemNavigator: React.FC<MenuItemNavigatorProps> = ({
               onClick={() =>
                 item.subItem
                   ? toggleDropdown(item.key)
-                  : item.href
-                  ? handleNavigation(item.href, item.restricted)
+                  : item.key
+                  ? handleNavigation(item.key, item.restricted)
                   : null
               }
             >

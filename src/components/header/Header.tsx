@@ -18,7 +18,7 @@ const Header: React.FC<HeaderProps> = ({ locale = "en" }) => {
   const router = useRouter();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
-  const [isLogoLoading, setIsLogoLoading] = useState(true);
+  // const [isLogoLoading, setIsLogoLoading] = useState(true);
   const maxWidth = useMaxWidth("sm");
 
   useEffect(() => {
@@ -42,7 +42,7 @@ const Header: React.FC<HeaderProps> = ({ locale = "en" }) => {
     setIsMenuOpen(!isMenuOpen);
   };
 
-  const handleLogoLoad = () => setIsLogoLoading(false);
+  // const handleLogoLoad = () => setIsLogoLoading(false);
 
   return (
     <nav className="bg-white w-full z-50 top-0 sticky border-b-4 border-[#4eb7f0] shadow-sm">
@@ -52,12 +52,12 @@ const Header: React.FC<HeaderProps> = ({ locale = "en" }) => {
           <div className="flex items-center space-x-3 rtl:space-x-reverse">
             <a href="/" className="flex items-center">
               <Avatar className="w-12 h-12 md:w-16 md:h-16 transition-all duration-300">
-                {isLogoLoading && <Skeleton className="w-full h-full rounded-full" />}
+                {/* {isLogoLoading && <Skeleton className="w-full h-full rounded-full" />} */}
                 <AvatarImage
                   src="/assets/logo.png"
                   alt="Logo"
-                  onLoad={handleLogoLoad}
-                  className={isLogoLoading ? "hidden" : "block"}
+
+              
                 />
               </Avatar>
             </a>

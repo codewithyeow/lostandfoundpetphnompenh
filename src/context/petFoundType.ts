@@ -2,10 +2,10 @@ export interface FoundPetFormData {
   animal_name: string;
   image_file?: File;
   species: string;
-  breed_id: string;
+  breed_id: number;
   color: string;
-  sex: string;
-  size: string;
+  sex: number;
+  size: number;
   date_found: string;
   condition: number;
   distinguishing_features: string;

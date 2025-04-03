@@ -83,6 +83,29 @@ export interface MyPet {
 
 interface MyPetsApiResponse extends ApiResponse<MyPet[]> {}
 
+export async function search(params: { species?: number; breed_id?: number; size?: number }) {
+  try {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/search`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      // body: JSON.stringify(params),
+    });
+
+    if (!res.ok) {
+      throw new Error(`Failed to fetch search results: ${res.status} ${res.statusText}`);
+    }
+
+    return res.json();
+  } catch (error) {
+    console.error("Error in search function:", error);
+    throw error;
+  }
+}
+
+
+
 //New function to mark a pet as reunited
 export async function updateMarkReunitedStatus(
   animal_id: number
@@ -113,6 +136,34 @@ export async function updateMarkReunitedStatus(
   }
 }
 
+export async function updateMarkActiveStatus(
+  animal_id: number
+): Promise<ApiResponse<null>> {
+  try {
+    const response = await axios.put(
+      `/api/frontend/animal/mark-active?animal_id=${animal_id}`,
+      {},
+      {
+        headers: getAuthHeaders(),
+      }
+    );
+    return {
+      success: true,
+      title: "Success",
+      code: 200,
+      message: "Pet marked as return back to active successfully",
+      result: null,
+    };
+  } catch (error) {
+    console.error("Error marking pet as active:", error);
+    return {
+      success: false,
+      title: "Error",
+      code: 500,
+      message: "Failed to mark pet as active",
+    };
+  }
+}
 export async function CreaterReportFoundPetAction(formData: FormData) {
   console.log("CreaterReportFoundPetAction started");
 
@@ -575,21 +626,6 @@ export async function editReportPet(
       "contact_email",
       "phone_number",
     ];
-
-    // Validate common required fields
-    for (const field of commonRequiredFields) {
-      if (!params[field] || params[field].trim() === "") {
-        console.error(`Missing or empty required field: ${field}`);
-        return {
-          success: false,
-          title: "Validation Error",
-          code: 400,
-          message: `Missing or empty required field: ${field}`,
-          errors: {},
-        };
-      }
-    }
-
     // Validate report_type
     if (!["1", "2"].includes(params.report_type)) {
       console.error("Invalid report_type, must be '1' (Lost) or '2' (Found)");

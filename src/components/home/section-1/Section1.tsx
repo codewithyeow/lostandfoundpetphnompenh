@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import { useTranslations } from "next-intl";
 import Flickity from "flickity";
@@ -10,6 +10,34 @@ interface Pet {
   image: string;
 }
 
+interface PetReport {
+  id: number;
+  animal_id: number;
+  report_id: string;
+  name: string;
+  description: string;
+  image: string;
+  badgeType: "Lost" | "Found";
+  report_type: string;
+  location: string;
+  date: string;
+  status: "Active" | "Reunited";
+  reward?: string;
+  breed_id: string;
+  species: string;
+  sex: string;
+  size: string;
+  distinguishing_features: string;
+  date_lost?: string;
+  nearest_address_last_seen?: string;
+  date_found?: string;
+  where_pet_was_found?: string;
+  condition?: string;
+  additional_details?: string;
+  owner_name: string;
+  contact_email: string;
+  phone_number: string;
+}
 const carouselItems: Pet[] = [
   {
     id: 1,
@@ -62,13 +90,26 @@ export default function Section1() {
       flickityInstance.current.select(index);
     }
   };
+  const [searchResults, setSearchResults] = useState<PetReport[] | null>(null);
 
+  const handleSearchResults = (results: PetReport[] | null) => {
+    setSearchResults(results); // Store results in parent state
+    console.log("Search results:", results);
+  };
   return (
     <div className="relative w-full">
       {/* SearchSection Component */}
-      <div className="absolute top-0 left-1/2 transform -translate-x-1/2 z-10  w-full sm:w-[60%] md:w-[50%] lg:w-[40%]">
-        <SearchSection />
-      </div>
+      <div>
+      <SearchSection onSearchResults={handleSearchResults} />
+      {/* Optionally render results */}
+      {searchResults && (
+        <ul>
+          {searchResults.map((result) => (
+            <li key={result.id}>{result.name} - {result.species}</li>
+          ))}
+        </ul>
+      )}
+    </div>
 
       {/* Flickity Carousel */}
       <div ref={carouselRef} className="w-full">
