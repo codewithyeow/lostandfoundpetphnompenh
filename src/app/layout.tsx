@@ -6,7 +6,6 @@ import { getLocale, getMessages } from "next-intl/server";
 import localFont from "next/font/local";
 import { AuthProvider } from "context/auth-context/AuthContext";
 import dynamic from "next/dynamic";
-import LoadingProvider from "../components/LoadingProvider"; // Import the new provider
 
 const ToastContainer = dynamic(() => import('react-toastify').then((mod) => mod.ToastContainer), {
   ssr: true,
@@ -56,7 +55,8 @@ export default async function RootLayout({
           />
           <AuthProvider>
             <Header locale={locale} />
-            <LoadingProvider>{children}</LoadingProvider>
+            {/* <LoadingProvider>{children}</LoadingProvider> */}
+            {children}
             <Footer />
           </AuthProvider>
         </NextIntlClientProvider>

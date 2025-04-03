@@ -49,7 +49,11 @@ interface PetReport {
   phone_number: string;
 }
 
-export default function Section2() {
+interface Section2Props {
+  searchResults?: PetReport[] | null; // Optional prop for search results
+}
+
+export default function Section2({ searchResults }: Section2Props) {
   const [loading, setLoading] = useState(true);
   const [favorites, setFavorites] = useState<number[]>([]);
   const [petData, setPetData] = useState<PetReport[]>([]);
@@ -72,6 +76,47 @@ export default function Section2() {
     }
   };
 
+  const normalizePet = (pet: any, index: number, offset: number = 0): PetReport => {
+    const petId = pet.id?.toString() || pet.report_id || pet.pivot?.model_id?.toString();
+    const reportType =
+      pet.report_type?.toString() ||
+      (pet.image?.includes("lost") ? "1" : pet.image?.includes("found") ? "2" : "1");
+    const badgeType = reportType === "1" ? "Lost" : "Found";
+
+    return {
+      id: pet.report_id ? Number(pet.report_id) : index + offset + 1,
+      animal_id: pet.animal_id ? Number(pet.animal_id) : pet.id ? Number(pet.id) : pet.pivot?.model_id ? Number(pet.pivot.model_id) : index + offset + 1,
+      report_id: petId || `temp-${index + offset + 1}`,
+      name: pet.name_en || "Unnamed Pet",
+      description: pet.desc || "No description provided",
+      image: pet.image
+        ? `${process.env.NEXT_PUBLIC_API_BASE_URL}/storage${pet.image.startsWith("/") ? pet.image : `/${pet.image}`}`
+        : "/assets/default-pet.jpg",
+      badgeType: badgeType,
+      report_type: reportType,
+      location: pet.location || "",
+      date: pet.report_date
+        ? new Date(pet.report_date).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })
+        : "N/A",
+      status: pet.animal_status === 4 ? "Reunited" : "Active", // Aligned with backend
+      reward: pet.reward || undefined,
+      breed_id: pet.breed_id?.toString() || "",
+      species: pet.species?.toString() || "",
+      sex: pet.sex?.toString() || "",
+      size: pet.size?.toString() || "",
+      distinguishing_features: pet.distinguishing_features || "",
+      date_lost: pet.date_lost || "",
+      nearest_address_last_seen: pet.nearest_address_last_seen || "",
+      date_found: pet.date_found || "",
+      where_pet_was_found: pet.where_pet_was_found || "",
+      condition: pet.condition?.toString() || "",
+      additional_details: pet.additional_details || "",
+      owner_name: pet.owner_name || "",
+      contact_email: pet.contact_email || "",
+      phone_number: pet.phone_number || "",
+    };
+  };
+
   const fetchPetData = async () => {
     if (hasFetched.current) return;
     hasFetched.current = true;
@@ -85,108 +130,13 @@ export default function Section2() {
       ]);
 
       const myPets = myPetsResponse.success
-        ? (myPetsResponse.result ?? []).map((pet, index) => ({
-            id: pet.report_id ? Number(pet.report_id) : index + 1,
-            animal_id: pet.animal_id ? Number(pet.animal_id) : index + 1,
-            report_id: pet.report_id || `temp-${index + 1}`,
-            name: pet.name_en || "Unnamed Pet",
-            description: pet.desc || "No description provided",
-            image: pet.image
-              ? `${process.env.NEXT_PUBLIC_API_BASE_URL}/storage${pet.image.startsWith("/") ? pet.image : `/${pet.image}`}`
-              : "/assets/default-pet.jpg",
-            badgeType: (pet.report_type === 1 ? "Lost" : "Found") as "Lost" | "Found",
-            report_type: pet.report_type?.toString() || "1",
-            location: pet.location || "",
-            date: pet.report_date
-              ? new Date(pet.report_date).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })
-              : "N/A",
-            status: (pet.animal_status === 1 ? "Active" : "Reunited") as "Active" | "Reunited",
-            reward: pet.reward || undefined,
-            breed_id: pet.breed_id?.toString() || "",
-            species: pet.species?.toString() || "",
-            sex: pet.sex?.toString() || "",
-            size: pet.size?.toString() || "",
-            distinguishing_features: pet.distinguishing_features || "",
-            date_lost: pet.date_lost || "",
-            nearest_address_last_seen: pet.nearest_address_last_seen || "",
-            date_found: pet.date_found || "",
-            where_pet_was_found: pet.where_pet_was_found || "",
-            condition: pet.condition?.toString() || "",
-            additional_details: pet.additional_details || "",
-            owner_name: pet.owner_name || "",
-            contact_email: pet.contact_email || "",
-            phone_number: pet.phone_number || "",
-          }))
+        ? (myPetsResponse.result ?? []).map((pet, index) => normalizePet(pet, index))
         : [];
-
       const allReports = allReportsResponse.success
-        ? (allReportsResponse.result ?? []).map((pet, index) => ({
-            id: pet.report_id ? Number(pet.report_id) : index + myPets.length + 1,
-            animal_id: pet.animal_id ? Number(pet.animal_id) : index + myPets.length + 1,
-            report_id: pet.report_id || `temp-${index + myPets.length + 1}`,
-            name: pet.name_en || "Unnamed Pet",
-            description: pet.desc || "No description provided",
-            image: pet.image
-              ? `${process.env.NEXT_PUBLIC_API_BASE_URL}/storage${pet.image.startsWith("/") ? pet.image : `/${pet.image}`}`
-              : "/assets/default-pet.jpg",
-            badgeType: (pet.report_type === 1 ? "Lost" : "Found") as "Lost" | "Found",
-            report_type: pet.report_type?.toString() || "1",
-            location: pet.location || "",
-            date: pet.report_date
-              ? new Date(pet.report_date).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })
-              : "N/A",
-            status: (pet.animal_status === 1 ? "Active" : "Reunited") as "Active" | "Reunited",
-            reward: pet.reward || undefined,
-            breed_id: pet.breed_id?.toString() || "",
-            species: pet.species?.toString() || "",
-            sex: pet.sex?.toString() || "",
-            size: pet.size?.toString() || "",
-            distinguishing_features: pet.distinguishing_features || "",
-            date_lost: pet.date_lost || "",
-            nearest_address_last_seen: pet.nearest_address_last_seen || "",
-            date_found: pet.date_found || "",
-            where_pet_was_found: pet.where_pet_was_found || "",
-            condition: pet.condition?.toString() || "",
-            additional_details: pet.additional_details || "",
-            owner_name: pet.owner_name || "",
-            contact_email: pet.contact_email || "",
-            phone_number: pet.phone_number || "",
-          }))
+        ? (allReportsResponse.result ?? []).map((pet, index) => normalizePet(pet, index, myPets.length))
         : [];
-
       const favoritePets = favoritesResponse.success
-        ? (favoritesResponse.result ?? []).map((pet, index) => ({
-            id: pet.report_id ? Number(pet.report_id) : index + myPets.length + allReports.length + 1,
-            animal_id: pet.id ? Number(pet.id) : pet.pivot?.model_id ? Number(pet.pivot.model_id) : index + 1,
-            report_id: pet.report_id || `temp-${index + myPets.length + allReports.length + 1}`,
-            name: pet.name_en || "Unnamed Pet",
-            description: pet.desc || "No description provided",
-            image: pet.image
-              ? `${process.env.NEXT_PUBLIC_API_BASE_URL}/storage${pet.image.startsWith("/") ? pet.image : `/${pet.image}`}`
-              : "/assets/default-pet.jpg",
-            badgeType: (pet.report_type === 1 ? "Lost" : "Found") as "Lost" | "Found",
-            report_type: pet.report_type?.toString() || "1",
-            location: pet.location || "",
-            date: pet.report_date
-              ? new Date(pet.report_date).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })
-              : "N/A",
-            status: (pet.status === 2 ? "Reunited" : "Active") as "Active" | "Reunited",
-            reward: pet.reward || undefined,
-            breed_id: pet.breed_id?.toString() || "",
-            species: pet.species?.toString() || "",
-            sex: pet.sex?.toString() || "",
-            size: pet.size?.toString() || "",
-            distinguishing_features: pet.distinguishing_features || "",
-            date_lost: pet.date_lost || "",
-            nearest_address_last_seen: pet.nearest_address_last_seen || "",
-            date_found: pet.date_found || "",
-            where_pet_was_found: pet.where_pet_was_found || "",
-            condition: pet.condition?.toString() || "",
-            additional_details: pet.additional_details || "",
-            owner_name: pet.owner_name || "",
-            contact_email: pet.contact_email || "",
-            phone_number: pet.phone_number || "",
-          }))
+        ? (favoritesResponse.result ?? []).map((pet, index) => normalizePet(pet, index, myPets.length + allReports.length))
         : [];
 
       const combinedPets = [...myPets, ...allReports, ...favoritePets].reduce(
@@ -210,9 +160,33 @@ export default function Section2() {
   };
 
   useEffect(() => {
+    if (searchResults && searchResults.length > 0) {
+      setPetData(searchResults); // Update petData when searchResults change
+      const updatedSources = searchResults.reduce((acc, pet) => {
+        acc[pet.id] = pet.image;
+        return acc;
+      }, {} as { [key: number]: string });
+      setImageSources(updatedSources);
+    } else {
+      fetchPetData(); // Fallback to default fetch if no search results
+    }
+    setLoading(false);
+  }, [searchResults]);
+  
+  useEffect(() => {
     fetchFavorites();
-    fetchPetData();
-  }, []);
+    if (!searchResults) {
+      fetchPetData(); // Fetch default data only if no search results
+    } else {
+      setPetData(searchResults); // Use search results if provided
+      const initialSources = searchResults.reduce((acc, pet) => {
+        acc[pet.id] = pet.image;
+        return acc;
+      }, {} as { [key: number]: string });
+      setImageSources(initialSources);
+      setLoading(false);
+    }
+  }, [searchResults]);
 
   const toggleFavorite = async (e: React.MouseEvent, id: number) => {
     e.preventDefault();
@@ -251,6 +225,8 @@ export default function Section2() {
   const handleSeeMore = () => {
     setVisibleCount((prev) => prev + petsPerLoad);
   };
+
+  
 
   const visiblePets = petData.slice(0, visibleCount);
 

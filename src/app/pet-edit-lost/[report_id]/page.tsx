@@ -209,7 +209,7 @@ const EditLostReportPage = ({ params }: EditLostReportPageProps) => {
           pauseOnHover: true,
           draggable: true,
         });
-        setTimeout(() => router.push("/profile"), 1000);
+        setTimeout(() => router.push("/dashboard/profile"), 1000);
       } else {
         toast.error(`Failed to update report: ${response.message || "Unknown error"}`, {
           position: "top-right",

@@ -34,6 +34,7 @@ import { FoundPetFormData } from "context/petFoundType";
 import { toast } from "react-toastify";
 import StepOneFoundForm from "@component/found-pet-form/StepOneFoundForm";
 import { useAuthContext } from "context/auth-context/AuthContext";
+import { string } from "yup";
 
 interface SpeciesOption {
   value: string;
@@ -46,11 +47,32 @@ const mapContainerStyle = {
   height: "300px",
 };
 
+const validateImageUpload = (file: File | null, maxSizeMB: number = 5): boolean => {
+  if (!file) {
+    toast.error("Please select an image to upload");
+    return false;
+  }
+
+  const maxSizeBytes = maxSizeMB * 1024 * 1024;
+  
+  if (file.size > maxSizeBytes) {
+    toast.error(`Image size too large. Maximum allowed size is ${maxSizeMB}MB. Your file is ${(file.size / (1024 * 1024)).toFixed(2)}MB`);
+    return false;
+  }
+
+  const allowedTypes = ['image/jpeg', 'image/png', 'image/gif'];
+  if (!allowedTypes.includes(file.type)) {
+    toast.error("Invalid file type. Please upload JPG, PNG, or GIF images only");
+    return false;
+  }
+
+  return true; 
+};
+
 export default function ReportFoundPetForm() {
   const router = useRouter();
   const { status } = useAuthContext();
 
-  // Move all hooks to the top
   const [currentStep, setCurrentStep] = useState<number>(1);
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(false);
@@ -66,12 +88,12 @@ export default function ReportFoundPetForm() {
   } = useGoogleMap(process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || "");
   const [formData, setFormData] = useState<FoundPetFormData>({
     animal_name: "",
-    image_file: undefined,
+    image_file: undefined ,
     species: "",
-    breed_id: "",
+    breed_id: 0, // Changed from "" to 0
     color: "",
-    sex: "",
-    size: "",
+    sex: 0,
+    size: 0,
     date_found: "",
     condition: 0,
     distinguishing_features: "",
@@ -88,58 +110,22 @@ export default function ReportFoundPetForm() {
   const [breeds, setBreeds] = useState<any[]>([]);
   const [speciesOptions, setSpeciesOptions] = useState<SpeciesOption[]>([]);
 
-  // Auth check with redirect logic
-  useEffect(() => {
-    if (status !== "loggedIn") {
-      toast.error("Please log in to report a found pet.");
-      router.push("/login");
-    }
-  }, [status, router]);
-
-  // Fetch species on mount
-  useEffect(() => {
-    const fetchSpecies = async () => {
-      const result = await getSpecies();
-      if (result.success) setSpeciesData(result.result || {});
-    };
-    fetchSpecies();
-  }, []);
-
-  // Fetch breeds when species changes
-  useEffect(() => {
-    const fetchBreeds = async () => {
-      if (formData.species) {
-        const result = await getBreedsBySpecies(formData.species);
-        if (result.success) setBreedOptions(result.result);
-      }
-    };
-    fetchBreeds();
-  }, [formData.species]);
-
-  // Fetch breeds for dropdown
-  useEffect(() => {
-    const fetchBreeds = async () => {
-      if (formData.species) {
-        try {
-          const response = await getBreedsBySpecies(formData.species);
-          if (response.success && response.result) {
-            setBreeds(response.result);
-            console.log("Fetched breeds:", response.result);
-          } else {
-            setBreeds([]);
-          }
-        } catch (error) {
-          console.error("Failed to fetch breeds:", error);
-          setBreeds([]);
-        }
+  const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const files = event.target.files;
+    if (files && files.length > 0) {
+      const file = files[0];
+      if (validateImageUpload(file)) {
+        setFormData((prev) => ({
+          ...prev,
+          image_file: file,
+        }));
+        toast.success("Image uploaded successfully");
       } else {
-        setBreeds([]);
+        event.target.value = '';
       }
-    };
-    fetchBreeds();
-  }, [formData.species]);
+    }
+  };
 
-  // Input change handler
   const handleInputChange = (
     e: React.ChangeEvent<
       HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
@@ -176,16 +162,17 @@ export default function ReportFoundPetForm() {
     if (!formData.animal_name) validationErrors.push("Pet Name");
     if (!formData.species) validationErrors.push("Species");
     if (!formData.breed_id) validationErrors.push("Breed");
+    if (!formData.date_found) validationErrors.push("Date Found");
     if (!formData.your_name) validationErrors.push("Your Name");
     if (!formData.contact_email) validationErrors.push("Contact Email");
     if (!formData.phone_number) validationErrors.push("Phone Number");
+    if (formData.image_file && !validateImageUpload(formData.image_file)) {
+      validationErrors.push("Image");
+    }
 
     if (validationErrors.length > 0) {
-      const errorMessage = `Please fill in these required fields: ${validationErrors.join(
-        ", "
-      )}`;
-      console.error(errorMessage);
-      alert(errorMessage);
+      const errorMessage = `Please fill in these required fields: ${validationErrors.join(", ")}`;
+      toast.error(errorMessage);
       return;
     }
 
@@ -194,7 +181,7 @@ export default function ReportFoundPetForm() {
     try {
       Object.keys(formData).forEach((key) => {
         const value = formData[key as keyof FoundPetFormData];
-        if (value !== null && value !== "") {
+        if (value !== null && value !== "" && value !== 0) {
           if (key === "image_file" && value instanceof File) {
             submissionData.append(key, value, value.name);
           } else {
@@ -203,40 +190,26 @@ export default function ReportFoundPetForm() {
         }
       });
 
-      for (const [key, value] of Array.from(submissionData.entries())) {
-        console.log(`Submitting - Key: ${key}, Value:`, value);
-      }
-
       setIsSubmitting(true);
-
       const response = await CreaterReportFoundPetAction(submissionData);
-      console.log("response from api", response);
 
       if (response.success) {
-        toast.success("Report found pet Successfully created!");
+        toast.success("Report found pet successfully created!");
         router.push("/");
       } else {
-        console.error("Submission Error Details:", {
-          message: response.message,
-          errors: response.errors,
-        });
-        alert(response.message || "Submission failed");
+        toast.error(response.message || "Submission failed");
       }
     } catch (error) {
       console.error("Unexpected submission error:", error);
-      alert(
-        "An unexpected error occurred. Please check the console for details."
-      );
+      toast.error("An unexpected error occurred");
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  // Render content only if logged in
   if (status !== "loggedIn") {
-    return null; // Early return after hooks
+    return null;
   }
-
   const renderStepContent = () => {
     switch (currentStep) {
       case 1:
@@ -247,8 +220,10 @@ export default function ReportFoundPetForm() {
             onInputChange={handleInputChange}
             nextStep={nextStep}
             speciesOptions={speciesOptions}
-            onSpeciesChange={undefined}
-            onImageUpload={undefined}
+            onSpeciesChange={(species: string) => 
+              setFormData((prev) => ({ ...prev, species }))
+            }
+            onImageUpload={handleImageUpload}
           />
         );
 
